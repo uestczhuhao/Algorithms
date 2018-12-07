@@ -7,7 +7,7 @@ public class _11ContainerWithMostWater {
      * 移动height较小的那个指针，因为否则area会越来越小，不会有增加的可能
      * 在移动的过程中记录area，和maxArea对比，直到指针碰撞
      *
-     * @param height
+     * @param height 高度数组
      * @return
      */
     public int maxArea(int[] height) {
