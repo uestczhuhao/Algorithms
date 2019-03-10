@@ -21,7 +21,7 @@ public class Method2TraverseTrees {
         right2.left = right21;
         right2.right = right22;
         ArrayList<TreeNode> res =  new ArrayList<TreeNode>();
-        res = posOrderNoRecur(root);
+        res = posOrderNoRecur1(root);
         printTreeNodeList(res);
 //        printTree(root);
     }
@@ -123,8 +123,8 @@ public class Method2TraverseTrees {
 
     /**
      * 直接法：先遍历至树的最左端，并入栈
-     * 对栈顶元素判断，若其右子树不为空且未被访问过，
-     * 则右子树入栈，入栈方式依然是遍历至其最左端
+     * 对栈顶元素判断，若其右孩子不为空且未被访问过，
+     * 则右孩子入栈，入栈方式依然是遍历至其最左端
      *
      * 否则栈顶元素出栈，并记录
      * @param root
@@ -138,11 +138,11 @@ public class Method2TraverseTrees {
         }
         Stack<TreeNode> stack = new Stack<>();
         TreeNode curNode = root;
-        // 上次访问的节点，主要用于记录根节点弹出之前，其右子树是否已经弹出
-        // 如果弹出，则证明其右子树都已输出
+        // 上次访问的节点，主要用于记录根节点弹出之前，其右孩子是否已经弹出
+        // 如果弹出，则证明其右孩子都已输出
         TreeNode lastVisit = null;
 
-        // 当前节点置于最左子树的最下方
+        // 当前节点置于最左孩子的最下方
         while (curNode != null){
             stack.push(curNode);
             curNode = curNode.left;
@@ -161,6 +161,46 @@ public class Method2TraverseTrees {
                 stack.pop();
                 list.add(curNode);
                 lastVisit = curNode;
+            }
+        }
+
+        return list;
+    }
+
+    /**
+     * 考虑栈顶元素是否能被访问
+     * 1. 左右孩子都为空，则可以访问
+     * 2. 右孩子为空，左孩子刚被访问过，可以访问
+     * 3. 右孩子不为空，且刚被访问过，可以访问
+     *
+     * 其余情况只需将节点的右孩子和左孩子依次入栈
+     * @param root
+     * @return
+     */
+    public static ArrayList<TreeNode> posOrderNoRecur1(TreeNode root) {
+        ArrayList<TreeNode> list = new ArrayList<>();
+
+        if (root == null){
+            return list;
+        }
+        Stack<TreeNode> stack = new Stack<>();
+        stack.push(root);
+        TreeNode lastVisit = null;
+        while (!stack.isEmpty()){
+            TreeNode currNode = stack.peek();
+            if ((currNode.right == null && currNode.left == null) ||
+                    (currNode.right == null && currNode.left == lastVisit) ||
+                    (currNode.right != null && currNode.right == lastVisit)){
+                currNode = stack.pop();
+                list.add(currNode);
+                lastVisit = currNode;
+            } else {
+                if (currNode.right != null){
+                    stack.push(currNode.right);
+                }
+                if (currNode.left != null){
+                    stack.push(currNode.left);
+                }
             }
         }
 
