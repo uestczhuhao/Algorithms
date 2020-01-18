@@ -51,6 +51,7 @@ public class MergeSort {
         temp = Arrays.copyOf(nums, nums.length);
         int len = nums.length;
         for (int gap = 1; gap < len; gap *= 2) {
+            // i < len - gap 是为了保证剩余的长度能做merge
             for (int i = 0; i < len - gap; i += (2 * gap)) {
                 doMerge(nums, i, i + gap - 1, Math.min(i + 2 * gap - 1, len - 1));
             }
