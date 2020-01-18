@@ -11,19 +11,21 @@ public class MergeSort {
     private static int[] temp;
 
     public static void main(String[] args) {
-        int[] arr = {4, 5, 12, 3, 1, 2};
-        down2UpMergeSort(arr);
-        System.out.println(Arrays.toString(arr));
+        int[] nums = {4, 5, 12, 3, 1, 2};
+        mergeSort(nums);
+//        down2UpMergeSort(nums);
+        System.out.println(Arrays.toString(nums));
     }
 
     /**
      * 递归版
      */
-    static void mergeSort(int[] nums, int low, int high) {
+    static void mergeSort(int[] nums) {
         if (nums.length <= 1) {
             return;
         }
-        temp = Arrays.copyOf(nums, nums.length - 1);
+        temp = Arrays.copyOf(nums, nums.length);
+        doMergeSort(nums, 0, nums.length - 1);
 
     }
 
@@ -36,7 +38,7 @@ public class MergeSort {
         doMergeSort(nums, mid + 1, high);
         // 提升，左边的数组已经小于右边，则不需要排序
         // 比较次数为线性
-        if (mid +1 < nums.length && nums[mid] <= nums[mid+1]) {
+        if (mid + 1 < nums.length && nums[mid] <= nums[mid + 1]) {
             return;
         }
         doMerge(nums, low, mid, high);
@@ -56,6 +58,7 @@ public class MergeSort {
     }
 
     static void doMerge(int[] nums, int low, int mid, int high) {
+        System.arraycopy(nums, low, temp, low, high - low + 1);
         int i = low, j = mid + 1;
         int k = low;
         while (i <= mid && j <= high) {
