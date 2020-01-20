@@ -24,7 +24,7 @@ public class _560SubArrayKNum {
     public static void main(String[] args) {
 //        int[] nums = {1,2,3};
         int[] nums = {0,0,0,0,0,0,0,0,0,0};
-        System.out.println(subarraySum(nums, 3));
+        System.out.println(subarraySum(nums, 0));
     }
 
     public static int subarraySum(int[] nums, int k) {
@@ -46,7 +46,7 @@ public class _560SubArrayKNum {
         Map<Integer, Integer> sumNumMap = new HashMap<>();
         for (int i = 0; i < inputLength; i++) {
             int iThSum = sumArrayFromHead[i];
-            // 补偿
+            // 补偿，防止 iThSum == k && iThSum - k的情况出现漏判
             if (iThSum == k) {
                 targetNum++;
             }
@@ -54,11 +54,7 @@ public class _560SubArrayKNum {
             targetNum += sumNumMap.getOrDefault(iThSum - k, 0);
 
             // 先处理第i个sum值，再将其放入map
-            if (sumNumMap.containsKey(iThSum)) {
-                sumNumMap.put(iThSum, sumNumMap.get(iThSum) + 1);
-            } else {
-                sumNumMap.put(iThSum, 1);
-            }
+            sumNumMap.put(iThSum, sumNumMap.getOrDefault(iThSum, 0) + 1);
         }
         return targetNum;
     }
