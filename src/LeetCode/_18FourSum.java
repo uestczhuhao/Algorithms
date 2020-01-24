@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class _18_4Sum {
+public class _18FourSum {
 
 
     public static void main(String[] args) {
