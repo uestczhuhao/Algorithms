@@ -21,6 +21,11 @@ public class _44TrappingRainWater {
     /**
      * 对某个位置而言，取左边和右边的最大值leftHeight和rightHeight
      * 取min(leftHeight, rightHeight) - h(i)，累加即可
+     *
+     * 双指针法，保存left，right和左侧最大值（目前为止）leftHeight和右侧最大值（目前为止）
+     * 若leftHeight <= rightHeight，则对当前left，可以计算当前位置盛水量
+     * 因为当前的leftHeight是真实值，rightHeight不一定，但是min(leftHeight, rightHeight) = leftHeight可以确定
+     * 反之，可以计算right位置当前盛水量
      */
     public static int trap(int[] height) {
         if (null == height || height.length == 0) {
