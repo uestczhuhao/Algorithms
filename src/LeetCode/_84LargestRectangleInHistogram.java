@@ -19,12 +19,22 @@ import java.util.LinkedList;
  */
 public class _84LargestRectangleInHistogram {
     public static void main(String[] args) {
-        int[] height = {2, 1, 5, 6, 2, 3};
+//        int[] height = {2, 1, 5, 6, 2, 3};
+        int[] height = {4, 5, 6, 3};
 //        int[] height = {2, 4, 6, 8, 100};
         System.out.println(largestRectangleArea(height));
 //        System.out.println(test1(height));
     }
 
+    /**
+     * 本质是向右扩展，栈中存放的数据为递增的矩形，遇到一个较小值，则左边的较大值向右扩展至i
+     * 如：把4  5  6依次放入栈，遇到3时，依次弹出6  5  4，计算面积为6（6*1）,10（5*2）和12（4*3）
+     *
+     * leftNeighbor为左边界的左邻居，rightNeighbor = i，为右边界的右邻居
+     * 矩形宽度为rightNeighbor - leftNeighbor -1
+     * 1. 当栈为空时，leftNeighbor记为-1，矩形长度为i
+     * 2. 当数组遍历完成时，右边界为len-1，矩形长度为heights.length - leftNeighbor - 1
+     */
     public static int largestRectangleArea(int[] heights) {
         LinkedList<Integer> stack = new LinkedList<>();
         int maxArea = 0;
