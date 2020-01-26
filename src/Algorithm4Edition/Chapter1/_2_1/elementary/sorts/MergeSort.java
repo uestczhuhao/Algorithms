@@ -63,7 +63,7 @@ public class MergeSort {
         int i = low, j = mid + 1;
         int k = low;
         while (i <= mid && j <= high) {
-            if (temp[i] < temp[j]) {
+            if (temp[i] <= temp[j]) {
                 nums[k++] = temp[i++];
             } else {
                 nums[k++] = temp[j++];
