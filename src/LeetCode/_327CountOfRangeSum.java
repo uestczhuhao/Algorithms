@@ -16,7 +16,7 @@ package LeetCode;
  * 解释: 3个区间分别是: [0,0], [2,2], [0,2]，它们表示的和分别为: -2, -1, 2。
  */
 public class _327CountOfRangeSum {
-    public static long[] temp;
+    public static long[] assistSums;
 
     public static void main(String[] args) {
 //        int[] nums = {-2, 5, -1};
@@ -26,9 +26,6 @@ public class _327CountOfRangeSum {
     }
 
     /**
-     * 解法：
-     * 1. 先计算前i项和数组sums，注意sums是long类型，以免越界（有大数的测试用例）
-     * 2. [i,j] 中的元素值在目标中（low <= k <= upper, i <= k <=），当且仅当
      *
      * @param lower 下限值
      * @param upper 上限值
@@ -38,7 +35,7 @@ public class _327CountOfRangeSum {
             return 0;
         }
 
-        temp = new long[nums.length];
+        assistSums = new long[nums.length];
         // 求出数组的前i项和，对和数组进行归并排序
         long[] sums = new long[nums.length];
         sums[0] = nums[0];
@@ -48,6 +45,9 @@ public class _327CountOfRangeSum {
         return mergeSortWithCount(sums, 0, nums.length - 1, lower, upper);
     }
 
+    /**
+     * 递归版归并排序，顺便求解在指定区间内的元素数量
+     */
     public static int mergeSortWithCount(long[] sums, int start, int end, int lower, int upper) {
         if (start > end) {
             return 0;
@@ -64,44 +64,53 @@ public class _327CountOfRangeSum {
         return leftCount + rightCount + doMergeWithCount(sums, start, mid, end, lower, upper);
     }
 
+    /**
+     * 解法：
+     * 1. 先计算前i项和数组sums，注意sums是long类型，以免越界（有大数的测试用例）
+     * 2. 考虑利用归并排序，每次merge的阶段，左边数组[start,mid]和右边数组[mid+1,end]
+     * 3. 对左边的每个候选值i，找出右边数组中候选值low和up，满足lower <= sums[low] - sums[i]和sums[up] - sums[i] > upper
+     *    其中low和up为满足上诉不等式的第一个候选值
+     * 4. up - low即为候选值i满足要求的个数
+     */
     public static int doMergeWithCount(long[] sums, int start, int mid, int end, int lower, int upper) {
-        System.arraycopy(sums, start, temp, start, end - start + 1);
+        System.arraycopy(sums, start, assistSums, start, end - start + 1);
 
-        int i = start, j = mid + 1;
-        int k = start;
+        // 合并的左右数组指针
+        int left = start, right = mid + 1;
+        // 合并后的数组指针
+        int merge = start;
 
-        int left = start;
+        int leftAssist = start;
         int low = mid + 1, up = mid + 1;
         int count = 0;
 
-        while (left <= mid) {
+        while (leftAssist <= mid) {
 
-            while (low <= end && temp[low] - temp[left] < lower) {
+            while (low <= end && assistSums[low] - assistSums[leftAssist] < lower) {
                 low++;
             }
-            while (up <= end && temp[up] - temp[left] <= upper) {
+            while (up <= end && assistSums[up] - assistSums[leftAssist] <= upper) {
                 up++;
             }
-//            System.out.println("low = " + low + " up = " + up);
             count += up - low;
-            left++;
+            leftAssist++;
         }
 
-        while (i <= mid && j <= end) {
+        while (left <= mid && right <= end) {
 
-            if (temp[i] <= temp[j]) {
-                sums[k++] = temp[i++];
+            if (assistSums[left] <= assistSums[right]) {
+                sums[merge++] = assistSums[left++];
             } else {
-                sums[k++] = temp[j++];
+                sums[merge++] = assistSums[right++];
             }
         }
 
-        while (i <= mid) {
-            sums[k++] = temp[i++];
+        while (left <= mid) {
+            sums[merge++] = assistSums[left++];
         }
 
-        while (j <= end) {
-            sums[k++] = temp[j++];
+        while (right <= end) {
+            sums[merge++] = assistSums[right++];
         }
 
         return count;
