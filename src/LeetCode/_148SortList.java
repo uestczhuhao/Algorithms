@@ -22,16 +22,17 @@ public class _148SortList {
 //        ListNode second = new ListNode(1);
         ListNode second = new ListNode(1);
 //        ListNode third = new ListNode(2);
+        ListNode third = new ListNode(3);
         ListNode third1 = new ListNode(40);
         ListNode third2 = new ListNode(5);
-        ListNode third = new ListNode(3);
         head.next = first;
         first.next = second;
         second.next = third;
         third.next = third1;
         third1.next = third2;
         _148SortList t = new _148SortList();
-        ListNode newHead = t.sortList(head);
+//        ListNode newHead = t.sortList(head);
+        ListNode newHead = t.sortList1(head);
 //        t.merge2List(head,  second, third1);
         print(newHead);
 //        System.out.println(newHead);
@@ -44,6 +45,35 @@ public class _148SortList {
         }
     }
 
+    public ListNode sortList1(ListNode head) {
+        if (null == head || head.next == null) {
+            return head;
+        }
+
+        ListNode rightHead = cutHalf(head);
+        ListNode leftHead = sortList1(head);
+        rightHead = sortList1(rightHead);
+
+        return merge2List(leftHead, rightHead);
+    }
+
+    private ListNode cutHalf(ListNode head) {
+        if (head.next == null) {
+            return head;
+        }
+
+        ListNode slow = head, fast = head.next;
+        while (fast != null) {
+            fast = fast.next;
+            if (fast != null) {
+                slow = slow.next;
+                fast = fast.next;
+            }
+        }
+        ListNode result = slow.next;
+        slow.next = null;
+        return result;
+    }
     /**
      * 采用非递归版的归并排序
      * 1. 先断开，再连上
