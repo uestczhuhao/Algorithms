@@ -46,6 +46,10 @@ public class _148SortList {
 
     /**
      * 采用非递归版的归并排序
+     * 1. 先断开，再连上
+     * 2. 每一轮进行前，要记录本轮之后的节点，
+     * 如：4 -> 3 -> 2 -> 1 -> 5，在merge 2->1 时，要记录5，merge完成后把5 接到后面
+     * 3. 记录上一轮的最终节点lastRoundLast，下一轮merge完成后，将本轮头节点thisRoundHead接到lastRoundLast后面
      */
     public ListNode sortList(ListNode head) {
         if (null == head || head.next == null) {
@@ -93,7 +97,7 @@ public class _148SortList {
                 }
                 // 本轮的末节点和下一轮的头结点联合起来
                 thisRoundLast.next = current;
-                // 本轮的末节点赋值给上一轮的末节点
+                // 记录本轮的末节点，用于连接下一轮merge后的新头节点
                 lastRoundLast = thisRoundLast;
             }
 
