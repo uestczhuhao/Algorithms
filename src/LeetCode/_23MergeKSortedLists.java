@@ -2,6 +2,20 @@ package LeetCode;
 
 import java.util.PriorityQueue;
 
+/**
+ * 合并 k 个排序链表，返回合并后的排序链表。请分析和描述算法的复杂度。
+ *
+ * 示例:
+ *
+ * 输入:
+ * [
+ *   1->4->5,
+ *   1->3->4,
+ *   2->6
+ * ]
+ * 输出: 1->1->2->3->4->4->5->6
+ *
+ */
 public class _23MergeKSortedLists {
     public static void main(String[] args) {
         ListNode head1 = new ListNode(1);
@@ -20,7 +34,11 @@ public class _23MergeKSortedLists {
         System.out.println();
     }
 
+    /**
+     * 非递归版，借助优先队列，一个个放进，再一个个取出
+     */
     static public ListNode mergeKLists(ListNode[] lists) {
+
         if (lists == null || lists.length == 0){
             return null;
         }
@@ -45,8 +63,6 @@ public class _23MergeKSortedLists {
     /**
      * 递归解法，归并排序思想
      * 将lists两两合并，直到全部合并成一个
-     * @param lists
-     * @return
      */
     static public ListNode mergeKListsRecur(ListNode[] lists) {
         if (lists == null || lists.length == 0){
