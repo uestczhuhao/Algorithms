@@ -50,6 +50,10 @@ public class _295FindMedianFromDataStream {
 
     class MedianFinder {
 
+        /**
+         * 采用双堆法，一个大顶堆存放较小的一半数，一个小顶堆存放较大的一半数
+         * 注意：大顶堆的规模小于等于小顶堆，但规模最多差1（当size为奇数时）
+         */
         private PriorityQueue<Integer> largerMinHeap;
         private PriorityQueue<Integer> smallerMaxHeap;
         private int size;
