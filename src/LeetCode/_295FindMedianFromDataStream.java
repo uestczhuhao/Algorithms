@@ -90,6 +90,11 @@ public class _295FindMedianFromDataStream {
                 adjustHeap();
             }
             size ++;
+            // 方法2，代码更简洁，但更耗时，理由是比较比log(n) 的offer+poll更快
+//            largerMinHeap.offer(num);
+//            smallerMaxHeap.offer(largerMinHeap.poll());
+//            adjustHeap();
+//            size ++;
         }
 
         private void adjustHeap() {
