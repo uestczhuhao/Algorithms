@@ -25,8 +25,8 @@ package LeetCode;
 public class _4MedianOfTwoSortedArrays {
     public static void main(String[] args) {
         _4MedianOfTwoSortedArrays t = new _4MedianOfTwoSortedArrays();
-        int[] nums1 = {1,3};
-        int[] nums2 = {2};
+        int[] nums1 = {1,2,3};
+        int[] nums2 = {4,5,6,7};
         System.out.println(t.findMedianSortedArrays(nums1, nums2));
     }
 
@@ -55,6 +55,9 @@ public class _4MedianOfTwoSortedArrays {
 
         int start = 0, end = shortLen;
         int halfLen = (shortLen + longLen + 1) / 2;
+        // 注意是小于等于，而不是小于，原因是在边界情况发生时，最后的终止条件（其中一种）为start=end=shortLen
+        // 例： [1,2,3] 和 [4,5,6,7]找中位数
+        // 如果是小于，则上诉例子没有机会进入else分之，也就无法输出正确结果
         while (start <= end) {
             int shortMid = (start + end) / 2;
             // 保证较短的数组的中位数和较大数组的中位数之和是数组长度之和的一半
@@ -100,6 +103,8 @@ public class _4MedianOfTwoSortedArrays {
                     leftMax = Math.max(shortNums[shortMid - 1], longNums[longMid - 1]);
                 }
 
+                // 注意：如果数组长度之和为奇数，halfLen位于中位数的后面一位（halfLen = (shortLen + longLen + 1) / 2），
+                // 因此其左边紧挨着的较大值即为中位数
                 if ((shortLen + longLen) % 2 == 1) {
                     return leftMax;
                 }
