@@ -84,6 +84,7 @@ public class _315CountOfSmallerNumbersAfterSelf {
         int left = low, right = mid + 1;
         int mergeResult = low;
         while (left <= mid && right <= high) {
+            // 注意：这里是小于等于，如果是小于，对于[-2 -1 2] 和 [1 2 3]的情况，前置数组统计最后一个2时会多一个
             if (nums[assist[left]] <= nums[assist[right]]) {
                 // 每次前置数组出列时，记录数量，数量为后置数组已经出列的个数
                 // 例如前置：[2 5 6 7] 后置：[1 3 4 8]中2出列时，右侧只有1出列，数量为1
