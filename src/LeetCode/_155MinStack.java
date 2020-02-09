@@ -35,6 +35,14 @@ public class _155MinStack {
         stack.pop();
     }
 
+    /**
+     * 采用两个栈，一个存数据，一个存最小值
+     * 1. 新数据来时，数据栈压如，最小值栈比较新数据和栈顶，
+     *    若新数据更小，则压如新数据；否则压入此时的栈顶元素
+     * 2. 弹出时两个栈都弹出即可
+     * 3. getMin返回最小值，即为最小值栈顶
+     * 4. top即为数据栈顶
+     */
     class MinStack {
 
         private LinkedList<Integer> dataStack = new LinkedList<>();
