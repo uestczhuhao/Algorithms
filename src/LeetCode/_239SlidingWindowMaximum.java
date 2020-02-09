@@ -72,7 +72,7 @@ public class _239SlidingWindowMaximum {
         return result;
     }
 
-    public void addAndCleanDeque(int[] nums, int index, int k) {
+    private void addAndCleanDeque(int[] nums, int index, int k) {
         // 删除下标越界的元素
         while (!maxIndexDeque.isEmpty() && maxIndexDeque.getFirst() <= index-k) {
             maxIndexDeque.removeFirst();
