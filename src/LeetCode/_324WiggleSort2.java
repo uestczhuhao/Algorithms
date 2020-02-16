@@ -32,7 +32,7 @@ public class _324WiggleSort2 {
     /**
      * 1. 先找到数组的中位数mid，借助快排的partition
      * 2. 通过3-way-partition，把数组分为三部分a b c，其中a中元素比mid小，b中与mid相等，c中比mid大
-     * 3. 插空重排原数组
+     * 3. 插空重排原数组，注意是逆序插空，否则，如果中位数个数太多，还是容易出现中位数相邻的情况
      */
     public void wiggleSort(int[] nums) {
         if (null == nums || nums.length == 0) {
