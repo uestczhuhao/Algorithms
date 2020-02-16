@@ -22,18 +22,15 @@ import java.util.*;
  */
 public class _347TopKFrequentElements {
     public static void main(String[] args) {
-//        int[] nums = {1,1,1,2,2,3};
-        int[] nums = {1};
+        int[] nums = {1,1,1,1,1,3};
+//        int[] nums = {1};
         System.out.println(topKFrequent(nums,1));
     }
 
     /**
      * 先遍历一次数组，将元素 -> 出现次数放入map
-     * 再遍历map，找出前k个
+     * 再将map放入优先队列中（小的在前，因为队列先进先出），保留前k项，就是所求的结果
      *
-     * @param nums
-     * @param k
-     * @return
      */
     public static List<Integer> topKFrequent(int[] nums, int k) {
         if (null == nums || nums.length == 0 || k> nums.length) {
@@ -51,7 +48,6 @@ public class _347TopKFrequentElements {
                 return o1.getValue() - o2.getValue();
             }
         });
-        Map<Integer, Integer> assistMap = new HashMap<>(numFreqMap);
         for (Map.Entry<Integer, Integer> numFre : numFreqMap.entrySet()) {
             heap.add(numFre);
             while (heap.size() > k) {
