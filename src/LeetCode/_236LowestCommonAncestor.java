@@ -45,7 +45,7 @@ public class _236LowestCommonAncestor {
     public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
         lowestCommonTarget = root;
         if (null == root) {
-            return lowestCommonTarget;
+            return null;
         }
 
         doFindLowestCommonAncestor(root, p, q);
@@ -101,11 +101,13 @@ public class _236LowestCommonAncestor {
             }
         }
         Set<TreeNode> parentSet = new HashSet<>();
+        // p先遍历到根节点，把路径记录下来
         while (p != null) {
             parentSet.add(p);
             p = nodeParentMap.get(p);
         }
 
+        // q再遍历，当此路径和p的遍历路径第一次相交时，交点即为最低公共祖先
         while (!parentSet.contains(q)) {
             q = nodeParentMap.get(q);
         }
