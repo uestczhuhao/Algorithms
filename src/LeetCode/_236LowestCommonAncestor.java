@@ -57,6 +57,7 @@ public class _236LowestCommonAncestor {
             return false;
         }
 
+
         // 当前节点是否为p或q
         int cur = currentNode.val == p.val || currentNode.val == q.val ? 1 : 0;
 
