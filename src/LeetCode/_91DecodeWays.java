@@ -25,9 +25,9 @@ package LeetCode;
  */
 public class _91DecodeWays {
     public static void main(String[] args) {
-        String s = "12";
+        String s = "1";
         _91DecodeWays t = new _91DecodeWays();
-        System.out.println(t.numDecodings(s));
+        System.out.println(t.numDecodings1(s));
     }
 
     /**
@@ -44,6 +44,7 @@ public class _91DecodeWays {
         }
         int len = s.length();
         int[] numDecodingArr = new int[len + 1];
+        // 没有字符也算是一种可能，用于哨兵
         numDecodingArr[0] = 1;
         char firstChar = s.charAt(0);
         if (firstChar >= '1' && firstChar <= '9') {
@@ -51,6 +52,7 @@ public class _91DecodeWays {
         } else {
             numDecodingArr[1] = 0;
         }
+        // 从第二个字符以后开始统一处理
         for (int i = 2; i <= s.length(); i++) {
             char ithChar = s.charAt(i - 1);
             if (ithChar >= '0' && ithChar <= '9') {
@@ -69,5 +71,42 @@ public class _91DecodeWays {
         }
 
         return numDecodingArr[len];
+    }
+
+    /**
+     * 空间复杂度降为O(1)
+     */
+    public int numDecodings1(String s) {
+        if (null == s || s.length() == 0) {
+            return 0;
+        }
+        int previous = 0;
+        // 没有字符也算是一种可能，用于哨兵
+        int prePrevious = 1;
+        char firstChar = s.charAt(0);
+        if (firstChar >= '1' && firstChar <= '9') {
+            previous = 1;
+        }
+
+        int result = previous;
+        // 从第二个字符以后开始统一处理
+        for (int i = 2; i <= s.length(); i++) {
+            result = 0;
+            char ithChar = s.charAt(i - 1);
+            if (ithChar >= '0' && ithChar <= '9') {
+                if (ithChar != '0') {
+                    result += previous;
+                }
+                char beforeIthChar = s.charAt(i - 2);
+                boolean mergeCoding = beforeIthChar == '1' || (beforeIthChar == '2' && ithChar <= '6');
+                if (mergeCoding) {
+                    result += prePrevious;
+                }
+            }
+            prePrevious = previous;
+            previous = result;
+        }
+
+        return result;
     }
 }
