@@ -30,8 +30,9 @@ public class _461PartitionEqualSubsetSum {
 
     public static void main(String[] args) {
         _461PartitionEqualSubsetSum t = new _461PartitionEqualSubsetSum();
-        int[] nums = {1, 5, 11, 6};
+        int[] nums = {1, 5, 11, 5};
         System.out.println(t.canPartition(nums));
+        System.out.println(t.canPartition1(nums));
     }
 
     /**
@@ -78,4 +79,43 @@ public class _461PartitionEqualSubsetSum {
 
         return dp[nums.length - 1][target];
     }
+
+    /**
+     * 缩减到一维数组
+     */
+    public boolean canPartition1(int[] nums) {
+        if (null == nums || nums.length == 0) {
+            return false;
+        }
+
+        int sum = 0;
+        for (int num : nums) {
+            sum += num;
+        }
+        if (sum % 2 == 1) {
+            return false;
+        }
+
+        int target = sum / 2;
+        // 二维数组缩减为一维
+        // 其含义和上面函数一样
+        boolean[] dp = new boolean[target];
+        dp[0] = true;
+        for (int num : nums) {
+            // 当遍历到数num时，若target - num 为真，代表前面的数和为target - num
+            // 加上num，正好和为target，可以直接返回true
+            if (target >= num && dp[target - num]) {
+                return true;
+            }
+            // 上面的if分支已经讨论了dp[target]的情况，这里可以安全的跳过
+            // 此处必须从后往前，因为随着num的加入，求和结果会更大，所以前面的不会被覆盖
+            for (int i = target - num - 1; i >= 0; i--) {
+                if (dp[i]) {
+                    dp[i + num] = true;
+                }
+            }
+        }
+        return false;
+    }
+
 }
