@@ -8,7 +8,7 @@ import java.util.Scanner;
  * @author mizhu
  * @date 20-3-15 上午11:13
  */
-public class _3MultiKnapsackI {
+public class _5MultiKnapsackI {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         int itemNum = 0, totalVolume = 0;
