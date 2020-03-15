@@ -32,10 +32,10 @@ public class _1ZeroOneKnapsack {
             weights[i] = Integer.parseInt(otherInputs[1]);
             i++;
         }
-        System.out.println(maxVlue(itemNum, totalVloume, volumes, weights));
+        System.out.println(maxValue(itemNum, totalVloume, volumes, weights));
     }
 
-    private static int maxVlue(int itemNum, int totalVolume, int[] volumes, int[] weights) {
+    private static int maxValue(int itemNum, int totalVolume, int[] volumes, int[] weights) {
         if (itemNum <= 0 || totalVolume <= 0) {
             return 0;
         }
