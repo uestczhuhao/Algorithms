@@ -182,7 +182,6 @@ public class _1143LongestCommonSubsequence {
                 }
             }
 
-//            System.out.println(Arrays.toString(now));
         }
 
         return now[len2-1];
