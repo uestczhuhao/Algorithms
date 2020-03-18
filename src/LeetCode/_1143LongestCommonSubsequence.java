@@ -40,13 +40,13 @@ import java.util.Arrays;
 public class _1143LongestCommonSubsequence {
     public static void main(String[] args) {
         _1143LongestCommonSubsequence t = new _1143LongestCommonSubsequence();
-//        String text1 = "012";
+//        String text1 = "ace";
         String text1 = "hofubmnylkra";
 //        String text1 =  "pmjghexybyrgzczy";
-        String text2 = "hafcdqbgncrcbihkd";
-//        String text2 = "pqhgxgdofcvmr";
-//        String text2 = "12";
-        System.out.println(t.longestCommonSubsequence2(text1, text2));
+//        String text2 = "hafcdqbgncrcbihkd";
+        String text2 = "pqhgxgdofcvmr";
+//        String text2 = "abcde";
+        System.out.println(t.longestCommonSubsequence3(text1, text2));
     }
 
     /**
@@ -151,4 +151,41 @@ public class _1143LongestCommonSubsequence {
 
         return now[len2];
     }
+
+    /**
+     * 二维数组提升为一维，并不多申请
+     */
+    public int longestCommonSubsequence3(String text1, String text2) {
+        if (null == text1 || null == text2
+                || text1.length() == 0 || text2.length() == 0) {
+            return 0;
+        }
+
+        int len1 = text1.length();
+        int len2 = text2.length();
+        int[] now = new int[len2];
+        int[] prev = new int[len2];
+
+        for (int i = 0; i < len1; i++) {
+            int[] tmp = now;
+            now = prev;
+            prev = tmp;
+            if (text1.charAt(i) == text2.charAt(0)) {
+                now[0] = 1;
+            }
+            now[0] = Math.max(now[0], prev[0]);
+            for (int j = 1; j <len2; j++) {
+                if (text1.charAt(i) == text2.charAt(j)) {
+                    now[j] = prev[j - 1] + 1;
+                } else {
+                    now[j] = Math.max(now[j - 1], prev[j]);
+                }
+            }
+
+//            System.out.println(Arrays.toString(now));
+        }
+
+        return now[len2-1];
+    }
 }
+
