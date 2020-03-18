@@ -133,17 +133,8 @@ public class _1143LongestCommonSubsequence {
 
         int len1 = text1.length();
         int len2 = text2.length();
-        int[] now = new int[len2];
-        int[] prev = new int[len2];
-
-        for (int i = 0; i < len2; i++) {
-            if (text1.charAt(0) == text2.charAt(i)) {
-                now[i] = 1;
-            } else {
-                now[i] = now[i-1];
-            }
-        }
-
+        int[] now = new int[len2 + 1];
+        int[] prev = new int[len2 + 1];
 
         for (int i = 1; i <= len1; i++) {
             int[] tmp = now;
