@@ -34,7 +34,9 @@ public class _12SpecialKnapsack {
         int[][] maxWeight = new int[itemNum + 1][totalVolume + 1];
         for (int i = itemNum - 1; i >= 0; i--) {
             for (int j = totalVolume; j >= 0; j--) {
-                // TODO：此处待想明白
+                // 因为要记录路径，所以此处采用二维数组
+                // 与一维数组不同的是，第i行第二维数组的0～volumes[i] - 1处初始化为0，所以需要手动复制这部分内容
+                // 而一维数组是从i-1处继承过来的，因此从volumes[i]处往后更新是安全的
                 maxWeight[i][j] = maxWeight[i+1][j];
                 if (j >= volumes[i]) {
                     maxWeight[i][j] = Math.max(maxWeight[i][j], maxWeight[i + 1][j - volumes[i]] + weights[i]);
