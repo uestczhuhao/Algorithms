@@ -82,6 +82,7 @@ public class _2373DividingThePath {
             if (!cowRange[i]) {
                 while (!helpers.isEmpty()) {
                     Helper current = helpers.peek();
+                    // 把越界的删除，剩下的就是合法范围内的，按照从小到达顺序排列的helper了
                     if (current.index < i - 2 * maxCover) {
                         helpers.poll();
                     } else {
@@ -92,8 +93,10 @@ public class _2373DividingThePath {
                     dp[i] = helpers.peek().spNum + 1;
                 }
             }
-            if (dp[i - 2*minCover + 2] != INF) {
-                helpers.add(new Helper(i - 2*minCover + 2, dp[i - 2*minCover + 2]));
+            // 下一轮开始位置能触及的最大index值，加入队列
+            // 此时队列中的值为i - 2*maxCover ~ i - 2*minCover 中，以喷头数量从小到达排列的值
+            if (dp[i - 2 * minCover + 2] != INF) {
+                helpers.add(new Helper(i - 2 * minCover + 2, dp[i - 2 * minCover + 2]));
             }
         }
 
