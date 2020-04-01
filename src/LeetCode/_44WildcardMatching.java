@@ -1,5 +1,7 @@
 package LeetCode;
 
+import java.util.Arrays;
+
 /**
  * @author mizhu
  * @date 2020/4/1 21:13
@@ -59,12 +61,13 @@ public class _44WildcardMatching {
      * 动态规划，dp[i][j] 为s的前i个字符和p的前j个字符是否匹配
      * <p>
      * 1. 如果p[i] == '*'，'*'可以代表0，1，2，3...个任意字符，因此
-     * 0个字符，直接跳过
+     * 0个字符，d[i][j] = dp[i][j-1]，即直接不考虑p[j]
      * 1个字符，d[i][j] = dp[i-1][j]
      * 2个字符，d[i][j] = dp[i-2][j]
      * .....
+     * 上诉的结果，有一个为真，则dp[i][j]就为真
      * <p>
-     * 2. 如果p[i] == '?'，'?'可以代表任意一个字符，因此d[i][j] = dp[i-1][j]
+     * 2. 如果p[i] == '?'，'?'可以代表任意一个字符，因此d[i][j] = dp[i-1][j-1]
      * <p>
      * 3. 其余情况，d[i][j] = dp[i-1][j-1] && s[i] == p[j]
      */
@@ -86,6 +89,7 @@ public class _44WildcardMatching {
                 if (ch == '*') {
                     dp[sIndex][pIndex] = dp[sIndex - 1][pIndex] || dp[sIndex][pIndex - 1];
                 } else if (ch == '?' || s.charAt(sIndex - 1) == ch) {
+                    // 情况2和3合并成一种
                     dp[sIndex][pIndex] = dp[sIndex - 1][pIndex - 1];
                 }
             }
