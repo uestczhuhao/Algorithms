@@ -35,6 +35,7 @@ public class _76MinimumWindowSubstring {
         }
 
         Map<Character, Integer> candidateFreqMap = new HashMap<>(t.length());
+        // t字符串中的每个字符和其出现次数的map
         for (char c : t.toCharArray()) {
             candidateFreqMap.put(c, candidateFreqMap.getOrDefault(c, 0) + 1);
         }
@@ -42,6 +43,7 @@ public class _76MinimumWindowSubstring {
         String minSubStr = "";
         int minSubLen = Integer.MAX_VALUE;
         int foundCount = 0;
+        // 窗口内每个字符出现的频率map
         Map<Character, Integer> windowCharNumMap = new HashMap<>();
         while (right < s.length()) {
             char curChar = s.charAt(right);
@@ -51,12 +53,14 @@ public class _76MinimumWindowSubstring {
                 foundCount++;
             }
 
+            // 尝试缩小窗口
             while (left <= right && foundCount == candidateFreqMap.size()) {
                 if (right - left + 1 < minSubLen) {
                     minSubLen = right - left + 1;
                     minSubStr = s.substring(left, right + 1);
                 }
                 windowCharNumMap.put(s.charAt(left), windowCharNumMap.getOrDefault(s.charAt(left), 0) - 1);
+                // 缩小到窗口不再包含字符串t的所有字符为止
                 if (candidateFreqMap.containsKey(s.charAt(left)) && candidateFreqMap.get(s.charAt(left)) > windowCharNumMap.get(s.charAt(left))) {
                     foundCount--;
                 }
