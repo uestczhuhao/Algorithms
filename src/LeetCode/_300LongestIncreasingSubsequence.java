@@ -66,21 +66,23 @@ public class _300LongestIncreasingSubsequence {
         // 从0开始，长度为1的递增子序列只有nums[0]
         tail[0] = nums[0];
 
-        int right = 0;
+        int end = 0;
         for (int i = 1; i < nums.length; i++) {
             // 如果当前元素大于tail数组的尾，则直接添加至tail中
-            if (nums[i] > tail[right]) {
-                tail[++right] = nums[i];
+            if (nums[i] > tail[end]) {
+                tail[++end] = nums[i];
             } else {
                 // 二分，插入nums[i]至tail中合适的位置
                 // 即比当前值大的第一个数，替换之
-                int low = 0, high = right;
-                while (low < high) {
-                    int mid = (low + high) >>> 1;
+                int low = 0, high = end;
+                // 相等时再判断一次，因为可能此时的位置正好是比目标值大（或相等）的第一个数
+                while (low <= high) {
+                    int mid = low + ((high - low) >>> 1);
+                    // 最后一次，如果进了if分之，则刚好mid + 1处为大于等于num[i]的第一个数
                     if (tail[mid] < nums[i]) {
                         low = mid + 1;
                     } else {
-                        high = mid;
+                        high = mid - 1;
                     }
                 }
                 // 此时low指向的就是tail中大于等于目标值nums[i]的第一个值
@@ -88,7 +90,7 @@ public class _300LongestIncreasingSubsequence {
             }
         }
 
-        return right + 1;
+        return end + 1;
     }
 
 
