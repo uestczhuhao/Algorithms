@@ -18,9 +18,10 @@ package LeetCode;
  */
 public class _300LongestIncreasingSubsequence {
     public static void main(String[] args) {
-//        int[] nums = {1,3,6,7,9,4,10,5,6};
-        int[] nums = {1,2,3,1,2};
+//        int[] nums = {1, 3, 6, 7, 9, 4, 10, 5, 6};
+        int[] nums = {3, 5, 6, 2, 5, 4, 19, 5, 6, 7, 12};
         _300LongestIncreasingSubsequence t = new _300LongestIncreasingSubsequence();
+        System.out.println(t.lengthOfLIS2(nums));
         System.out.println(t.lengthOfLIS(nums));
     }
 
@@ -50,4 +51,45 @@ public class _300LongestIncreasingSubsequence {
 
         return totalMax;
     }
+
+    /**
+     * 贪心+二分，时间复杂度降低至nlogn
+     */
+    public int lengthOfLIS2(int[] nums) {
+        if (null == nums || nums.length == 0) {
+            return 0;
+        }
+
+        // 辅助数组，tail[i]表示长度为i + 1的所有上升子序列的结尾的最小值
+        // 可以证明tail是严格递增的，见：https://leetcode-cn.com/problems/longest-increasing-subsequence/solution/dong-tai-gui-hua-er-fen-cha-zhao-tan-xin-suan-fa-p/
+        int[] tail = new int[nums.length];
+        // 从0开始，长度为1的递增子序列只有nums[0]
+        tail[0] = nums[0];
+
+        int right = 0;
+        for (int i = 1; i < nums.length; i++) {
+            // 如果当前元素大于tail数组的尾，则直接添加至tail中
+            if (nums[i] > tail[right]) {
+                tail[++right] = nums[i];
+            } else {
+                // 二分，插入nums[i]至tail中合适的位置
+                // 即比当前值大的第一个数，替换之
+                int low = 0, high = right;
+                while (low < high) {
+                    int mid = (low + high) >>> 1;
+                    if (tail[mid] < nums[i]) {
+                        low = mid + 1;
+                    } else {
+                        high = mid;
+                    }
+                }
+                // 此时low指向的就是tail中大于等于目标值nums[i]的第一个值
+                tail[low] = nums[i];
+            }
+        }
+
+        return right + 1;
+    }
+
+
 }
