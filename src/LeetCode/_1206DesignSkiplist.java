@@ -1,8 +1,10 @@
 package LeetCode;
 
-import com.sun.glass.events.mac.NpapiEvent;
-
-import java.util.*;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * @author mizhu
@@ -52,11 +54,11 @@ public class _1206DesignSkiplist {
         skiplist.add(2);
         skiplist.add(3);
         System.out.println(skiplist.search(1));
-//        skiplist.add(4);
-//        System.out.println(skiplist.search(1));
-//        System.out.println(skiplist.erase(0));
-//        System.out.println(skiplist.erase(1));
-//        System.out.println(skiplist.search(1));
+        skiplist.add(4);
+        System.out.println(skiplist.search(1));
+        System.out.println(skiplist.erase(0));
+        System.out.println(skiplist.erase(1));
+        System.out.println(skiplist.search(1));
     }
 
     private static class Skiplist {
@@ -121,7 +123,7 @@ public class _1206DesignSkiplist {
             Node newDownNode = null;
             while (updateHigh && !path.isEmpty()) {
                 Node preInsert = path.pop();
-                newDownNode = new Node(num, newDownNode, preInsert.next);
+                newDownNode = new Node(num, preInsert.next, newDownNode);
                 preInsert.next = newDownNode;
                 updateHigh = random.nextBoolean();
             }
@@ -129,7 +131,13 @@ public class _1206DesignSkiplist {
             // 需要新加一层
             if (updateHigh) {
                 Node newHead = new Node(num, null, newDownNode);
-                head = new Node(-1, newHead, null);
+                /* 新的head必须要在旧的head的顶，例如：
+                head --------->  3
+                 |               |
+                head -> 1 ->2 -> 3
+                对于上诉例子，当搜索3时，第一层搜不到，需要到第二层去搜索，因此需要从第一层的head下来
+                 */
+                head = new Node(-1, newHead, head);
             }
         }
 
