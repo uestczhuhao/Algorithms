@@ -1,7 +1,6 @@
 package LeetCode;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author mizhu
@@ -70,19 +69,19 @@ import java.util.List;
  * 1 <= positions[i][1] <= 10^6.
  */
 public class _699FallingSquares {
-    public static void main(String[] args) {
-        int[] a = {1, 2};
-        int[] b = {2, 3};
-        int[] c = {3, 7};
-        int[][] aa = new int[3][2];
-        aa[0] = a;
-        aa[1] = b;
-        aa[2] = c;
-        _699FallingSquares t = new _699FallingSquares();
-//        System.out.println(t.fallingSquares(aa));
-        int[][] bb = {{50, 47}, {95, 48}, {88, 77}, {84, 3}, {53, 87}, {98, 79}, {88, 28}, {13, 22}, {53, 73}, {85, 55}};
-        System.out.println(t.fallingSquares(bb));
-    }
+//    public static void main(String[] args) {
+//        int[] a = {1, 2};
+//        int[] b = {2, 3};
+//        int[] c = {3, 7};
+//        int[][] aa = new int[3][2];
+//        aa[0] = a;
+//        aa[1] = b;
+//        aa[2] = c;
+//        _699FallingSquares t = new _699FallingSquares();
+////        System.out.println(t.fallingSquares(aa));
+//        int[][] bb = {{50, 47}, {95, 48}, {88, 77}, {84, 3}, {53, 87}, {98, 79}, {88, 28}, {13, 22}, {53, 73}, {85, 55}};
+//        System.out.println(t.fallingSquares(bb));
+//    }
 
     /**
      * 不要思考“哪个方块影响次此位置的高度？”，应该思考“一个方块影响哪些位置的高度？”。
@@ -124,71 +123,108 @@ public class _699FallingSquares {
         return ans;
 
     }
-}
 
-class SegmentTree {
-    int N, H;
-    int[] tree, lazy;
-
-    SegmentTree(int N) {
-        this.N = N;
-        H = 1;
-        while ((1 << H) < N) H++;
-        tree = new int[2 * N];
-        lazy = new int[N];
+    public static void main(String[] args) {
+        _699FallingSquares t = new _699FallingSquares();
+//        int[][] p = {{4, 1}, {6, 9}, {6, 8}, {1, 9}, {9, 8}};
+        int[][] p = {{6, 4}, {2, 7}, {6, 9}};
+//        int[][] p = {{4, 6}, {4, 2}, {4, 3}};
+        System.out.println(t.fallingSquares1(p));
     }
 
-    private void apply(int x, int val) {
-        tree[x] = Math.max(tree[x], val);
-        if (x < N) lazy[x] = Math.max(lazy[x], val);
-    }
+    public List<Integer> fallingSquares1(int[][] positions) {
 
-    private void pull(int x) {
-        while (x > 1) {
-            x >>= 1;
-            tree[x] = Math.max(tree[x * 2], tree[x * 2 + 1]);
-            tree[x] = Math.max(tree[x], lazy[x]);
+        Set<Integer> positionSet = new HashSet<>();
+        for (int[] pos : positions) {
+            positionSet.add(pos[0]);
+            positionSet.add(pos[0] + pos[1] - 1);
         }
+
+        int[] sortPosition = new int[positionSet.size()];
+        int i = 0;
+        for (int pos : positionSet) {
+            sortPosition[i++] = pos;
+        }
+        Arrays.sort(sortPosition);
+        Map<Integer, Integer> indexMap = new HashMap<>(sortPosition.length);
+        for (i = 0; i < sortPosition.length; i++) {
+            indexMap.put(sortPosition[i], i);
+        }
+
+        SegmentTree segmentTree = new SegmentTree(sortPosition.length);
+        List<Integer> result = new ArrayList<>();
+        int maxHeight = 0;
+        for (int[] pos : positions) {
+            int left = indexMap.get(pos[0]);
+            int right = indexMap.get(pos[0] + pos[1] - 1);
+            int height = segmentTree.query(left, right) + pos[1];
+            segmentTree.update(left, right, height);
+            maxHeight = Math.max(maxHeight, height);
+            result.add(maxHeight);
+        }
+
+        return result;
     }
 
-    private void push(int x) {
-        for (int h = H; h > 0; h--) {
-            int y = x >> h;
-            if (lazy[y] > 0) {
-                apply(y * 2, lazy[y]);
-                apply(y * 2 + 1, lazy[y]);
-                lazy[y] = 0;
+    private class SegmentTree {
+        int offset;
+        int[] lineTree;
+
+        SegmentTree(int n) {
+            lineTree = new int[2 * n];
+            offset = n;
+        }
+
+        /**
+         * 主要工作在update时
+         *
+         * @param left   左边界
+         * @param right  右边界
+         * @param height 要更新的高度
+         */
+        public void update(int left, int right, int height) {
+            int leftPos = left + offset;
+            int rightPos = right + offset;
+
+            // 先更新left到right的原始值
+            for (int i = leftPos; i <= rightPos; i++) {
+                lineTree[i] = Math.max(lineTree[i], height);
+                updatePosition(i);
             }
         }
-    }
 
-    public void update(int L, int R, int h) {
-        L += N;
-        R += N;
-        int L0 = L, R0 = R, ans = 0;
-        while (L <= R) {
-            if ((L & 1) == 1) apply(L++, h);
-            if ((R & 1) == 0) apply(R--, h);
-            L >>= 1;
-            R >>= 1;
+        private void updatePosition(int position) {
+            while (position >= 1) {
+                int lChild = 2 * position;
+                int rChild = 2 * position + 1;
+                if (rChild < 2 * offset) {
+                    lineTree[position] = Math.max(lineTree[lChild], lineTree[rChild]);
+                }
+                position >>= 1;
+            }
         }
-        pull(L0);
-        pull(R0);
-    }
 
-    public int query(int L, int R) {
-        L += N;
-        R += N;
-        int ans = 0;
-        push(L);
-        push(R);
-        while (L <= R) {
-            if ((L & 1) == 1) ans = Math.max(ans, tree[L++]);
-            if ((R & 1) == 0) ans = Math.max(ans, tree[R--]);
-            L >>= 1;
-            R >>= 1;
+        public int query(int left, int right) {
+            int leftPos = left + offset;
+            int rightPos = right + offset;
+            int target = 0;
+            while (leftPos <= rightPos) {
+                if ((leftPos & 1) == 1) {
+                    target = Math.max(lineTree[leftPos++], target);
+                }
+
+                if ((rightPos & 1) == 0) {
+                    target = Math.max(lineTree[rightPos--], target);
+                }
+
+                leftPos >>= 1;
+                rightPos >>= 1;
+            }
+
+            return target;
         }
-        return ans;
     }
 }
+
+
 
