@@ -11,7 +11,7 @@ package LeetCode;
  * 输入: [0,1,0,2,1,0,1,3,2,1,2,1]
  * 输出: 6
  */
-public class _44TrappingRainWater {
+public class _42TrappingRainWater {
     public static void main(String[] args) {
 //        int[] height = {0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1};
         int[] height = {5,5,1,7,1,1,5,2,7,6};
