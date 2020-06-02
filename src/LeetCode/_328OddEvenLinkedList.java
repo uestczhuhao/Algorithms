@@ -2,6 +2,8 @@ package LeetCode;
 
 import static LeetCode._23MergeKSortedLists.print;
 
+import java.util.List;
+
 /**
  * @author mizhu
  * @date 20-5-31 下午10:58
@@ -61,8 +63,27 @@ public class _328OddEvenLinkedList {
         return head;
     }
 
+    /**
+     * 思路：跳跃前进，维护两个链表，奇数列表odd和偶数列表even（注意维护偶数列表头）
+     * 遍历过程中两个列表分别变长，最后把偶数链表的头链接进奇数列表的尾
+     * @param head
+     * @return
+     */
     public ListNode oddEvenList1(ListNode head) {
-        //TODO： 采用奇偶指针的方式实现
+        if (null == head || head.next == null) {
+            return head;
+        }
+
+        ListNode odd = head, even = head.next, evenHead = even;
+        while (even != null && even.next != null) {
+            odd.next = even.next;
+            odd = odd.next;
+            even.next = odd.next;
+            even = odd.next;
+        }
+        odd.next = evenHead;
+
+        return head;
     }
 
     /**
