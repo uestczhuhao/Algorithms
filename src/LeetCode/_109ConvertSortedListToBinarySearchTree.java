@@ -65,6 +65,7 @@ public class _109ConvertSortedListToBinarySearchTree {
         TreeNode root = new TreeNode(head.val);
         root.left = left;
 
+        // 左边的树构建完成，开始构建右侧子树，head右移一位
         head = head.next;
         root.right = constructTree(mid + 1, high);
         return root;
