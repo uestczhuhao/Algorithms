@@ -16,18 +16,17 @@ package LeetCode;
  *
  * 输入: 1->1->2->3->3
  * 输出: 1->2->3
- *
  */
 public class _83RemoveDuplicatesFromSortedList {
 
     public ListNode deleteDuplicates(ListNode head) {
-        if(head == null) {
+        if (head == null) {
             return null;
         }
 
         ListNode resultHead = head;
-        while (head!=null) {
-            while (head.next != null && head.val == head.next.val ) {
+        while (head != null) {
+            while (head.next != null && head.val == head.next.val) {
                 head.next = head.next.next;
             }
 
