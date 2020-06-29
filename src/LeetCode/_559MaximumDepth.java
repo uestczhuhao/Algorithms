@@ -1,9 +1,6 @@
 package LeetCode;
 
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * Copyright (c) 2018 XiaoMi Inc. All Rights Reserved.
@@ -31,6 +28,11 @@ public class _559MaximumDepth {
     Queue<Node> curNodeStack = new LinkedList<>();
     Queue<Node> nextNodeStack = new LinkedList<>();
 
+    /**
+     * 层次遍历，非递归解法
+     * @param root
+     * @return
+     */
     public int maxDepth(Node root) {
         if (root == null) {
             return 0;
@@ -38,13 +40,13 @@ public class _559MaximumDepth {
 
         Queue<Node> tmp;
         curNodeStack.offer(root);
-        while (!curNodeStack.isEmpty() && !nextNodeStack.isEmpty()) {
-            while (!nextNodeStack.isEmpty()) {
-
-                Node node = nextNodeStack.poll();
+        while (!curNodeStack.isEmpty() || !nextNodeStack.isEmpty()) {
+            maxDepth ++;
+            while (!curNodeStack.isEmpty()) {
+                Node node = curNodeStack.poll();
                 if (node.children != null) {
                     for (Node n:node.children) {
-                        curNodeStack.offer(n);
+                        nextNodeStack.offer(n);
                     }
                 }
             }
@@ -55,9 +57,26 @@ public class _559MaximumDepth {
         return maxDepth;
     }
 
-    public void computeDepth(Node root) {
-
+    /**
+     * 层次遍历，递归解法
+     * @param root
+     * @return
+     */
+    public int computeMaxDepth(Node root) {
+        if (root == null) {
+            return 0;
+        } else if (root.children == null || root.children.isEmpty()) {
+            return 1;
+        } else {
+            List<Integer> depths = new ArrayList<>();
+            for (Node node : root.children) {
+                depths.add(computeMaxDepth(node));
+            }
+            // 本层非空，也算一层，因此+1
+            return Collections.max(depths) + 1;
+        }
     }
+
 
     private class Node {
         public int val;
@@ -73,5 +92,29 @@ public class _559MaximumDepth {
             val = _val;
             children = _children;
         }
-    };
+    }
+
+    public static void main(String[] args) {
+        _559MaximumDepth t = new _559MaximumDepth();
+        Node node = t.new Node(1, null);
+        Node c1 = t.new Node(2);
+        Node c2 = t.new Node(3);
+        Node c3 = t.new Node(4);
+        List<Node> a = new ArrayList<>();
+        List<Node> b = new ArrayList<>();
+//        a.add(c1);
+        b.add(c2);
+        b.add(c3);
+        node.children = a;
+        c1.children = b;
+//        System.out.println(t.computeMaxDepth(node));
+
+        List<Integer> depths = new ArrayList<>();
+        for (Node n: a) {
+            depths.add(n.val);
+        }
+
+        System.out.println(Collections.max(depths));
+
+    }
 }
