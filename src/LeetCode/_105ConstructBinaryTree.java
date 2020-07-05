@@ -28,7 +28,6 @@ import java.util.Map;
  */
 public class _105ConstructBinaryTree {
 
-    Map<Integer, Integer> preIndexMap = new HashMap<>();
     Map<Integer, Integer> inIndexMap = new HashMap<>();
 
     public TreeNode buildTree(int[] preorder, int[] inorder) {
@@ -40,32 +39,27 @@ public class _105ConstructBinaryTree {
         }
 
         for (int i = 0; i < preorder.length; i++) {
-            preIndexMap.put(preorder[i], i);
             inIndexMap.put(inorder[i], i);
         }
-        return doBuildTree(preorder, inorder, 0, 0, preorder.length - 1);
+        return doBuildTree(preorder, 0, 0, preorder.length - 1);
     }
 
-    public TreeNode doBuildTree(int[] preOrder, int[] inOrder, int preStart, int inStart, int inEnd) {
+    public TreeNode doBuildTree(int[] preOrder, int preStart, int inStart, int inEnd) {
         if (inStart > inEnd) {
             return null;
-        }
-
-        if (inStart == inEnd) {
-            return new TreeNode(inOrder[inStart]);
         }
 
         TreeNode root = new TreeNode(preOrder[preStart]);
         int minIndex = inIndexMap.get(preOrder[preStart]);
         int leftSubTreeNum = minIndex - inStart;
-        root.left = doBuildTree(preOrder, inOrder, preStart + 1, inStart, minIndex - 1);
-        root.right = doBuildTree(preOrder, inOrder, preStart + leftSubTreeNum + 1, minIndex + 1, inEnd);
+        root.left = doBuildTree(preOrder, preStart + 1, inStart, minIndex - 1);
+        root.right = doBuildTree(preOrder, preStart + leftSubTreeNum + 1, minIndex + 1, inEnd);
         return root;
     }
 
     public static void main(String[] args) {
 //        int[] pre = {4,1,2,3};
-        int[] pre = {3, 9,  20, 15, 7};
+        int[] pre = {3, 9, 20, 15, 7};
 //        int[] in = {1,2,3,4};
         int[] in = {9, 3, 15, 20, 7};
         _105ConstructBinaryTree t = new _105ConstructBinaryTree();
