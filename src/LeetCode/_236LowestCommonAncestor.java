@@ -116,5 +116,39 @@ public class _236LowestCommonAncestor {
         return q;
     }
 
+    /**
+     * 思路：dfs，从下往上走，一旦找到p和q在其左右的节点x，就返回之
+     * 如果x还有父节点，祖父节点怎么办？
+     * 那么其父节点和祖父节点都返回x
+     * 因此x的下面的节点都会被x覆盖，x上面的节点都会返回x
+     */
+    public TreeNode lowestCommonAncestor2(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == null) {
+            return null;
+        }
 
-}
+        // 找到p和q，直接返回
+        if (root == p || root == q) {
+            return root;
+        }
+
+        TreeNode leftNode = lowestCommonAncestor2(root.left, p, q);
+        TreeNode rightNode = lowestCommonAncestor2(root.right, p, q);
+
+        // 找到了x
+        if (leftNode != null && rightNode != null) {
+            return root;
+        } else if (leftNode == null) {
+            // 左边节点没找到，适用于
+            // 1. 此节点是x的父（祖先）节点，且x在其右子树中，左边当然找不到
+            // 2. 这个子树更大的子树满足1
+            // 对1，其rightNode就是x；对2，rightNode为null，最终被淘汰
+            return rightNode;
+        } else {
+            // 同上
+            return leftNode;
+        }
+    }
+
+
+    }
