@@ -38,14 +38,41 @@ package LeetCode;
 public class _1123LowestCommonAncestorOfDeepestLeaves {
     int maxDepth = 0;
     int curDepth = 0;
-    TreeNode parent = null;
+    TreeNode firstLeaf = null;
+    TreeNode secondLeaf = null;
     public TreeNode lcaDeepestLeaves(TreeNode root) {
         if (root == null) {
             return null;
         }
 
         findDeepestLeaves(root);
-        return parent;
+        if (firstLeaf == null) {
+            return secondLeaf;
+        }
+
+        if (secondLeaf == null) {
+            return firstLeaf;
+        }
+        return lowestCommonAncestor(root, firstLeaf, secondLeaf);
+    }
+
+    private TreeNode lowestCommonAncestor(TreeNode root, TreeNode firstLeaf, TreeNode secondLeaf) {
+        if (root == null) {
+            return null;
+        }
+
+        if (root == firstLeaf || root == secondLeaf) {
+            return root;
+        }
+        TreeNode left = lowestCommonAncestor(root.left, firstLeaf, secondLeaf);
+        TreeNode right = lowestCommonAncestor(root.right, firstLeaf, secondLeaf);
+        if (left != null && right != null) {
+            return root;
+        } else if (left == null) {
+            return right;
+        } else {
+            return left;
+        }
     }
 
     private void findDeepestLeaves(TreeNode root) {
@@ -54,11 +81,32 @@ public class _1123LowestCommonAncestorOfDeepestLeaves {
         }
 
         curDepth ++;
-        if (curDepth > maxDepth) {
-            maxDepth = curDepth;
+        if (root.left == null && root.right == null) {
+            if (curDepth > maxDepth) {
+                maxDepth = curDepth;
+                firstLeaf = root;
+                secondLeaf = null;
+            } else if (curDepth == maxDepth) {
+                secondLeaf = root;
+            }
         }
-        parent = root;
         findDeepestLeaves(root.left);
         findDeepestLeaves(root.right);
+        curDepth --;
+    }
+
+    public static void main(String[] args) {
+        TreeNode node1 = new TreeNode(1);
+        TreeNode node2 = new TreeNode(2);
+        TreeNode node3 = new TreeNode(3);
+        TreeNode node4 = new TreeNode(4);
+        TreeNode node5 = new TreeNode(5);
+        node1.left = node2;
+        node1.right = node3;
+//        node2.left = node3;
+//        node2.right = node4;
+//        node4.left = node5;
+        _1123LowestCommonAncestorOfDeepestLeaves t = new _1123LowestCommonAncestorOfDeepestLeaves();
+        System.out.println(t.lcaDeepestLeaves(node1));
     }
 }
