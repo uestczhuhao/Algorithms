@@ -40,6 +40,7 @@ public class _1123LowestCommonAncestorOfDeepestLeaves {
     int curDepth = 0;
     TreeNode firstLeaf = null;
     TreeNode secondLeaf = null;
+
     public TreeNode lcaDeepestLeaves(TreeNode root) {
         if (root == null) {
             return null;
@@ -80,7 +81,7 @@ public class _1123LowestCommonAncestorOfDeepestLeaves {
             return;
         }
 
-        curDepth ++;
+        curDepth++;
         if (root.left == null && root.right == null) {
             if (curDepth > maxDepth) {
                 maxDepth = curDepth;
@@ -92,7 +93,49 @@ public class _1123LowestCommonAncestorOfDeepestLeaves {
         }
         findDeepestLeaves(root.left);
         findDeepestLeaves(root.right);
-        curDepth --;
+        curDepth--;
+    }
+
+    /**
+     * 解法2，思路：
+     * 如果当前节点是最深叶子节点的最近公共祖先，那么它的左右子树的高度一定是相等的，
+     * 否则高度低的那个子树的叶子节点深度一定比另一个子树的叶子节点的深度小，因此不满足条件。
+     * <p>
+     * 所以只需要dfs遍历找到左右子树高度相等的根节点即出答案。
+     */
+    private static class LCA {
+        private int maxDepth = 0;
+        private TreeNode lca = null;
+
+        public TreeNode lcaDeepestLeaves(TreeNode root) {
+            if (root == null) {
+                return null;
+            }
+            dfs(root, 0);
+            return lca;
+        }
+
+        private int dfs(TreeNode node, int depth) {
+            if (node == null) {
+                return depth;
+            }
+
+            depth++;
+            int left = dfs(node.left, depth);
+            int right = dfs(node.right, depth);
+
+            // depth取左右子树的更大者，这里其实是子树的高度
+            depth = Math.max(left, right);
+            // left == right 即为子树平衡
+            // depth >= maxDepth代表能用父节点替代子节点
+            // 再往上就不满足left == right了
+            if (left == right && depth >= maxDepth) {
+                maxDepth = depth;
+                lca = node;
+            }
+
+            return depth;
+        }
     }
 
     public static void main(String[] args) {
@@ -101,12 +144,17 @@ public class _1123LowestCommonAncestorOfDeepestLeaves {
         TreeNode node3 = new TreeNode(3);
         TreeNode node4 = new TreeNode(4);
         TreeNode node5 = new TreeNode(5);
+        TreeNode node6 = new TreeNode(6);
+        TreeNode node7 = new TreeNode(7);
         node1.left = node2;
         node1.right = node3;
-//        node2.left = node3;
-//        node2.right = node4;
-//        node4.left = node5;
+        node2.left = node4;
+        node2.right = node5;
+        node3.left = node6;
+        node3.right = node7;
         _1123LowestCommonAncestorOfDeepestLeaves t = new _1123LowestCommonAncestorOfDeepestLeaves();
-        System.out.println(t.lcaDeepestLeaves(node1));
+        _1123LowestCommonAncestorOfDeepestLeaves.LCA t1 = new _1123LowestCommonAncestorOfDeepestLeaves.LCA();
+//        System.out.println(t.lcaDeepestLeaves(node1));
+        System.out.println(t1.lcaDeepestLeaves(node1));
     }
 }
