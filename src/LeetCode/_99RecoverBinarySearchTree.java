@@ -93,7 +93,7 @@ public class _99RecoverBinarySearchTree {
             node = node.right;
         }
 
-        if (src == null || tgt == null) {
+        if (src == null) {
             return;
         }
         int tmp = src.val;
