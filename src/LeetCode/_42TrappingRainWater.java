@@ -36,13 +36,13 @@ public class _42TrappingRainWater {
         int totalWater = 0;
         while (left <= right) {
             if (leftHeight <= rightHeight) {
-                totalWater += ((leftHeight - height[left] > 0) ? leftHeight - height[left] : 0);
+                totalWater += (Math.max(leftHeight - height[left], 0));
                 if (height[left] > leftHeight) {
                     leftHeight = height[left];
                 }
                 left++;
             } else {
-                totalWater += ((rightHeight - height[right] > 0) ? rightHeight - height[right] : 0);
+                totalWater += (Math.max(rightHeight - height[right], 0));
                 if (height[right] > rightHeight) {
                     rightHeight = height[right];
                 }
