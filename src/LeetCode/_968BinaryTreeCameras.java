@@ -111,7 +111,7 @@ public class _968BinaryTreeCameras {
         int rightChildState = computeAndDefineState(node.right);
 
         // 左右子节点都没有被覆盖，则在放置一个摄像头，结果+1
-        // 包含00 01 02 10
+        // 包含00 01 02 10 20
         if (leftChildState == 0 || rightChildState == 0) {
             ans ++;
             return 2;
