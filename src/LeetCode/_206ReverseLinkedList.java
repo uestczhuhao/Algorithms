@@ -36,7 +36,22 @@ public class _206ReverseLinkedList {
         return preHead;
     }
 
-    public static void main(String[] args) {
+    /**
+     * 递归版
+     */
+    public ListNode reverseList1(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        // 返回链表新的头部
+        ListNode result = reverseList1(head.next);
+        head.next.next = head;
+        head.next = null;
+
+        return result;
+    }
+
+        public static void main(String[] args) {
         _206ReverseLinkedList t = new _206ReverseLinkedList();
         ListNode head = new ListNode(1);
         ListNode node1 = new ListNode(2);
