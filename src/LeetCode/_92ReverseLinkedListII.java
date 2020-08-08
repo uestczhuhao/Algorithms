@@ -69,7 +69,7 @@ public class _92ReverseLinkedListII {
         head.next = node1;
         node1.next = node2;
         node2.next = node3;
-        t.reverseBetween(head, 2, 3);
-        System.out.println(head);
+        ListNode listNode = t.reverseBetween(head, 1, 4);
+        System.out.println(listNode);
     }
 }
