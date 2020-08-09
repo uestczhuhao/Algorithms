@@ -43,6 +43,9 @@ public class _112PathSum {
             currentSum -= root.val;
             return validSum;
         }
+
+        // 此处，若root.left == null，且root非叶子节点
+        // 直接返回false即可
         if (root.left != null) {
             validSum = doSumPath(root.left);
         }
