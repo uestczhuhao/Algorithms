@@ -45,6 +45,8 @@ public class _230KthSmallestInBST {
 
         Deque<TreeNode> inOrder = new LinkedList<>();
         TreeNode curNode = root;
+        // curNode != null  进入右子树
+        // !inOrder.isEmpty()   某个分支已无右子树，但树还没遍历完成
         while (curNode != null || !inOrder.isEmpty()) {
             while (curNode != null) {
                 inOrder.push(curNode);
