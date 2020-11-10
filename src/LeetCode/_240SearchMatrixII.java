@@ -80,6 +80,21 @@ public class _240SearchMatrixII {
             doSearchMatrix(mid + 1, right, up, row - 1);
     }
 
-    //TODO:方法二
+    /**
+     * 从左下角开始，一直找到右上角
+      */
+    public boolean searchMatrix(int[][] matrix, int target) {
+        if (null == matrix || matrix.length == 0 || matrix[0].length == 0) {
+            return false;
+        }
+        int row = matrix.length - 1;
+        int column = 0;
+        while (row >= 0 && column <= matrix[0].length - 1) {
+            if (matrix[row][column] == target) {
+                return true;
+            } else if (matrix[])
+        }
+
+    }
 
 }
