@@ -66,7 +66,6 @@ public class _240SearchMatrixII {
         // 找到子矩阵的中心
         int mid = left + (right - left) / 2;
         int row = up;
-        // TODO: 改成二分
         while (row <= down && matrix[row][mid] <= target) {
             if (matrix[row][mid] == target) {
                 return true;
@@ -82,19 +81,29 @@ public class _240SearchMatrixII {
 
     /**
      * 从左下角开始，一直找到右上角
-      */
-    public boolean searchMatrix(int[][] matrix, int target) {
+     */
+    public boolean searchMatrix1(int[][] matrix, int target) {
         if (null == matrix || matrix.length == 0 || matrix[0].length == 0) {
             return false;
         }
         int row = matrix.length - 1;
         int column = 0;
+        /*
+         * 思路：从左下角到右上角
+         * 比目标值大则向上，比目标值小则向右
+         * 要么在途中找到目标值，要么越界
+         * 时间复杂度：O(n)
+         */
         while (row >= 0 && column <= matrix[0].length - 1) {
             if (matrix[row][column] == target) {
                 return true;
-            } else if (matrix[])
+            } else if (matrix[row][column] > target) {
+                row--;
+            } else {
+                column++;
+            }
         }
-
+        return false;
     }
 
 }
