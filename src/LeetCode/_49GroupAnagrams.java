@@ -3,9 +3,11 @@ package LeetCode;
 import com.sun.tools.javac.util.ArrayUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -29,38 +31,36 @@ import java.util.Set;
  * 不考虑答案输出的顺序。
  */
 public class _49GroupAnagrams {
+    /**
+     * 思路：字符串转换，把abbb 转换为 13000...00 (长度为26)，再用map统计汇总转换后相同的字符串
+     * 理由是字母异位词经过转换后的字符串相同，可以作为区分标志
+     */
     public List<List<String>> groupAnagrams(String[] strs) {
-        List<List<String>> groupList = new ArrayList<>();
         if (null == strs || strs.length == 0) {
-            return groupList;
-        }
-        HashMap<Set<Character>, Integer> groupIndexMap = new HashMap<>();
-        int index = 0;
-        for (String str : strs) {
-            Set<Character> charSet = new HashSet<>();
-            char[] chars = str.toCharArray();
-            for (Character c : chars) {
-                charSet.add(c);
-            }
-            List<String> strList = new ArrayList<>();
-
-            if (groupIndexMap.containsKey(charSet) && groupIndexMap.get(charSet) < groupList.size()) {
-                strList = groupList.get(groupIndexMap.get(charSet));
-            } else {
-                if (!groupIndexMap.containsKey(charSet)) {
-                    groupIndexMap.put(charSet, index++);
-                }
-                groupList.add(strList);
-            }
-            strList.add(str);
+            return new ArrayList<>();
         }
 
-        return groupList;
+        Map<String, List<String>> groupMap = new HashMap<>();
+        char[] charCount;
+        for (String s: strs) {
+             charCount = new char[26];
 
+            char[] strChars = s.toCharArray();
+            for (char ch:strChars) {
+                charCount[ch - 'a'] ++;
+            }
+            String key = new String(charCount);
+            if (!groupMap.containsKey(key)) {
+                groupMap.put(key, new ArrayList<>());
+            }
+            groupMap.get(key).add(s);
+        }
+
+        return new ArrayList<>(groupMap.values());
     }
 
     public static void main(String[] args) {
-        String[] inputs = new String[]{"abbbbbb", "bbbbbba"};
+        String[] inputs = new String[]{"abbbbbb", "aaaaab"};
         _49GroupAnagrams t = new _49GroupAnagrams();
         System.out.println(t.groupAnagrams(inputs));
     }
