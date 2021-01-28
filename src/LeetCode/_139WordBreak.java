@@ -37,12 +37,43 @@ public class _139WordBreak {
         return dp[len];
     }
 
+    public boolean wordBreak1(String s, List<String> wordDict) {
+        if (s == null) {
+            return false;
+        }
+
+        int totalLen = s.length();
+        int maxWordLen = 0;
+        HashSet<String> wordSet = new HashSet<>();
+        for (String w:wordDict) {
+            maxWordLen = Math.max(maxWordLen, w.length());
+            wordSet.add(w);
+        }
+        boolean[] dp = new boolean[totalLen + 1];
+        dp[0] = true;
+
+        for (int i = 1; i <= totalLen; i++) {
+            for (int j = i - 1; j >=0 ; j--) {
+                // 增加剪枝，字符串长度大于字典候选中最长者，不可能再匹配上
+                if (i - j > maxWordLen) {
+                    break;
+                }
+                if (dp[j] && wordSet.contains(s.substring(j, i))) {
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+
+        return dp[totalLen];
+    }
+
     public static void main(String[] args) {
         _139WordBreak t = new _139WordBreak();
         List<String> words = new ArrayList<>();
         words.add("leet");
         words.add("code");
-        boolean b = t.wordBreak("leetcode", words);
+        boolean b = t.wordBreak1("leetcode", words);
         System.out.println(b);
 
     }
