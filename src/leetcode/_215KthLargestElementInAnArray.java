@@ -1,5 +1,6 @@
 package leetcode;
 
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -55,5 +56,86 @@ public class _215KthLargestElementInAnArray {
         int tmp = nums[src];
         nums[src] = nums[tgt];
         nums[tgt] = tmp;
+    }
+
+    public static void main(String[] args) {
+        HeapSort h = new _215KthLargestElementInAnArray().new HeapSort();
+        int[] a = {2, 1, 3, 8, 4, 2, 9, 12};
+        System.out.println((h.findKthLargest(a,2)));
+        System.out.println((Arrays.toString(h.heapSort(a))));
+    }
+
+    class HeapSort {
+
+        public int findKthLargest(int[] nums, int k) {
+            if (nums == null || nums.length == 0
+                || k <= 0 || k > nums.length) {
+                return Integer.MIN_VALUE;
+            }
+
+            buildHeap(nums, k);
+            for (int i = k; i < nums.length; i++) {
+                if (nums[i] > nums[0]) {
+                    swap(nums, 0, i);
+                    heapify(nums, 0, k - 1);
+                }
+            }
+
+            return nums[0];
+        }
+
+
+        /**
+         * 堆排序，先构建大顶堆，再交换尾部值后调整（等效为删除）
+         *
+         * @param nums
+         * @return
+         */
+        public int[] heapSort(int[] nums) {
+            if (nums == null || nums.length == 0) {
+                return nums;
+            }
+
+            buildHeap(nums, nums.length);
+
+            for (int i = nums.length - 1; i >= 1; i--) {
+                swap(nums, 0, i);
+                heapify(nums, 0, i - 1);
+            }
+            return nums;
+        }
+
+        int count = 0;
+
+        public void buildHeap(int[] nums, int heapSize) {
+            for (int i = heapSize / 2 - 1; i >= 0; i--) {
+                heapify(nums, i, heapSize - 1);
+            }
+//
+//            for (int i = 0; i <= nums.length / 2 - 1; i++) {
+//                heapify(nums, i, heapSize - 1);
+//            }
+        }
+
+        // 从上往下调整
+        public void heapify(int[] nums, int low, int high) {
+            int lChildIndex = low * 2 + 1;
+            int rChildIndex = low * 2 + 2;
+            int smaller = low;
+            // 取左右子节点这较小的那个
+            // 注意下标要合法
+            if (lChildIndex <= high && nums[lChildIndex] < nums[low]) {
+                smaller = lChildIndex;
+            }
+
+            if (rChildIndex <= high && nums[rChildIndex] < nums[smaller]) {
+                smaller = rChildIndex;
+            }
+
+            if (nums[smaller] < nums[low]) {
+                swap(nums, smaller, low);
+                heapify(nums, smaller, high);
+            }
+        }
     }
 }
