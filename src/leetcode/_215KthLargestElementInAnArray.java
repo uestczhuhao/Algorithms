@@ -96,7 +96,15 @@ public class _215KthLargestElementInAnArray {
                 return nums;
             }
 
-            buildHeap(nums, nums.length);
+            int heapSize = nums.length - 1;
+            // 从下往上构建堆
+            for (int i = heapSize / 2 - 1; i >= 0; i--) {
+                heapify(nums, i, heapSize - 1);
+            }
+            // 从上往下构建堆
+//            for (int i = 0; i <= nums.length / 2 - 1; i++) {
+//                heapify(nums, i, heapSize - 1);
+//            }
 
             for (int i = nums.length - 1; i >= 1; i--) {
                 swap(nums, 0, i);
@@ -105,13 +113,12 @@ public class _215KthLargestElementInAnArray {
             return nums;
         }
 
-        int count = 0;
-
         public void buildHeap(int[] nums, int heapSize) {
+            // 从下往上构建堆
             for (int i = heapSize / 2 - 1; i >= 0; i--) {
                 heapify(nums, i, heapSize - 1);
             }
-//
+          // 从上往下构建堆
 //            for (int i = 0; i <= nums.length / 2 - 1; i++) {
 //                heapify(nums, i, heapSize - 1);
 //            }
