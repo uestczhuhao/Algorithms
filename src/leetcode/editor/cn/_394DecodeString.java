@@ -37,13 +37,15 @@ package leetcode.editor.cn;
 // 👍 648 👎 0
 
 
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 
 public class _394DecodeString {
     public static void main(String[] args) {
         Solution t = new _394DecodeString().new Solution();
-        String s = "3[z]2[2[y]pq4[2[jk]e1[f]]]ef";
+//        String s = "3[z]2[2[y]pq4[2[jk]e1[f]]]ef";
+        String s = "2[abc]3[cd]ef";
         System.out.println(t.decodeString(s));
     }
 
@@ -57,10 +59,8 @@ public class _394DecodeString {
                 return s;
             }
 
-            int left = 0;
-            Deque<Integer> numStack = new LinkedList<>();
-            Deque<String> strStack = new LinkedList<>();
-            StringBuilder result = new StringBuilder();
+            LinkedList<Integer> numStack = new LinkedList<>();
+            LinkedList<String> strStack = new LinkedList<>();
 
             int i = 0;
             while (i < s.length()) {
@@ -73,51 +73,49 @@ public class _394DecodeString {
                         curCh = s.charAt(i);
                     } while (curCh >= '0' && curCh <= '9');
                     numStack.push(copyNum);
-                }
-                if (curCh == '[') {
-                    left++;
-                    curCh = s.charAt(++i);
+                } else if (curCh == '[') {
+                    strStack.push(String.valueOf(s.charAt(i++)));
+                } else if (Character.isLetter(curCh)) {
                     StringBuilder sb = new StringBuilder();
-                    while (validChar(curCh)) {
+                    do {
                         sb.append(curCh);
-                        i++;
+                        ++i;
+                        if (i > s.length() - 1) {
+                            break;
+                        }
                         curCh = s.charAt(i);
-                    }
+                    } while (Character.isLetter(curCh));
                     strStack.push(sb.toString());
-                }
+                } else {
+                    i++;
+                    LinkedList<String> sub = new LinkedList<>();
+                    while (!"[".equals(strStack.peek())) {
+                        sub.addLast(strStack.pop());
+                    }
+                    Collections.reverse(sub);
 
-                if (curCh == ']') {
-                    left--;
+                    // 弹出'['
+                    strStack.pop();
                     int num = numStack.pop();
-                    String str = strStack.pop();
+                    String str = getString(sub);
                     String copyStr = copyStr(str, num);
-                    if (left <= 0) {
-                        result.append(copyStr);
-                    } else {
-                        strStack.push(strStack.pop() + copyStr);
-                    }
-                    i++;
+                        strStack.push(copyStr);
                 }
-
-                if (validChar(curCh)) {
-                    if (left <= 0) {
-                        result.append(curCh);
-                    } else {
-                        strStack.push(strStack.pop() + curCh);
-                    }
-                    i++;
-                }
-
-
             }
 
-            return result.toString();
+            Collections.reverse(strStack);
+            return getString(strStack);
 
         }
 
-        private boolean validChar(char ch) {
-            return ch >= 'a' && ch <= 'z' || (ch >= 'A' && ch <= 'Z');
+        public String getString(LinkedList<String> v) {
+            StringBuilder ret = new StringBuilder();
+            for (String s : v) {
+                ret.append(s);
+            }
+            return ret.toString();
         }
+
 
         private String copyStr(String str, int num) {
             if (num <= 0) {
