@@ -99,7 +99,7 @@ public class _394DecodeString {
                     int num = numStack.pop();
                     String str = getString(sub);
                     String copyStr = copyStr(str, num);
-                        strStack.push(copyStr);
+                    strStack.push(copyStr);
                 }
             }
 
