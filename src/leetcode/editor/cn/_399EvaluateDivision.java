@@ -195,6 +195,7 @@ public class _399EvaluateDivision {
                     weight[target] *= weight[originWeight];
                 }
 
+                // 此时的parent是整个联通域的根节点
                 return parent[target];
             }
 
