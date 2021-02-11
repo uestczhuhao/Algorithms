@@ -52,6 +52,8 @@ public class _54SpiralMatrix {
          * 1 初始化四个方向：右-下-左-上，按顺序遍历
          * 2 利用visited数组跟踪已访问的元素，遇到已访问的元素则调转方向
          * 3 记录当前为止的总访问元素个数，访问数达到总节点个数则退出
+         *
+         * 注意：判断当前位置的下一个位置是否越界，而不是当前位置（否则还要退回到合法位置再继续）
          */
         public List<Integer> spiralOrder(int[][] matrix) {
             List<Integer> answer = new ArrayList<>();
