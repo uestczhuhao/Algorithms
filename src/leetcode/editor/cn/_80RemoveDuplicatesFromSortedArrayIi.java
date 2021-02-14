@@ -88,7 +88,8 @@ public class _80RemoveDuplicatesFromSortedArrayIi {
 
             int count = 1;
             // 参考：https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array-ii/solution/shuang-zhi-zhen-zhi-tong-xiang-zhi-zhen-che-di-jie/
-            int slow = 1, fast = 1;
+            // 第一个元素不可能重复，因此slow = 0
+            int slow = 0, fast = 1;
             for (; fast < nums.length; fast++) {
                 if (nums[fast] != nums[fast - 1]) {
                     count = 1;
@@ -98,7 +99,9 @@ public class _80RemoveDuplicatesFromSortedArrayIi {
 
                 // 转变思路，在需要时才移动，并且把慢指针+1
                 if (count <= 2) {
-                    nums[slow++] = nums[fast];
+                    // 当有元素要移动过来时，合法区域此时会扩展，因此先 +1，再赋值
+                    slow ++;
+                    nums[slow] = nums[fast];
                 }
             }
 
@@ -106,16 +109,16 @@ public class _80RemoveDuplicatesFromSortedArrayIi {
         }
 
         public int removeDuplicates(int[] nums) {
-            int k =2;
-            if(nums == null) return 0;
-            if(nums.length <= k) return nums.length;
+            int k = 2;
+            if (nums == null) return 0;
+            if (nums.length <= k) return nums.length;
 
             // 1.定义[0,index] 是修改后的满足要求的数组区间,这里已经把0 1 2 ...k- 1 ,共k个数 放进去了
             int index = k - 1;
             // 2.判断终止条件
-            for(int i = k;i < nums.length;i++){
+            for (int i = k; i < nums.length; i++) {
                 // 3.指针移动条件
-                if(nums[i] != nums[index-k+1]){
+                if (nums[i] != nums[index - k + 1]) {
                     index++;
                     nums[index] = nums[i];
                 }
