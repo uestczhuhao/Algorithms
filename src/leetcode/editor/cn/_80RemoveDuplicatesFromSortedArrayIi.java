@@ -76,7 +76,7 @@ public class _80RemoveDuplicatesFromSortedArrayIi {
          * 慢指针指向该元素实际移动到的位置
          * 使用count记录当前元素出现的次数，当count > 2 时移动元素
          */
-        public int removeDuplicates1(int[] nums) {
+        public int removeDuplicates(int[] nums) {
             if (nums == null) {
                 return 0;
             }
@@ -105,10 +105,10 @@ public class _80RemoveDuplicatesFromSortedArrayIi {
                 }
             }
 
-            return slow;
+            return slow + 1;
         }
 
-        public int removeDuplicates(int[] nums) {
+        public int removeDuplicates1(int[] nums) {
             int k = 2;
             if (nums == null) return 0;
             if (nums.length <= k) return nums.length;
