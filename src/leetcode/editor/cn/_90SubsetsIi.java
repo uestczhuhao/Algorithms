@@ -20,20 +20,50 @@ package leetcode.editor.cn;
 // 👍 381 👎 0
 
 
-public class _90SubsetsIi{
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+public class _90SubsetsIi {
     public static void main(String[] args) {
         Solution t = new _90SubsetsIi().new Solution();
     }
-  
-    /**
-    
-    */
-    //leetcode submit region begin(Prohibit modification and deletion)
-class Solution {
-    public List<List<Integer>> subsetsWithDup(int[] nums) {
 
+    /**
+     *
+     */
+    //leetcode submit region begin(Prohibit modification and deletion)
+    class Solution {
+        List<List<Integer>> answer = new LinkedList<>();
+        int[] numArr;
+
+        public List<List<Integer>> subsetsWithDup(int[] nums) {
+            if (nums == null || nums.length == 0) {
+                return answer;
+            }
+
+            Arrays.sort(nums);
+            numArr = nums;
+            dfs(0, new LinkedList<>());
+            return answer;
+        }
+
+        private void dfs(int start, LinkedList<Integer> curSubset) {
+            answer.add(new ArrayList<>(curSubset));
+            for (int i = start; i < numArr.length; i++) {
+                // 跳过相同元素
+                if (i > start && numArr[i] == numArr[i-1]) {
+                    continue;
+                }
+
+                curSubset.addLast(numArr[i]);
+                // 递归调用下一个元素
+                dfs(i + 1, curSubset);
+                curSubset.removeLast();
+            }
+        }
     }
-}
 //leetcode submit region end(Prohibit modification and deletion)
 
 }
