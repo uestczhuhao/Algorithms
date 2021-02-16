@@ -105,7 +105,8 @@ public class _68TextJustification {
 
                 // 找到当前行最后一个元素，其下标为index - 1
                 while (index < len && curRowWordLen + spaceCount < maxWidth) {
-                    if (curRowWordLen + spaceCount + words[index].length() + 1 > maxWidth) {
+                    // 此处判断再加一个单词时是否越界，注意spaceCount也要+1
+                    if (curRowWordLen + words[index].length() + spaceCount + 1 > maxWidth) {
                         break;
                     }
                     curRowWordLen += words[index++].length();
