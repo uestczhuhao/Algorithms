@@ -52,12 +52,13 @@ package leetcode.editor.cn;
 
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class _93RestoreIpAddresses {
     public static void main(String[] args) {
         Solution t = new _93RestoreIpAddresses().new Solution();
-        System.out.println(t.restoreIpAddresses("25525511135"));
+        System.out.println(t.restoreIpAddresses("010010"));
     }
 
     /**
@@ -68,7 +69,7 @@ public class _93RestoreIpAddresses {
         /**
          * 思路：暴力，每个子串取1-3长度，最后取符合要求的结果返回
          */
-        public List<String> restoreIpAddresses(String s) {
+        public List<String> restoreIpAddresses1(String s) {
             List<String> answer = new ArrayList<>();
             if (s == null || s.length() == 0) {
                 return answer;
@@ -106,6 +107,56 @@ public class _93RestoreIpAddresses {
                 }
             }
             return answer;
+        }
+
+        /**
+         * 思路：回溯法，对截取的每一段，判断其是否满足要求
+         */
+
+        List<String> answer = new LinkedList<>();
+        LinkedList<String> curPath = new LinkedList<>();
+        String srcStr;
+
+        public List<String> restoreIpAddresses(String s) {
+            if (s == null) {
+                return answer;
+            }
+
+            srcStr = s;
+            dfs(0, 4);
+            return answer;
+        }
+
+        /**
+         * @param begin  字符串的开始位置
+         * @param remain 剩余段数，初始为4
+         */
+        private void dfs(int begin, int remain) {
+            if (begin == srcStr.length()) {
+                String ipPath = String.join(".", curPath);
+                if (remain == 0 && ipPath.length() - 3 == srcStr.length()) {
+                    answer.add(ipPath);
+                }
+                return;
+            }
+
+            if (remain <= 0) {
+                return;
+            }
+
+            for (int i = begin; i < begin + 3 && i < srcStr.length(); i++) {
+                // 剩余的字符串太多，此种可能不可能符合要求，直接继续
+                if ((remain - 1) * 3 < srcStr.length() - 1 - i) {
+                    continue;
+                }
+
+                int ipValue = Integer.parseInt(srcStr.substring(begin, i + 1));
+                if (ipValue <= 255) {
+                    curPath.addLast(String.valueOf(ipValue));
+                    dfs(i + 1, remain - 1);
+                    curPath.removeLast();
+                }
+            }
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
