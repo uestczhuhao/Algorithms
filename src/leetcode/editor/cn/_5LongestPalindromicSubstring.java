@@ -59,7 +59,7 @@ public class _5LongestPalindromicSubstring {
          * dp[i][j] 代表i到j的字符串是否为回文
          * 转移方程为：dp[i][j] = dp[i+1][j-1] && s[i+1] == s[j-1]
          */
-        public  String longestPalindrome(String s) {
+        public String longestPalindrome(String s) {
             if (null == s || s.length() == 0) {
                 return "";
             }
@@ -74,10 +74,10 @@ public class _5LongestPalindromicSubstring {
                     // 否则范围缩小2再判断
                     if (s.charAt(left) == s.charAt(right) && (right - left <= 2 || dp[left + 1][right - 1])) {
                         dp[left][right] = true;
-                    if (right - left > high - low) {
-                        low = left;
-                        high = right;
-                    }
+                        if (right - left > high - low) {
+                            low = left;
+                            high = right;
+                        }
                     }
 
                 }
