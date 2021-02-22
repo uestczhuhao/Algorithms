@@ -34,16 +34,16 @@ package leetcode.editor.cn;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
 public class _139WordBreak {
     public static void main(String[] args) {
         Solution t = new _139WordBreak().new Solution();
-        List<String> words = new ArrayList<>();
-        words.add("leet");
-        words.add("code");
-        boolean b = t.wordBreak1("leetcode", words);
+        String s = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        List<String> wordDict = new ArrayList<>(Arrays.asList("a","aa","aaa","aaaa","aaaaa","aaaaaa","aaaaaaa","aaaaaaaa","aaaaaaaaa","aaaaaaaaaa"));
+        boolean b = t.wordBreak1(s, wordDict);
         System.out.println(b);
     }
 
