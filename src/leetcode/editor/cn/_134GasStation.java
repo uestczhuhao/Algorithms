@@ -53,6 +53,9 @@ package leetcode.editor.cn;
 public class _134GasStation {
     public static void main(String[] args) {
         Solution t = new _134GasStation().new Solution();
+        int[] a = {1, 2, 3, 4, 5};
+        int[] b = {3, 4, 5, 1, 2};
+        System.out.println(t.canCompleteCircuit(a, b));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
@@ -62,7 +65,7 @@ public class _134GasStation {
          * 注意：暴力解法最多遍历数组两次，原因是一旦越过最后一个加油站回到第一个加油站
          * 如果当前位置不是解，那么就再也找不到解了，直接返回-1
          */
-        public int canCompleteCircuit(int[] gas, int[] cost) {
+        public int canCompleteCircuit1(int[] gas, int[] cost) {
             if (gas == null || cost == null || gas.length != cost.length) {
                 return -1;
             }
@@ -97,6 +100,28 @@ public class _134GasStation {
             }
 
             return -1;
+        }
+
+        /**
+         * 思路：找到最小总汽油剩余最少的那个加油站
+         * 在总体能跑完的情况（即总油量大于等于总消耗量）下，该加油站的下一个即为所求的起始加油站
+         */
+        public int canCompleteCircuit(int[] gas, int[] cost) {
+            if (gas == null || cost == null || gas.length != cost.length) {
+                return -1;
+            }
+            int length = gas.length;
+            int totalGasSpare = 0;
+            int minSpare = Integer.MAX_VALUE, endIndex = 0;
+            for (int i = 0; i < length; i++) {
+                totalGasSpare += gas[i] - cost[i];
+                if (totalGasSpare < minSpare) {
+                    minSpare = totalGasSpare;
+                    endIndex = i;
+                }
+            }
+
+            return totalGasSpare < 0 ? -1 : (endIndex + 1) % length;
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
