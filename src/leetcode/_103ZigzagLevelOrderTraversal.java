@@ -8,23 +8,22 @@ import java.util.List;
  * @author zhuhao3@xiaomi.com
  * @date 2020/07/14 20:35
  * 给定一个二叉树，返回其节点值的锯齿形层次遍历。（即先从左往右，再从右往左进行下一层遍历，以此类推，层与层之间交替进行）。
- *
+ * <p>
  * 例如：
  * 给定二叉树 [3,9,20,null,null,15,7],
- *
- *     3
- *    / \
- *   9  20
- *     /  \
- *    15   7
+ * <p>
+ * 3
+ * / \
+ * 9  20
+ * /  \
+ * 15   7
  * 返回锯齿形层次遍历如下：
- *
+ * <p>
  * [
- *   [3],
- *   [20,9],
- *   [15,7]
+ * [3],
+ * [20,9],
+ * [15,7]
  * ]
- *
  */
 public class _103ZigzagLevelOrderTraversal {
     public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
@@ -68,6 +67,44 @@ public class _103ZigzagLevelOrderTraversal {
         return allValues;
     }
 
+    public List<List<Integer>> zigzagLevelOrder1(TreeNode root) {
+        List<List<Integer>> ans = new LinkedList<>();
+        if (root == null) {
+            return ans;
+        }
+
+        // 存放节点，普通的层次遍历
+        List<TreeNode> nodeList = new LinkedList<>();
+        boolean order = true;
+        nodeList.add(root);
+        while (!nodeList.isEmpty()) {
+            // 存放值，分为正序和逆序两种情况
+            LinkedList<Integer> level = new LinkedList<>();
+            int size = nodeList.size();
+            for (int i = 0; i < size; i++) {
+                TreeNode curNode = nodeList.remove(0);
+                if (order) {
+                    level.addLast(curNode.val);
+                } else {
+                    level.addFirst(curNode.val);
+                }
+
+                if (curNode.left != null) {
+                    nodeList.add(curNode.left);
+                }
+
+                if (curNode.right != null) {
+                    nodeList.add(curNode.right);
+                }
+
+            }
+            ans.add(level);
+            order = !order;
+        }
+
+        return ans;
+    }
+
     public static void main(String[] args) {
         _103ZigzagLevelOrderTraversal t = new _103ZigzagLevelOrderTraversal();
         TreeNode root1 = new TreeNode(0);
@@ -90,6 +127,7 @@ public class _103ZigzagLevelOrderTraversal {
         root5.right = root9;
         root6.left = root10;
         System.out.println(t.zigzagLevelOrder(root1));
+        System.out.println(t.zigzagLevelOrder1(root1));
 //        Deque<Integer> deque = new LinkedList<>();
 //        deque.push(12);
 //        deque.push(123);
