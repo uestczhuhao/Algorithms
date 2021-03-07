@@ -12,25 +12,24 @@ import java.util.List;
  * @date 20-6-24 上午11:11.
  * Description:
  * 给定一个二叉树，返回它的中序 遍历。
- *
+ * <p>
  * 示例:
- *
+ * <p>
  * 输入: [1,null,2,3]
- *    1
- *     \
- *      2
- *     /
- *    3
- *
+ * 1
+ * \
+ * 2
+ * /
+ * 3
+ * <p>
  * 输出: [1,3,2]
  * 进阶: 递归算法很简单，你可以通过迭代算法完成吗？
- *
  */
 public class _94BinaryTreeInorderTraversal {
 
     public List<Integer> inorderTraversal(TreeNode root) {
         if (root == null) {
-            return  new ArrayList<>();
+            return new ArrayList<>();
         }
 
         Deque<TreeNode> stack = new LinkedList<>();
@@ -51,6 +50,25 @@ public class _94BinaryTreeInorderTraversal {
         return inorder;
     }
 
+    public List<Integer> inorderTraversal1(TreeNode root) {
+        List<Integer> inorder = new ArrayList<>();
+        if (root == null) {
+            return inorder;
+        }
+
+        inOrder(root, inorder);
+        return inorder;
+    }
+
+    private void inOrder(TreeNode root, List<Integer> ans) {
+        if (root == null) {
+            return;
+        }
+        inOrder(root.left, ans);
+        ans.add(root.val);
+        inOrder(root.right, ans);
+    }
+
     public static void main(String[] args) {
         TreeNode root = new TreeNode(1);
         TreeNode fLeft = new TreeNode(2);
@@ -68,5 +86,6 @@ public class _94BinaryTreeInorderTraversal {
 
         _94BinaryTreeInorderTraversal t = new _94BinaryTreeInorderTraversal();
         System.out.println(t.inorderTraversal(root));
+        System.out.println(t.inorderTraversal1(root));
     }
 }
