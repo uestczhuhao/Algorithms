@@ -25,9 +25,10 @@ package leetcode;
 public class _4MedianOfTwoSortedArrays {
     public static void main(String[] args) {
         _4MedianOfTwoSortedArrays t = new _4MedianOfTwoSortedArrays();
-        int[] nums1 = {1,2,3};
-        int[] nums2 = {4,5,6,7};
+        int[] nums1 = {1, 2, 3};
+        int[] nums2 = {4, 5, 6, 7};
         System.out.println(t.findMedianSortedArrays(nums1, nums2));
+        System.out.println(t.findMedianSortedArrays1(nums1, nums2));
     }
 
     /**
@@ -122,6 +123,48 @@ public class _4MedianOfTwoSortedArrays {
             }
         }
         return 0.0;
+    }
+
+    /**
+     * 上诉简化版
+     */
+    public double findMedianSortedArrays1(int[] nums1, int[] nums2) {
+        if (nums1 == null || nums2 == null
+            || (nums1.length == 0 && nums2.length == 0)) {
+            return 0.0D;
+        }
+
+        if (nums1.length > nums2.length) {
+            return findMedianSortedArrays1(nums2, nums1);
+        }
+
+        int shortLen = nums1.length, longLen = nums2.length;
+        int midLeft = 0, midRight = 0;
+        // right 要初始化为shortLen
+        // 因为分割线是有可能位于第一个数组的最右边的
+        int left = 0, right = shortLen;
+        int i, j;
+        while (left <= right) {
+            i = left + (right - left) / 2;
+            // 如果i取[0-shortLen]，可以计算的j取[0-longLen]
+            j = (shortLen + longLen + 1) / 2 - i;
+            int sMidLeft = i == 0 ? Integer.MIN_VALUE : nums1[i - 1];
+            int sMidRight = i == shortLen ? Integer.MAX_VALUE : nums1[i];
+            int lMidLeft = j == 0 ? Integer.MIN_VALUE : nums2[j - 1];
+            int lMidRight = j == longLen ? Integer.MAX_VALUE : nums2[j];
+
+            // 目标是nums1[i - 1] <= nums2[j] && nums2[j - 1] <= nums1[i] ，它的形式是「条件 1 && 条件 2」
+            // 只需要对其中一个取反即可完成查找
+            if (sMidLeft > lMidRight) {
+                right = i - 1;
+            } else {
+                midLeft = Math.max(sMidLeft, lMidLeft);
+                midRight = Math.min(sMidRight, lMidRight);
+                left = i + 1;
+            }
+        }
+
+        return (shortLen + longLen) % 2 != 0 ? midLeft : 1.0 * (midLeft + midRight) / 2;
     }
 
 }
