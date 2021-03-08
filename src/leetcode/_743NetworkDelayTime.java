@@ -1,6 +1,12 @@
 package leetcode;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
 
 /**
  * @author mizhu
@@ -38,11 +44,14 @@ public class _743NetworkDelayTime {
         times[1] = new int[]{2, 3, 1};
         times[2] = new int[]{3, 4, 1};
         System.out.println(t.networkDelayTime(times, N, K));
+        System.out.println(t.networkDelayTime1(times, N, K));
     }
 
     /**
      * Dijkstra算法，思路详解：https://www.cnblogs.com/skywang12345/p/3711516.html
      * 注：严格按照思路的解法，需要几倍的代码量，且时间/空间复杂度更差
+     *
+     * 邻接矩阵实现，3ms
      */
     public int networkDelayTime(int[][] times, int N, int K) {
         if (times.length == 0 || times[0].length <= 0) {
@@ -66,6 +75,7 @@ public class _743NetworkDelayTime {
         // seen数组，代表从i到K是否联通
         // 也可以用作判定某节点是否已经访问过
         boolean[] seen = new boolean[N];
+
         // 从K出发，因此初始化为true
         seen[K - 1] = true;
 
@@ -115,5 +125,67 @@ public class _743NetworkDelayTime {
 
 
         return maxDistance;
+    }
+
+    /**
+     * 用小顶堆（距离小的优先）优化Dijkstra算法
+     * 优化空间，时间消耗更大，24ms
+     */
+    public int networkDelayTime1(int[][] times, int N, int K) {
+        if (times.length == 0 || times[0].length <= 0) {
+            return -1;
+        }
+
+        // 邻接表map，稀疏时更优
+        Map<Integer, List<int[]>> map = new HashMap<>();
+        // 初始化邻接表
+        for (int[] t : times) {
+            map.computeIfAbsent(t[0] - 1, k -> new ArrayList<>()).add(new int[]{t[1] - 1, t[2]});
+        }
+
+        int[] distance = new int[N];
+        Arrays.fill(distance, Integer.MAX_VALUE);
+        distance[K - 1] = 0;
+        // seen数组，代表从i到K是否联通
+        // 也可以用作判定某节点是否已经访问过
+        boolean[] seen = new boolean[N];
+
+        PriorityQueue<Integer> indexQueue = new PriorityQueue<>(Comparator.comparingInt(index -> distance[index]));
+        indexQueue.add(K - 1);
+        while (!indexQueue.isEmpty()) {
+            int curIndex = indexQueue.poll();
+            if (seen[curIndex]) {
+                continue;
+            }
+
+            // 标记当前节点为已访问
+            seen[curIndex] = true;
+            List<int[]> timeList = map.getOrDefault(curIndex, new ArrayList<>());
+            for (int[] time : timeList) {
+                int next = time[0];
+                // 如果这个next已经访问过，代表已经取过最小路径，直接跳过
+                if (seen[next]) {
+                    continue;
+                }
+                // 更新next的到达时间
+                // next的时间，取从curIndex出发的值（distance[curIndex] + time[1]）和其自身值中的较小值
+                if (distance[curIndex] != Integer.MAX_VALUE) {
+                    distance[next] = Math.min(distance[next], distance[curIndex] + time[1]);
+                }
+                // curIndex的所有邻居入队列，按距离从小到大访问
+                indexQueue.add(next);
+            }
+
+        }
+
+        int res = Integer.MIN_VALUE;
+        for (int dis : distance) {
+            if (dis == Integer.MAX_VALUE) {
+                return -1;
+            }
+
+            res = Math.max(res, dis);
+        }
+        return res;
     }
 }
