@@ -61,7 +61,7 @@ public class _215KthLargestElementInAnArray {
     public static void main(String[] args) {
         HeapSort h = new _215KthLargestElementInAnArray().new HeapSort();
         int[] a = {2, 1, 3, 8, 4, 2, 9, 12};
-        System.out.println((h.findKthLargest(a,2)));
+        System.out.println((h.findKthLargest(a,3)));
         System.out.println((Arrays.toString(h.heapSort(a))));
     }
 
@@ -86,10 +86,7 @@ public class _215KthLargestElementInAnArray {
 
 
         /**
-         * 堆排序，先构建大顶堆，再交换尾部值后调整（等效为删除）
-         *
-         * @param nums
-         * @return
+         * 堆排序，先构建大顶堆（即节点比左右子节点都大的二叉树），再交换尾部值后调整（等效为删除）
          */
         public int[] heapSort(int[] nums) {
             if (nums == null || nums.length == 0) {
@@ -139,6 +136,7 @@ public class _215KthLargestElementInAnArray {
                 smaller = rChildIndex;
             }
 
+            // 调整时只考虑往左下沉，因为堆本身是部分有序
             if (nums[smaller] < nums[low]) {
                 swap(nums, smaller, low);
                 heapify(nums, smaller, high);
