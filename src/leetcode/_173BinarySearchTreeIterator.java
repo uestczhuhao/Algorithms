@@ -51,7 +51,11 @@ public class _173BinarySearchTreeIterator {
         }
     }
 
+    /**
+     * 受控递归，在next调用时将其右孩子的左子数加入栈
+     */
     private static class BSTIterator {
+        // 存放二叉搜索树的左分支的值，用于求最小值
         Deque<TreeNode> stack = new LinkedList<>();
 
         public BSTIterator(TreeNode root) {
