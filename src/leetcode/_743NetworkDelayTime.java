@@ -49,6 +49,7 @@ public class _743NetworkDelayTime {
             return -1;
         }
 
+        // 邻接矩阵，graph[i][j] 代表i 到 j 的传递时间，初始化为最大值
         int[][] graph = new int[N][N];
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
@@ -65,20 +66,23 @@ public class _743NetworkDelayTime {
         // seen数组，代表从i到K是否联通
         // 也可以用作判定某节点是否已经访问过
         boolean[] seen = new boolean[N];
+        // 从K出发，因此初始化为true
         seen[K - 1] = true;
 
         // 距离K的距离表，默认为最大值
         int[] distance = new int[N];
         Arrays.fill(distance, Integer.MAX_VALUE);
+        // 按照题意初始化K到各个节点的传递时间
         System.arraycopy(graph[K - 1], 0, distance, 0, N);
+        // 节点自身的传递时间为0
         distance[K - 1] = 0;
 
         // 外层循环需要N-1次，代表N个节点（除K外）都处理了一遍
-        for (int i = 0; i < N-1; i++) {
+        for (int i = 0; i < N - 1; i++) {
             int minIndex = 0;
             int minDistance = Integer.MAX_VALUE;
 
-            // 找到本轮的最小距离，第一轮一定找到的是K
+            // 找到本轮的最小距离
             for (int j = 0; j < N; j++) {
                 // 从unVisit中寻找最小值
                 if (!seen[j] && distance[j] < minDistance) {
@@ -92,7 +96,7 @@ public class _743NetworkDelayTime {
 
             // 根据本轮的minIndex，更新distance列表
             for (int j = 0; j < N; j++) {
-                // 更新从本轮minIndex可达的节点，用于下一轮寻找最小值
+                // 更新从本轮minIndex可达的节点，用于下一轮寻找最小值，即更新邻接矩阵
                 if (graph[minIndex][j] != Integer.MAX_VALUE) {
                     distance[j] = Math.min(distance[j], distance[minIndex] + graph[minIndex][j]);
                 }
@@ -101,6 +105,7 @@ public class _743NetworkDelayTime {
 
         int maxDistance = 0;
         for (int i = 0; i < N; i++) {
+            // 若有节点不可达，直接返回-1
             if (distance[i] == Integer.MAX_VALUE) {
                 return -1;
             }
