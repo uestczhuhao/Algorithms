@@ -72,6 +72,33 @@ public class _145BinaryTreePostorderTraversal {
 
             return resultValues;
         }
+
+        /**
+         * 参考前序遍历的 中左右，后续为 左右中
+         * 因此将前序倒转，为 右左中，再将前序的 左右 倒转，即为结果
+         */
+        public List<Integer> postOrderTraversal(TreeNode root) {
+            LinkedList<Integer> ans = new LinkedList<>();
+            if(root == null) {
+                return ans;
+            }
+
+            Deque<TreeNode> stack = new LinkedList<>();
+            stack.push(root);
+            while (!stack.isEmpty()) {
+                TreeNode curNode = stack.pop();
+                ans.addFirst(curNode.val);
+                if (curNode.left != null) {
+                    stack.push(curNode.left);
+                }
+
+                if (curNode.right != null) {
+                    stack.push(curNode.right);
+                }
+            }
+
+            return ans;
+        }
     }
 
 
