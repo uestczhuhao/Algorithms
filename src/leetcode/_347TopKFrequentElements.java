@@ -42,12 +42,7 @@ public class _347TopKFrequentElements {
             numFreqMap.put(num, numFreqMap.getOrDefault(num, 0) + 1);
         }
 
-        PriorityQueue<Map.Entry<Integer, Integer>> heap = new PriorityQueue<>(new Comparator<Map.Entry<Integer, Integer>>() {
-            @Override
-            public int compare(Map.Entry<Integer, Integer> o1, Map.Entry<Integer, Integer> o2) {
-                return o1.getValue() - o2.getValue();
-            }
-        });
+        PriorityQueue<Map.Entry<Integer, Integer>> heap = new PriorityQueue<>(Comparator.comparingInt(Map.Entry::getValue));
         for (Map.Entry<Integer, Integer> numFre : numFreqMap.entrySet()) {
             heap.add(numFre);
             while (heap.size() > k) {

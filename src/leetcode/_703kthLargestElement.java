@@ -38,12 +38,12 @@ public class _703kthLargestElement {
 
     class KthLargest {
 
-        PriorityQueue<Integer> kSmallTopHeap;
+        PriorityQueue<Integer> smallTopKHeap;
         int k;
 
         public KthLargest(int k, int[] nums) {
             this.k = k;
-            kSmallTopHeap = new PriorityQueue<>(k);
+            smallTopKHeap = new PriorityQueue<>(k);
             buildHeap(k, nums);
         }
 
@@ -51,21 +51,21 @@ public class _703kthLargestElement {
 
             int i = 0;
             for (; i < k && i < nums.length; i++) {
-                kSmallTopHeap.add(nums[i]);
+                smallTopKHeap.add(nums[i]);
             }
 
             for (; i < nums.length; i++) {
-                kSmallTopHeap.add(nums[i]);
-                kSmallTopHeap.poll();
+                smallTopKHeap.add(nums[i]);
+                smallTopKHeap.poll();
             }
         }
 
         public int add(int val) {
-            kSmallTopHeap.add(val);
-            if (k < kSmallTopHeap.size()) {
-                kSmallTopHeap.poll();
+            smallTopKHeap.add(val);
+            if (k < smallTopKHeap.size()) {
+                smallTopKHeap.poll();
             }
-            return kSmallTopHeap.isEmpty() ? -1 : kSmallTopHeap.peek();
+            return smallTopKHeap.isEmpty() ? -1 : smallTopKHeap.peek();
         }
     }
 }
