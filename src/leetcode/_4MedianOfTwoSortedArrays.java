@@ -25,8 +25,9 @@ package leetcode;
 public class _4MedianOfTwoSortedArrays {
     public static void main(String[] args) {
         _4MedianOfTwoSortedArrays t = new _4MedianOfTwoSortedArrays();
-        int[] nums1 = {1, 2, 3};
-        int[] nums2 = {4, 5, 6, 7};
+        int[] nums1 = {3};
+//        int[] nums2 = {4, 5, 6, 7};
+        int[] nums2 = {-1, -2};
         System.out.println(t.findMedianSortedArrays(nums1, nums2));
         System.out.println(t.findMedianSortedArrays1(nums1, nums2));
     }
@@ -144,14 +145,15 @@ public class _4MedianOfTwoSortedArrays {
         // 因为分割线是有可能位于第一个数组的最右边的
         int left = 0, right = shortLen;
         int i, j;
+        int sMidLeft = 0, sMidRight = 0, lMidLeft = 0, lMidRight = 0;
         while (left <= right) {
             i = left + (right - left) / 2;
             // 如果i取[0-shortLen]，可以计算的j取[0-longLen]
             j = (shortLen + longLen + 1) / 2 - i;
-            int sMidLeft = i == 0 ? Integer.MIN_VALUE : nums1[i - 1];
-            int sMidRight = i == shortLen ? Integer.MAX_VALUE : nums1[i];
-            int lMidLeft = j == 0 ? Integer.MIN_VALUE : nums2[j - 1];
-            int lMidRight = j == longLen ? Integer.MAX_VALUE : nums2[j];
+            sMidLeft = i == 0 ? Integer.MIN_VALUE : nums1[i - 1];
+            sMidRight = i == shortLen ? Integer.MAX_VALUE : nums1[i];
+            lMidLeft = j == 0 ? Integer.MIN_VALUE : nums2[j - 1];
+            lMidRight = j == longLen ? Integer.MAX_VALUE : nums2[j];
 
             // 目标是nums1[i - 1] <= nums2[j] && nums2[j - 1] <= nums1[i] ，它的形式是「条件 1 && 条件 2」
             // 只需要对其中一个取反即可完成查找
