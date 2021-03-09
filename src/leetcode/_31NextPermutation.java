@@ -4,21 +4,22 @@ import java.util.Arrays;
 
 public class _31NextPermutation {
     public static void main(String[] args) {
-        int[] nums = {5,4,3,2,1};
+        int[] nums = {1, 2, 3, 6, 5, 4};
         nextPermutation(nums);
         System.out.println(Arrays.toString(nums));
     }
-    static void nextPermutation(int[] nums){
-        if (nums == null || nums.length <= 1){
+
+    static void nextPermutation(int[] nums) {
+        if (nums == null || nums.length <= 1) {
             return;
         }
-        int index = nums.length-1;
-        //找到需要交换的位置，例如123654，则index = 2，num[index] = 3
-        while (index > 0){
-            if (nums[index - 1] < nums[index]){
+        int index = nums.length - 1;
+        //找到需要交换的位置，，则index = 3，num[index] = 6
+        while (index > 0) {
+            if (nums[index - 1] < nums[index]) {
                 break;
             }
-            index -- ;
+            index--;
         }
 
         /*
@@ -30,27 +31,28 @@ public class _31NextPermutation {
         if (index == 0) {
             sortConvert(nums, 0, nums.length - 1);
         } else {
-            int i=nums.length - 1;
-            for (; i >= index; i--){
-                if (nums[i] > nums[index - 1]){
+            int i = nums.length - 1;
+            for (; i >= index; i--) {
+                if (nums[i] > nums[index - 1]) {
                     break;
                 }
             }
-            swap(nums, i, index-1);
+            swap(nums, i, index - 1);
             sortConvert(nums, index, nums.length - 1);
         }
     }
 
-    private static void swap(int[] nums, int source,int target){
+    private static void swap(int[] nums, int source, int target) {
         int tmp = nums[source];
         nums[source] = nums[target];
         nums[target] = tmp;
     }
-    static void sortConvert(int[] nums, int start, int end){
-        while (start < end){
+
+    static void sortConvert(int[] nums, int start, int end) {
+        while (start < end) {
             swap(nums, start, end);
-            start ++ ;
-            end -- ;
+            start++;
+            end--;
         }
     }
 }

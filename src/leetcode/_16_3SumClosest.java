@@ -17,8 +17,8 @@ public class _16_3SumClosest {
                 sum = nums[low] + nums[high] + nums[i];
                 if (Math.abs(sum - target) < min) {
                     res = sum;
+                    min = Math.abs(sum - target);
                 }
-                min = Math.min(min, Math.abs(sum - target));
                 if (sum > target) {
                     high--;
                 } else {
