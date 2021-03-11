@@ -114,8 +114,9 @@ public class _57InsertInterval {
             }
 
             int[][] result = new int[answer.size()][];
-            for (int i = 0; i < answer.size(); i++) {
-                result[i] = answer.get(i);
+            int index = 0;
+            for (int[] ans : answer) {
+                result[index++] = ans;
             }
             return result;
         }
