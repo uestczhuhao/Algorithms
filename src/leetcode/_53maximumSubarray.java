@@ -17,8 +17,10 @@ package leetcode;
 public class _53maximumSubarray {
     public static void main(String[] args) {
         _53maximumSubarray t = new _53maximumSubarray();
-        int[] a = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
+//        int[] a = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
+        int[] a = {0};
         System.out.println(t.maxSubArray(a));
+        System.out.println(t.maxSubArray1(a));
     }
 
     /**
@@ -38,5 +40,23 @@ public class _53maximumSubarray {
         }
 
         return maxSum;
+    }
+
+    /**
+     * 贪心算法，累加到当前的和sum < 0时，将sum置为0，同时记录最大的sum即可
+     */
+    public int maxSubArray1(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+        int sum = 0, max = Integer.MIN_VALUE;
+        for (int num : nums) {
+            // 等同于Math.max(num,sum + num)，但sum初始值要是int最小
+            sum = sum <= 0 ? num : sum + num;
+
+            max = Math.max(sum, max);
+        }
+
+        return max;
     }
 }
