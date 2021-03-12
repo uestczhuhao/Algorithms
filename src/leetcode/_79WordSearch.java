@@ -12,8 +12,8 @@ public class _79WordSearch {
 
         boolean[][] visited = new boolean[board.length][board[0].length];
         boolean result;
-        for (int i=0;i<board.length; i++) {
-            for (int j=0;j <board[0].length; j++) {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
                 result = findWord(board, visited, word, 0, i, j);
                 if (result) {
                     return true;
@@ -24,14 +24,7 @@ public class _79WordSearch {
     }
 
     /**
-     * hui
-     * @param board
-     * @param visited
-     * @param word
-     * @param chIndex
-     * @param row
-     * @param column
-     * @return
+     * 回溯法，从word的chIndex和数组的row行，column开始，是否能找到匹配的记录
      */
     public boolean findWord(char[][] board, boolean[][] visited, String word, int chIndex, int row, int column) {
         if (chIndex == word.length()) {

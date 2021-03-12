@@ -90,7 +90,7 @@ public class _73SetMatrixZeroes {
                 }
             }
 
-            // 第一行和第一列已经在第一遍遍历中置位完成，这里只需要从第二行/列开始
+            // 第一行和第一列已经在第一遍遍历中被当作标记置位，这里要先从第二行/列开始，之后再视情况置位第一行/列
             for (int i = row - 1; i > 0; i--) {
                 for (int j = column - 1; j > 0; j--) {
                     if (matrix[i][0] == 0 || matrix[0][j] == 0) {
