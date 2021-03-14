@@ -30,7 +30,10 @@ package leetcode;
  */
 public class _122BestTimeStockII {
     public static void main(String[] args) {
-
+        int[] prices = {7,1,5,3,6,4};
+        _122BestTimeStockII t = new _122BestTimeStockII();
+        System.out.println(t.maxProfit(prices));
+        System.out.println(t.maxProfit1(prices));
     }
 
 
@@ -81,5 +84,28 @@ public class _122BestTimeStockII {
         }
 
         return maxProfit;
+    }
+
+    /**
+     * 动态规划+空间优化解法
+     * 由于可以交易无数次，因此和121题的推导公式不同
+     */
+    public int maxProfit1(int[] prices) {
+        if (prices == null || prices.length == 0) {
+            return 0;
+        }
+
+        int len = prices.length;
+        // 不持有股票
+        int[] sell = new int[len];
+        // 持有股票
+        int[] hold = new int[len];
+        hold[0] = -prices[0];
+        for (int i = 1; i < len; i++) {
+            sell[i] = Math.max(sell[i-1], hold[i-1] + prices[i]);
+            hold[i] = Math.max(hold[i-1], sell[i-1] - prices[i]);
+        }
+
+        return sell[len - 1];
     }
 }

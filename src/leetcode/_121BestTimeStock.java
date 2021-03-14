@@ -26,8 +26,9 @@ package leetcode;
 public class _121BestTimeStock {
     public static void main(String[] args) {
         _121BestTimeStock t = new _121BestTimeStock();
-        int[] prices = {7, 6, 4, 3, 1};
+        int[] prices = {7, 6, 8, 3, 1};
         System.out.println(t.maxProfit(prices));
+        System.out.println(t.maxProfit1(prices));
     }
 
     public int maxProfit(int[] prices) {
@@ -45,5 +46,26 @@ public class _121BestTimeStock {
         }
 
         return maxProfit;
+    }
+
+    /**
+     * 动态规划解法
+     */
+    public int maxProfit1(int[] prices) {
+        if (null == prices || prices.length == 0) {
+            return 0;
+        }
+
+        int len = prices.length;
+        int[][] dp = new int[len][2];
+
+        // 初始化第一天的dp值
+        dp[0][1] = -prices[0];
+        for (int i = 1; i < len; i++) {
+            dp[i][0] = Math.max(dp[i-1][0], dp[i-1][1] + prices[i]);
+            dp[i][1] = Math.max(-prices[i], dp[i-1][1]);
+        }
+        // 最后一天不持股获益最多
+        return dp[len-1][0];
     }
 }
