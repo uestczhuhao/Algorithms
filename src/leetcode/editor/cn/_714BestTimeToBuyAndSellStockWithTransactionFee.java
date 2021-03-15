@@ -41,7 +41,7 @@ public class _714BestTimeToBuyAndSellStockWithTransactionFee {
          * dp[i][0] = max{dp[i-1][0], dp[i-1][1] + price - fee}
          * dp[i][1] = max{dp[i-1][0] - price, dp[i-1][1]}
          */
-        public int maxProfit(int[] prices, int fee) {
+        public int maxProfit1(int[] prices, int fee) {
             if (prices == null || prices.length == 0) {
                 return 0;
             }
@@ -55,6 +55,25 @@ public class _714BestTimeToBuyAndSellStockWithTransactionFee {
             }
 
             return dp[0];
+        }
+
+
+        /**
+         * 用两个变量代替数组
+         */
+        public int maxProfit(int[] prices, int fee) {
+            if (prices == null || prices.length == 0) {
+                return 0;
+            }
+
+            int sell = 0, hold = -prices[0];
+            for (int i = 1; i < prices.length; i++) {
+                int pre = sell;
+                sell = Math.max(sell, hold + prices[i] - fee);
+                hold = Math.max(pre - prices[i], hold);
+            }
+
+            return sell;
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
