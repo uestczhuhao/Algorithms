@@ -30,7 +30,7 @@ package leetcode;
  */
 public class _123BestTimeSocketIII {
     public static void main(String[] args) {
-        int[] prices = {3,3,5,0,0,3,1,4};
+        int[] prices = {3, 3, 5, 0, 0, 3, 1, 4};
         _123BestTimeSocketIII t = new _123BestTimeSocketIII();
         System.out.println(t.maxProfit(prices));
     }
@@ -38,7 +38,7 @@ public class _123BestTimeSocketIII {
     /**
      * 动态规划，有三个变量，天数day，交易次数num，手中是否有股票（0：无/1：有）
      * 因此采用三维数组表示：dp[i][j][0/1]，其值为第i天，已经交易了j次，手中有/无股票时的最大获利
-     * 其中 1<=i<=day   1<=j<=num
+     * 其中 0<=i<day   1<=j<=num
      * 状态转移方程：
      * dp[i][j][0] = max(dp[i-1][j][0], dp[i-1][j][1] + prices[i])
      * 第i天无股票，可以从i-1的两种状态转移：
@@ -54,7 +54,7 @@ public class _123BestTimeSocketIII {
      * dp[-1][j][1] = -inf  由于还未开始，不可能持有股票，因此是负无穷
      * dp[i][0][0] = 0      由于j是从1开始，0代表还未交易，利润为0
      * dp[i][0][1] = -inf   由于未交易，因此不可能有股票，因此是负无穷
-     *
+     * <p>
      * 由此可以推出，当i==0时，dp[0][j][0] = 0;  dp[0][j][1] = -prices[0]
      * <p>
      * 对本题来说，num = 2
@@ -74,16 +74,43 @@ public class _123BestTimeSocketIII {
         int[][][] dp = new int[days][3][2];
         for (int i = 0; i < days; i++) {
             for (int j = 2; j >= 1; j--) {
+                // 第0天不持有股票收益为0
+                // 持有股票必为第0天买入的，因此收益为-prices[0]
                 if (i == 0) {
+                    // 对于dp[0][2][0] 和 dp[0][2][1]这两种情况
+                    // 可以理解为在同一天，已经买卖过一次股票了，此时收益为0，第二次买入dp[0][2][1] = -prices[0]，第二次卖出dp[0][2][0] = 0
                     dp[0][j][0] = 0;
                     dp[0][j][1] = -prices[0];
                     continue;
                 }
-                dp[i][j][0] = Math.max(dp[i-1][j][0], dp[i-1][j][1] + prices[i]);
-                dp[i][j][1] = Math.max(dp[i-1][j][1], dp[i-1][j-1][0] - prices[i]);
+                dp[i][j][0] = Math.max(dp[i - 1][j][0], dp[i - 1][j][1] + prices[i]);
+                dp[i][j][1] = Math.max(dp[i - 1][j][1], dp[i - 1][j - 1][0] - prices[i]);
             }
         }
 
-        return dp[days - 1][2][0];
+        return Math.max(dp[days - 1][2][0], dp[days - 1][1][0]);
+    }
+
+    /**
+     * dp[i][j][0] = max{dp[i-1][j][0], dp[i-1][j][1] + prices[i]}
+     * dp[i][j][1] = max{dp[i-1][j-1][0] - prices[i], dp[i-1][j][1]}
+     * 空间优化解法，注意先求dp[j][0]，理由是dp[j][0]要用到上一行到dp[j][1]
+     */
+    public int maxProfit1(int[] prices) {
+        if (null == prices || prices.length == 0) {
+            return 0;
+        }
+
+        int[][] dp = new int[3][2];
+        dp[1][1] = -prices[0];
+        dp[2][1] = -prices[0];
+        for (int i = 1; i < prices.length; i++) {
+            for (int j = 2; j >= 1; j--) {
+                dp[j][0] = Math.max(dp[j][0], dp[j][1] + prices[i]);
+                dp[j][1] = Math.max(dp[j-1][0] - prices[i], dp[j][1]);
+            }
+        }
+
+        return Math.max(dp[1][0], dp[2][0]);
     }
 }

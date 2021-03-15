@@ -1,5 +1,7 @@
 package leetcode;
 
+import java.util.Arrays;
+
 /**
  * @author mizhu
  * @date 2020/3/27 22:43
@@ -24,8 +26,11 @@ package leetcode;
 public class _188BestTimeSocketIV {
     public static void main(String[] args) {
         _188BestTimeSocketIV t = new _188BestTimeSocketIV();
-        int[] a = {3, 3, 5, 0, 0, 3, 1, 4};
-        System.out.println(t.maxProfit(2, a));
+//        int[] a = {3, 3, 5, 0, 0, 3, 1, 4};
+        int[] a = {6, 1, 6, 4, 3, 0, 2};
+        int k = 1;
+        System.out.println(t.maxProfit(k, a));
+        System.out.println(t.maxProfit1(k, a));
 
 
     }
@@ -39,8 +44,8 @@ public class _188BestTimeSocketIV {
             return 0;
         }
 
-        if (k > prices.length / 2) {
-            return maxProfit1(prices);
+        if (k >= prices.length / 2) {
+            return greedy(prices);
         }
 
         int days = prices.length;
@@ -61,12 +66,13 @@ public class _188BestTimeSocketIV {
                 dp[i][j][0] = Math.max(dp[i - 1][j][0], dp[i - 1][j][1] + prices[i]);
                 dp[i][j][1] = Math.max(dp[i - 1][j][1], dp[i - 1][j - 1][0] - prices[i]);
             }
+            System.out.println(Arrays.deepToString(dp[i]));
         }
 
         return dp[days - 1][k][0];
     }
 
-    private int maxProfit1(int[] prices) {
+    private int greedy(int[] prices) {
         if (null == prices || prices.length == 0) {
             return 0;
         }
@@ -78,6 +84,41 @@ public class _188BestTimeSocketIV {
             }
         }
 
+        return maxProfit;
+    }
+
+    /**
+     * dp[i][j][0] = max{dp[i-1][j][0], dp[i-1][j][1] + prices[i]}
+     * dp[i][j][1] = max{dp[i-1][j-1][0] - prices[i], dp[i-1][j][1]}
+     * 空间优化解法，注意先求dp[j][0]，理由是dp[j][0]要用到上一行到dp[j][1]
+     */
+    public int maxProfit1(int k, int[] prices) {
+        if (null == prices || prices.length == 0 || k <= 0) {
+            return 0;
+        }
+
+        if (k >= prices.length / 2) {
+            return greedy(prices);
+        }
+
+        int[][] dp = new int[k + 1][2];
+        for (int i = 0; i < prices.length; i++) {
+            for (int j = k; j >= 1; j--) {
+                if (i == 0) {
+                    dp[j][1] = -prices[0];
+                    continue;
+                }
+                dp[j][0] = Math.max(dp[j][0], dp[j][1] + prices[i]);
+                dp[j][1] = Math.max(dp[j - 1][0] - prices[i], dp[j][1]);
+            }
+
+            System.out.println(Arrays.deepToString(dp));
+        }
+
+        int maxProfit = Integer.MIN_VALUE;
+        for (int i = 1; i <= k; i++) {
+            maxProfit = Math.max(maxProfit, dp[i][0]);
+        }
         return maxProfit;
     }
 
