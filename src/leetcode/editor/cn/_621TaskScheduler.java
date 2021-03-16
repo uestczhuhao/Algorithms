@@ -77,6 +77,7 @@ public class _621TaskScheduler {
             }
 
             int maxExecTime = 0;
+            // 最后一列的个数
             int countMaxExec = 0;
             Map<Character, Integer> taskExecTimeMap = new HashMap<>();
             for (char task : tasks) {

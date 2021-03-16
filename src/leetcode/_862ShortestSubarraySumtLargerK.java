@@ -34,8 +34,8 @@ import java.util.LinkedList;
  */
 public class _862ShortestSubarraySumtLargerK {
     public static void main(String[] args) {
-        int[] a = { 2};
-        int k = 2;
+        int[] a = {1, -3, 2, 4, 7};
+        int k = 6;
         System.out.println(shortestSubarray(a, k));
     }
 
@@ -45,7 +45,7 @@ public class _862ShortestSubarraySumtLargerK {
      * 3. 初始化一个双端队列deque，存放数组下标（每个下标都放一次）
      * 4. 根据2，从deque中剔除为负的项i，因为子序列不可能以i开头，理由是若i为负，从i+1开始的话和更大，而且长度更短
      * 5. 遍历数组A的每一个位置，比较当前位置和deque的头部的距离，找出最小长度（条件是这部分的和大于等于K）
-     *
+     * <p>
      * 注意：
      * 1. 剔除负的部分和0
      * 2. sum数组要留个哨兵0，用以处理第一个满足条件的子序列长度（如前x项满足，其长度为x-0）
