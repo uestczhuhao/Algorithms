@@ -71,16 +71,16 @@ public class _3LengthOfLongestSubstring {
         }
         int i = 0, j = 0, len = s.length();
         HashMap<Character, Integer> charIndexMap = new HashMap<>();
-        int manLength = 0;
+        int maxLength = 0;
         while (i < len && j < len) {
             if (charIndexMap.containsKey(s.charAt(j))) {
                 i = Math.max(i, charIndexMap.get(s.charAt(j)) + 1);
             }
-            manLength = Math.max(manLength, j - i + 1);
+            maxLength = Math.max(maxLength, j - i + 1);
             charIndexMap.put(s.charAt(j), j);
             j++;
         }
 
-        return manLength;
+        return maxLength;
     }
 }

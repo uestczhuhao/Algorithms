@@ -49,7 +49,8 @@ public class _5LongestPalindromicSubstring {
     public static void main(String[] args) {
         Solution t = new _5LongestPalindromicSubstring().new Solution();
         String s = "babad";
-        System.out.println(t.longestPalindrome(s));
+//        System.out.println(t.longestPalindrome(s));
+        System.out.println(t.longestPalindrome1(s));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
@@ -83,6 +84,41 @@ public class _5LongestPalindromicSubstring {
                 }
             }
             return s.substring(low, high + 1);
+        }
+
+        /**
+         * 中心扩展法，以每个字符（aba）或每两个字符（abba型）为核心向外扩展到最大
+         */
+        public String longestPalindrome1(String s) {
+            if (null == s || s.length() == 0) {
+                return "";
+            }
+
+            int maxPalLen = 0, startIndex = 0;
+            for (int i = 0; i < s.length(); i++) {
+                int singleCenterLen = expendAroundCenter(s, i, i);
+                int doubleCenterLen = expendAroundCenter(s, i, i + 1);
+                int curLen = Math.max(singleCenterLen, doubleCenterLen);
+                if (curLen > maxPalLen) {
+                    maxPalLen = curLen;
+                    // 此时i为中心，要往左偏移(curLen - 1) / 2 个单位
+                    // 如：i=3，curLen = 5，表示是单中心，则起始点从1开始
+                    // curLen = 6，表示是双中心，则起始点还是从1开始
+                    startIndex = i - (curLen - 1) / 2;
+                }
+            }
+            return s.substring(startIndex, startIndex + maxPalLen);
+        }
+
+
+        private int expendAroundCenter(String s, int left, int right) {
+            while (left >= 0 && right < s.length() && s.charAt(left) == s.charAt(right)) {
+                left--;
+                right++;
+            }
+
+            // 退出时刚好right在合法位置的右边，left在合法位置的左边
+            return right - left - 1;
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
