@@ -23,9 +23,6 @@ public class _32LongestValidParentheses {
      * 即i-1时的匹配串起始位置之前的那一个字符，若为 '('，则刚好和i位置匹配，此时最大匹配长度为
      * lengthUntil[i-1] + 2 + lengthUntil[i-lengthBefore-2]，
      * 注意最后一项为刚好两个匹配串，中间被 '(' 隔断的情况
-     *
-     * @param s
-     * @return
      */
     public static int longestValidParentheses(String s) {
         if (s == null || s.length() < 2) {
@@ -39,11 +36,15 @@ public class _32LongestValidParentheses {
         int max = 0;
         for (int i = 1; i < len; i++) {
             if (chars[i] == '(') {
-                lengthUntil[i] = 0;  // 可以删除，默认为0
+                // 可以删除，默认为0，其意义为以( 结束的子串不可能合法，因此长度为0
+                lengthUntil[i] = 0;
             } else {
-                if (chars[i - 1] == '(') { // i位置的)和i-1位置的(配对
+                // i位置的)和i-1位置的(配对
+                if (chars[i - 1] == '(') {
                     lengthUntil[i] = i - 2 >= 0 ? lengthUntil[i - 2] + 2 : 2;
                 } else {
+                    // 以s[i-1]为结尾的子串的最长长度
+                    // ((...))，其中第一个( 为
                     int lengthBefore = lengthUntil[i - 1];
                     if (i - lengthBefore - 1 >= 0 && chars[i - lengthBefore - 1] == '(') {
                         lengthUntil[i] = lengthUntil[i - 1] + 2;
