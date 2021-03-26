@@ -80,14 +80,14 @@ public class _52NQueensII {
 
         for (int col = 0; col < n; col++) {
             if (validPosition(curRow, col, n, rows, mainDiag, secondDiag)) {
-                rows[col] =1;
-                mainDiag[curRow - col + 2*n] = 1;
+                rows[col] = 1;
+                mainDiag[curRow - col + 2 * n] = 1;
                 secondDiag[curRow + col] = 1;
 
                 countTotal(curRow + 1, n, rows, mainDiag, secondDiag);
 
-                rows[col] =0;
-                mainDiag[curRow - col + 2*n] = 0;
+                rows[col] = 0;
+                mainDiag[curRow - col + 2 * n] = 0;
                 secondDiag[curRow + col] = 0;
             }
         }
