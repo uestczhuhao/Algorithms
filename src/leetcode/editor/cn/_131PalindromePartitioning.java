@@ -95,8 +95,9 @@ public class _131PalindromePartitioning {
             str = s;
             len = s.length();
             dp = new boolean[len + 1][len + 1];
-            for (int right = 0; right <= len - 1; right++) {
-                for (int left = 0; left <= right; left++) {
+            //由于dp[i][j]依赖dp[left+1][right-1]的结果，因此左边界从大到小，右边界从小到大
+            for (int left = len - 1; left >= 0; left--) {
+                for (int right = left; right <= len - 1; right++) {
                     // right - left <= 2 表示三种情况
                     // left和right二者中间只有一个元素；没有元素；边界重合，三种情况统一处理
                     if (str.charAt(left) == str.charAt(right) && (right - left <= 2 || dp[left + 1][right - 1])) {
