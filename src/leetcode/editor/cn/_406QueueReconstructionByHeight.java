@@ -67,7 +67,7 @@ public class _406QueueReconstructionByHeight {
          * 思路：先按个头逆序排，个头一样的按ki正序排
          * 理由是个头相同，前面有2个的A一定排在前面有3个人B前面，因为对B来说，A也满足题意
          */
-        public int[][] reconstructQueue1(int[][] people) {
+        public int[][] reconstructQueue(int[][] people) {
             List<int[]> reconstructList = new ArrayList<>();
             Arrays.sort(people, (person1, person2) -> {
                 if (person1[0] != person2[0]) {
@@ -89,12 +89,12 @@ public class _406QueueReconstructionByHeight {
 
         /**
          * 从小到大排序，个头矮的先站，个头相同的按ki逆序
-         * 理由是如果A，B个头都一样，ka=3，kb=4，则B应该站在A的后面，因此要先安排B，留出位置给A
+         * 理由是如果A，B个头都一样，ka=3，kb=4，则A应该站在B的前面，因此要先安排B，留出位置给A
          * <p>
          * 在放第i人时，需要将其放入第ki+1个空位置（理由是前i-1个已经各就各位，但不影响i）
          * 其前面要预留ki个空位置给后续比他高的人站
          */
-        public int[][] reconstructQueue(int[][] people) {
+        public int[][] reconstructQueue1(int[][] people) {
             Arrays.sort(people, (person1, person2) -> {
                 if (person1[0] != person2[0]) {
                     return person1[0] - person2[0];
