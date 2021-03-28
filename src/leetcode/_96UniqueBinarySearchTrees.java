@@ -18,7 +18,7 @@ package leetcode;
  * /     /       \                 \
  * 2     1         2                 3
  */
-public class _95UniqueBinarySearchTrees {
+public class _96UniqueBinarySearchTrees {
     /**
      * https://leetcode-cn.com/problems/unique-binary-search-trees/solution/bu-tong-de-er-cha-sou-suo-shu-by-leetcode-solution/
      */
@@ -42,7 +42,7 @@ public class _95UniqueBinarySearchTrees {
     }
 
     public static void main(String[] args) {
-        _95UniqueBinarySearchTrees t = new _95UniqueBinarySearchTrees();
+        _96UniqueBinarySearchTrees t = new _96UniqueBinarySearchTrees();
         System.out.println(t.numTrees(10));
     }
 }
