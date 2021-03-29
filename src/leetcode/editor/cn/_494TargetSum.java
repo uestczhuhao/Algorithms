@@ -49,7 +49,7 @@ public class _494TargetSum {
     class Solution {
         /**
          * 思路：动态规划，dp[i][j] 表示前i个数，组成和为j的种类个数
-         * 直接的递推公式为dp[i][j] =  dp[i - 1][j + nums[i]] + dp[i - 1][j + nums[i]]
+         * 直接的递推公式为dp[i][j] =  dp[i - 1][j + nums[i]] + dp[i - 1][j - nums[i]]
          * 也可以转化为下面的公式
          * 若第i个数取 +，则dp[i][j + nums[i]] += dp[i-1][j]
          * 若第i个数取 -，则dp[i][j - nums[i]] += dp[i-1][j]
