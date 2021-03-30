@@ -49,7 +49,7 @@ public class _1339MaximumProductOfSplittedBinaryTree {
         }
         computeSum(root);
         findClosetMis(root);
-        return (int) ((closetMid * (sum - closetMid))  % 1000000007);
+        return (int) ((closetMid * (sum - closetMid)) % 1000000007);
     }
 
     public void computeSum(TreeNode root) {
@@ -70,7 +70,7 @@ public class _1339MaximumProductOfSplittedBinaryTree {
         long left = findClosetMis(root.left);
         long right = findClosetMis(root.right);
         long currentSum = left + right + root.val;
-        if (Math.abs(sum - currentSum*2) < Math.abs(sum - closetMid*2)) {
+        if (Math.abs(sum - currentSum * 2) < Math.abs(sum - closetMid * 2)) {
             closetMid = currentSum;
         }
         return currentSum;
