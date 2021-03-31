@@ -14,10 +14,14 @@ package leetcode;
  *
  */
 public class _86PartitionList {
+    /**
+     * 维护两个指针，一个low，一个high，前者的链表放比x小的节点，后者存放比x大的元素，最后再把low链接到high的前面即可
+     */
     public ListNode partition(ListNode head, int x) {
         if (head == null) {
             return null;
         }
+
 
         ListNode low = new ListNode(Integer.MIN_VALUE);
         ListNode high = new ListNode(Integer.MAX_VALUE);

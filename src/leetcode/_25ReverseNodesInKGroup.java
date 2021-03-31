@@ -13,24 +13,24 @@ public class _25ReverseNodesInKGroup {
         head.next.next.next.next.next = new ListNode(3);
         head.next.next.next.next.next.next = new ListNode(8);
 
-        ListNode newHead = reverseKGroup(head,2);
+        ListNode newHead = reverseKGroup(head, 2);
         System.out.println(newHead);
     }
 
-    static ListNode reverseKGroup(ListNode head, int k){
-        if (k <= 0 || head == null){
+    static ListNode reverseKGroup(ListNode head, int k) {
+        if (k <= 0 || head == null) {
             return null;
         }
 
-        if (k == 1){
+        if (k == 1) {
             return head;
         }
         ListNode newHead = reverseKNodes(head, k);
         ListNode node = head;
-        while (node.next != null){
+        while (node.next != null) {
             ListNode next = node.next;
             ListNode rever = reverseKNodes(next, k);
-            if (next == rever){
+            if (next == rever) {
                 break;
             }
             node.next = rever;
@@ -42,29 +42,31 @@ public class _25ReverseNodesInKGroup {
 
     /**
      * 翻转k个节点，注意保存next
+     *
      * @return
      */
     private static Stack<ListNode> stack = new Stack<>();
-    static private ListNode reverseKNodes(ListNode head, int k){
+
+    static private ListNode reverseKNodes(ListNode head, int k) {
         ListNode next;
         ListNode node = head;
-        for (int i=0;i<k;i++){
+        for (int i = 0; i < k && node != null; i++) {
             stack.push(node);
             node = node.next;
             // 防止：最后一次还有两个节点，但k=3的情况
             // 当 i = k-1，则刚好最后还剩3个节点
-            if (node == null && i != k-1){
+            if (node == null && i != k - 1) {
                 return head;
             }
         }
         next = node;
 
-        if (stack.isEmpty()){
+        if (stack.isEmpty()) {
             return null;
         }
         ListNode newHead = stack.pop();
         node = newHead;
-        while (!stack.isEmpty()){
+        while (!stack.isEmpty()) {
             node.next = stack.pop();
             node = node.next;
         }

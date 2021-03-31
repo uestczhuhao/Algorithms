@@ -19,6 +19,9 @@ package leetcode;
  */
 public class _92ReverseLinkedListII {
 
+    /**
+     * 先遍历m-1步，到要反转的位置的前置节点，再反转n-m+1个元素，注意反转后要链接上之前的尾节点的next
+     */
     public ListNode reverseBetween(ListNode head, int m, int n) {
         if (head == null || m > n) {
             return head;
