@@ -82,12 +82,12 @@ public class _173BinarySearchTreeIterator {
                 throw new RuntimeException("Tree is empty");
             }
 
-            TreeNode nextNode = stack.pop();
+            TreeNode curNode = stack.pop();
             // 不是每一次操作都需要循环的，循环的次数加上初始化的循环总共会有O(n)次操作
-            if (nextNode.right != null) {
-                addNodeAndAllLeftChild(nextNode.right);
+            if (curNode.right != null) {
+                addNodeAndAllLeftChild(curNode.right);
             }
-            return nextNode.val;
+            return curNode.val;
         }
 
         /** @return whether we have a next smallest number */
