@@ -72,9 +72,8 @@ public class _297SerializeAndDeserializeBinaryTree {
         if (nodeStrs.length == 0 || "null".equals(nodeStrs[0])) {
             return null;
         }
-        TreeNode root = doDeserialize(nodeStrQueue);
 
-        return root;
+        return doDeserialize(nodeStrQueue);
     }
 
     public TreeNode doDeserialize(Queue<String> nodeQueue) {
