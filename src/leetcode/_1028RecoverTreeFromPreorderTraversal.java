@@ -56,12 +56,14 @@ public class _1028RecoverTreeFromPreorderTraversal {
         int index = 0;
         Deque<TreeNode> stack = new LinkedList<>();
         while (index < S.length()) {
+            // 确定当前节点的深度
             int level = 0;
             while (S.charAt(index) == '-') {
                 level++;
                 index++;
             }
 
+            // 确定当前节点的值
             int value = 0;
             while (index < S.length() && Character.isDigit(S.charAt(index))) {
                 value = 10 * value + S.charAt(index) - '0';
@@ -70,6 +72,9 @@ public class _1028RecoverTreeFromPreorderTraversal {
 
             TreeNode node = new TreeNode(value);
 
+            // 当前节点为node2，上一个节点为node1
+            // 则node2要么为node1的左孩子，此时node2的level一定比node1大1
+            // 要么是root到node1这条链条中某个节点（假设为node3）的右孩子，此时node3的level比node3大1
             if (!stack.isEmpty()) {
                 // 此时stack的顶部为当前节点的父节点
                 // 且当前node为其左子树

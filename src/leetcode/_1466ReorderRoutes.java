@@ -47,7 +47,7 @@ import java.util.*;
  * connections[i][0] != connections[i][1]
  */
 public class _1466ReorderRoutes {
-    public int minReorder(int n, int[][] connections) {
+    public int minReorder1(int n, int[][] connections) {
         if (connections == null || n != connections.length + 1) {
             return -1;
         }
@@ -104,11 +104,74 @@ public class _1466ReorderRoutes {
         }
     }
 
+    /**
+     * 广度优先遍历，从城市0出发（src），找到其所有的邻接城市tgt，若当前是从src指向tgt，则答案加（因为这种情况要调转方向，目的城市是0）
+     * 继续找邻接城市的邻接城市，直到所有的城市遍历完成
+     */
+    public int minReorder(int n, int[][] connections) {
+        if (connections == null || n != connections.length + 1) {
+            return -1;
+        }
+
+        // 存放与某个city相邻的所有节点，包括从city出发和到city的两种
+        // 维护的是含有城市i的connection的下标
+        Map<Integer, Set<Integer>> cityAdjMap = new HashMap<>();
+        for (int i = 0; i < connections.length; i++) {
+            int src = connections[i][0];
+            int tgt = connections[i][1];
+            Set<Integer> srcAdjCity = cityAdjMap.getOrDefault(src, new HashSet<>());
+            srcAdjCity.add(i);
+            cityAdjMap.put(src, srcAdjCity);
+
+            Set<Integer> tgtAdjCity = cityAdjMap.getOrDefault(tgt, new HashSet<>());
+            tgtAdjCity.add(i);
+            cityAdjMap.put(tgt, tgtAdjCity);
+        }
+
+        Deque<Integer> queue = new LinkedList<>();
+        // 遍历过的边，记录下来
+        boolean[] visited = new boolean[n];
+        queue.offer(0);
+        int result = 0;
+
+        while (!queue.isEmpty()) {
+            int curCity = queue.poll();
+            Set<Integer> set = cityAdjMap.get(curCity);
+            // 遍历与curCity相邻的所有边（注意存放的是下标）
+            for (int adj : set) {
+                if (visited[adj]) {
+                    continue;
+                }
+                visited[adj] = true;
+
+                int src = connections[adj][0];
+                int tgt = connections[adj][1];
+
+                // 当前处理curCity，由于是从0往外扩展，且tgt还没遍历到
+                // 因此如果curCity == src，代表这条边朝外，需要调转方向
+                if (curCity == src) {
+                    result++;
+                }
+
+                // 把邻接城市放入queue中
+                // 同上原因，当curCity == src 时，需要遍历下一个邻接城市tgt，否则下一个城市为src
+                queue.offer(curCity == src ? tgt : src);
+            }
+
+
+        }
+
+        return result;
+    }
+
+
     public static void main(String[] args) {
         _1466ReorderRoutes t = new _1466ReorderRoutes();
-        int n = 6;
+        int n = 5;
 //        int[][] cons = {{0,1}, {1,3},{2,3},{4,0},{4,5}};
-        int[][] cons = {{1, 0}, {2, 0}};
-        System.out.println(t.minReorder(3, cons));
+        int[][] cons = { {4,3},{2,3},{1,2},{1,0}};
+//        int[][] cons = {{1, 0}, {2, 0}};
+        System.out.println(t.minReorder(n, cons));
+        System.out.println(t.minReorder1(n, cons));
     }
 }
