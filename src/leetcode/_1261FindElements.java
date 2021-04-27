@@ -88,6 +88,10 @@ public class _1261FindElements {
     private Set<Integer> values = new HashSet<>();
     private Queue<TreeNode> queue = new LinkedList<>();
 
+    /**
+     * 层次遍历，先访问父节点（通过队列即可），再访问其左右子节点，同时置node的左右孩子的值；
+     * 维护一个set，记录出现过的值，find函数可以直接返回set是否包含某值即可
+     */
     public void recover(TreeNode root) {
         root.val = 0;
         values.add(0);

@@ -54,12 +54,12 @@ public class _10RegularExpMatch {
      * p[j-1] == s[i] 或 p[j-1] == '.'时
      * 匹配0次，则j和j-1的字符直接忽略，dp[i][j] = dp[i][j-2]
      * 匹配一次，则dp[i][j] = dp[i][j-1]
-     * 匹配两次，则dp[i][j] = dp[i-1][j]，例如pattern[j-1] == 'a'，则text[i] 也必须为a，此时a* = aa*
-     * 去掉pattern的一个a，同时text也去掉一个a，则问题变成判定text[i-1]和pattern[j]比较
+     * 匹配两次，则dp[i][j] = dp[i-1][j]，例如pattern[j-1] == 'a'，则s[i] 也必须为a，此时a* = aa*
+     * 去掉pattern的一个a，同时text也去掉一个a，则问题变成判定s[i-1]和p[j]比较
      * 匹配三次，dp[i][j] = dp[i-2][j]
      * ....
      * <p>
-     * 上诉结果去或，即满足一个即可
+     * 上诉结果取或，即满足一个即可
      * <p>
      * 2. p[j] == '.'，可以代表匹配text[i]处的任意字符
      * 此时dp[i][j] = dp[i-1][j-1]

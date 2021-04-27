@@ -70,6 +70,7 @@ public class _124MaximumPathSum {
         max = Math.max( max, node.val + leftMax + rightMax);
 
         // 返回以node为顶的最大值，此时node的左右子树已做剪枝处理（若子树最大和小于0则舍弃）
+        // 注意返回值，只能是一个单一路径，不能有岔路，因此不能左右子节点都选
         return node.val + Math.max(leftMax, rightMax);
     }
 

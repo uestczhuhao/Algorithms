@@ -46,45 +46,45 @@ package leetcode;
 
 
 public class _8String2Integer {
-    public int myAtoi11(String str) {
-        if (str == null || str.isEmpty()) {
+    public int myAtoi11(String s) {
+        if (s == null || s.isEmpty()) {
             return 0;
         }
 
-        str = str.trim();
+        int len = s.length();
+        int index = 0;
+        // 先判断str的前面有没有空格，有的话跳过
+        for (; index < s.length(); index++) {
+            if (s.charAt(index) != ' ') {
+                break;
+            }
+        }
 
-        if (str.isEmpty()) {
+        // 去除空格之后，看是否已经到末尾了，如果到末尾了代表s只有空格，返回0
+        if (index >= len) {
             return 0;
         }
-        char[] chs = str.toCharArray();
-        if (chs[0] == '+' || chs[0] == '-') {
-            int index;
-            for (index = 1; index < chs.length; index++) {
-                if (!Character.isDigit(chs[index])) {
-                    break;
-                }
-            }
-            if (index == 1) {
-                return 0;
-            } else {
-                long res = 0;
-                for (int i = 1; i <= index - 1; i++) {
-                    res = res * 10 + Character.getNumericValue(chs[i]);
-                    if (chs[0] == '+') {
-                        if (res > Integer.MAX_VALUE)
-                            return Integer.MAX_VALUE;
-                    } else {
-                        if ((0 - res) < Integer.MIN_VALUE)
-                            return Integer.MIN_VALUE;
-                    }
-                }
-                return chs[0] == '+' ? (int) res : (int) (0 - res);
-            }
-        } else if (Character.isDigit(chs[0])) {
-            return this.myAtoi("+" + str);
-        } else {
-            return 0;
+        boolean positive = true;
+        // 跳过正负号
+        if (s.charAt(index) == '-') {
+            index++;
+            positive = false;
+        } else if (s.charAt(index) == '+') {
+            index++;
         }
+
+        long result = 0;
+        // 往后遍历，直到遍历到非数字的部分跳出循环
+        while (index < len && s.charAt(index) >= '0' && s.charAt(index) <= '9') {
+            int curNum = s.charAt(index) - '0';
+            result = 10 * result + curNum;
+            if (result > Integer.MAX_VALUE) {
+                return positive ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+            }
+            index++;
+        }
+
+        return positive ? (int) result : (int) -result;
     }
 
     public int myAtoi(String str) {
@@ -98,23 +98,23 @@ public class _8String2Integer {
         }
         int sign = 1, start = 0, len = str.length();
         long sum = 0;
-        if(str.charAt(0) == '-'){
+        if (str.charAt(0) == '-') {
             sign = -1;
             start = 1;
-        } else if (str.charAt(0) == '+'){
-            start =1;
+        } else if (str.charAt(0) == '+') {
+            start = 1;
         }
 
-        while (start < len){
-            if (!Character.isDigit(str.charAt(start))){
+        while (start < len) {
+            if (!Character.isDigit(str.charAt(start))) {
                 return (int) sum * sign;
             }
-            sum = sum *10 + str.charAt(start++) - '0';
-            if (sign == 1 && sum > Integer.MAX_VALUE){
+            sum = sum * 10 + str.charAt(start++) - '0';
+            if (sign == 1 && sum > Integer.MAX_VALUE) {
                 return Integer.MAX_VALUE;
             }
 
-            if (sign == -1 && (-1) * sum < Integer.MIN_VALUE){
+            if (sign == -1 && (-1) * sum < Integer.MIN_VALUE) {
                 return Integer.MIN_VALUE;
             }
         }
@@ -123,14 +123,14 @@ public class _8String2Integer {
 
     public static void main(String[] args) {
         _8String2Integer t = new _8String2Integer();
-        System.out.println(t.myAtoi("42"));
-        System.out.println(t.myAtoi("+42"));
-        System.out.println(t.myAtoi("   -42"));
-        System.out.println(t.myAtoi("4193 with words"));
-        System.out.println(t.myAtoi("words and 987"));
-        System.out.println(t.myAtoi("-91283472332"));
-        System.out.println(t.myAtoi("+91283472332"));
-        System.out.println(t.myAtoi("91283472332"));
-        System.out.println(t.myAtoi(" "));
+        System.out.println(t.myAtoi11("42"));
+        System.out.println(t.myAtoi11("+42"));
+        System.out.println(t.myAtoi11("   -42"));
+        System.out.println(t.myAtoi11("4193 with words"));
+        System.out.println(t.myAtoi11("words and 987"));
+        System.out.println(t.myAtoi11("-91283472332"));
+        System.out.println(t.myAtoi11("+91283472332"));
+        System.out.println(t.myAtoi11("91283472332"));
+        System.out.println(t.myAtoi11(" "));
     }
 }

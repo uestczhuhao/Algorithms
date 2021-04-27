@@ -30,7 +30,10 @@ import java.util.LinkedList;
  *
  */
 public class _226InvertBinaryTree {
-    public TreeNode invertTree(TreeNode root) {
+    /**
+     * 迭代版：将节点放入栈，先左后右或先右后左皆可，弹出节点node，交换其左右孩子，直到栈为空
+     */
+    public TreeNode invertTree1(TreeNode root) {
         if (root == null) {
             return null;
         }
@@ -52,6 +55,21 @@ public class _226InvertBinaryTree {
             }
         }
 
+        return root;
+    }
+
+    /**
+     * 递归，先遍历求左右孩子，再交换之（本质是后序）
+     */
+    public TreeNode invertTree(TreeNode root) {
+        if (root == null) {
+            return null;
+        }
+
+        TreeNode left = invertTree(root.left);
+        TreeNode right = invertTree(root.right);
+        root.right = left;
+        root.left = right;
         return root;
     }
 }

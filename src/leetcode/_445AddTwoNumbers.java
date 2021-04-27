@@ -24,6 +24,9 @@ import java.util.LinkedList;
  * 输出：7 -> 8 -> 0 -> 7
  */
 public class _445AddTwoNumbers {
+    /**
+     * 将两个链表的数字依次入栈，再一个个的出栈相加，注意最后的进位即可
+     */
     public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
         if (l1 == null) {
             return l2;

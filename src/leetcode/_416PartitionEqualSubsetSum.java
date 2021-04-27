@@ -26,10 +26,10 @@ package leetcode;
  * <p>
  * 解释: 数组不能分割成两个元素和相等的子集.
  */
-public class _461PartitionEqualSubsetSum {
+public class _416PartitionEqualSubsetSum {
 
     public static void main(String[] args) {
-        _461PartitionEqualSubsetSum t = new _461PartitionEqualSubsetSum();
+        _416PartitionEqualSubsetSum t = new _416PartitionEqualSubsetSum();
         int[] nums = {1, 5, 11, 5};
         System.out.println(t.canPartition(nums));
         System.out.println(t.canPartition1(nums));

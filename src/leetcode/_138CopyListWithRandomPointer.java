@@ -81,6 +81,7 @@ public class _138CopyListWithRandomPointer {
         }
 
         Node index = head;
+        // 先复制原节点，链接到原节点的后面
         while (index != null) {
             Node newNode = new Node(index.val);
 

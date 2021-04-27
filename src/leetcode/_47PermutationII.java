@@ -46,7 +46,7 @@ public class _47PermutationII {
             return;
         }
 
-        // https://blog.csdn.net/nicolelili1/article/details/89043733
+        // https://mp.weixin.qq.com/s/9L8h3WqRP_h8LLWNT34YlA
         for (int i = 0;i <nums.length; i++) {
             /* 注意visited[i-1]代表着i和i-1相等，但是i-1还未被访问
              则表示i比i-1先被访问，这是不允许的

@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class _12IntegerRoman {
+    /**
+     * 贪心算法，同换零钱，每次找面值最大的零钱，从而使得最终结果的零钱数最少
+     */
     public String intToRoman1(int num) {
         int[] values = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
         String[] romans = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};

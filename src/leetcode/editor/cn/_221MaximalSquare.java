@@ -61,7 +61,8 @@ public class _221MaximalSquare {
         /**
          * https://leetcode-cn.com/problems/maximal-square/solution/li-jie-san-zhe-qu-zui-xiao-1-by-lzhlyle/
          * 思路：dp[i][j] 表示以（i,j）为右下角的正方形边长
-         * 其计算方式：dp[i][j] = min{dp[i - 1][j] ,dp[i][j - 1] ,dp[i - 1][j - 1]} + 1
+         * 其计算方式：当matrix[i][j] == 1时，dp[i][j] = min{dp[i - 1][j] ,dp[i][j - 1] ,dp[i - 1][j - 1]} + 1
+         * 否则，dp[i][j] = 0
          */
         public int maximalSquare(char[][] matrix) {
             if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {

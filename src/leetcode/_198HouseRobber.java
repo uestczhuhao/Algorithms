@@ -19,7 +19,7 @@ public class _198HouseRobber {
         int first = nums[0];
         int second = Math.max(nums[0], nums[1]);
         int result = 0;
-        for (int i=2;i<nums.length;i++) {
+        for (int i = 2; i < nums.length; i++) {
             result = Math.max(first + nums[i], second);
             first = second;
             second = result;

@@ -57,7 +57,7 @@ public class _91DecodeWays {
             char ithChar = s.charAt(i - 1);
             if (ithChar >= '0' && ithChar <= '9') {
                 if (ithChar != '0') {
-                    numDecodingArr[i] += numDecodingArr[i - 1];
+                    numDecodingArr[i] = numDecodingArr[i - 1];
                 }
                 char beforeIthChar = s.charAt(i - 2);
                 if (beforeIthChar == '1') {

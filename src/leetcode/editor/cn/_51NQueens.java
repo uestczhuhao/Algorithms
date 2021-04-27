@@ -83,6 +83,7 @@ public class _51NQueens {
         /**
          * @param answer        结果集合
          * @param row           当前行
+         * @param queenColumn   记录queen放置的列
          * @param columns       列集合
          * @param leftDiagonal  左上-右下对角线
          * @param rightDiagonal 右上-左下对角线

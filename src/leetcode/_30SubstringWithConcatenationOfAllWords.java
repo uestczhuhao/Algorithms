@@ -13,11 +13,12 @@ public class _30SubstringWithConcatenationOfAllWords {
         String s = "barfoofoobarthefoobarman";
         String[] words = new String[]{"bar", "foo", "the"};
 
-        System.out.println(findSubstring(s, words));
+        _30SubstringWithConcatenationOfAllWords t = new _30SubstringWithConcatenationOfAllWords();
+        System.out.println(t.findSubstring(s, words));
     }
 
     //考虑引入HashMap做优化
-    static List<Integer> findSubstring(String s, String[] words) {
+    public List<Integer> findSubstring(String s, String[] words) {
         List<Integer> result = new ArrayList<>();
         if (s == null || words == null || s.length() == 0 || words.length == 0) {
             return result;
@@ -28,7 +29,7 @@ public class _30SubstringWithConcatenationOfAllWords {
         while (index <= s.length() - words.length * step) {
 
             int end = index + words.length * step;
-            int findIndex = findSubValided(s, index, end, words);
+            int findIndex = findSubValid(s, index, end, words);
             if (findIndex == index) {
                 result.add(findIndex);
             }
@@ -39,7 +40,7 @@ public class _30SubstringWithConcatenationOfAllWords {
     }
 
     // 若以index开头的子字符串满足要求，则返回index，否则返回不满足的下标
-    static int findSubValided(String s, int start, int end, String[] words) {
+    private int findSubValid(String s, int start, int end, String[] words) {
         boolean[] isVisited = new boolean[words.length];
         int step = words[0].length();
         int i = start;

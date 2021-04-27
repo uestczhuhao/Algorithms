@@ -55,6 +55,7 @@ public class _1171RemoveZeroSumConsecutiveNodes {
         }
 
         sum = 0;
+        // 第二遍遍历 若当前节点处sum在下一处出现了则表明两结点之间所有节点和为0 直接删除区间所有节点
         for (ListNode node = dummy; node != null; node = node.next) {
             sum += node.val;
             if (sumMap.containsKey(sum)) {
