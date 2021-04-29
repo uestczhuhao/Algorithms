@@ -60,15 +60,54 @@ package leetcode.editor.cn;
 // 👍 14 👎 0
 
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 public class _1840MaximumBuildingHeight {
     public static void main(String[] args) {
         Solution t = new _1840MaximumBuildingHeight().new Solution();
+        int[][] res = {{2,1}, {4,1}};
+        System.out.println(t.maxBuilding(5, res));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
+        /**
+         * https://leetcode-cn.com/problems/maximum-building-height/solution/zui-gao-jian-zhu-gao-du-by-leetcode-solu-axbb/
+         */
         public int maxBuilding(int n, int[][] restrictions) {
-            int[][]
+            int[][] orderRestrict = new int[restrictions.length + 2][2];
+            int len = orderRestrict.length;
+            orderRestrict[0] = new int[]{1, 0};
+            Arrays.sort(restrictions, Comparator.comparingInt(can -> can[0]));
+            System.arraycopy(restrictions, 0, orderRestrict, 1, restrictions.length);
+            orderRestrict[len - 1] = new int[]{n, n - 1};
+
+            // 从左到右的高度限制
+            // 对(i, hi)和(j, hj)，i处的限制传递到j处，j处的限制为hj和(hi + (j-i))的较小值
+            int left = 0, right = 0;
+            for (int i = 1; i < len; i++) {
+                left = orderRestrict[i - 1][0];
+                right = orderRestrict[i][0];
+                orderRestrict[i][1] = Math.min(orderRestrict[i][1], orderRestrict[i - 1][1] + (right - left));
+            }
+
+            // 从右到左的高度限制
+            for (int j = len - 2; j >= 0; j--) {
+                left = orderRestrict[j][0];
+                right = orderRestrict[j + 1][0];
+                orderRestrict[j][1] = Math.min(orderRestrict[j][1], orderRestrict[j + 1][1] + (right - left));
+            }
+
+            int maxHeight = 0;
+            for (int i = 1; i < len; i++) {
+                left = orderRestrict[i - 1][0];
+                right = orderRestrict[i][0];
+                // 计算 r[i][0] 和 r[i][1] 之间的建筑的最大高度
+                maxHeight = Math.max(maxHeight, ((right - left) + orderRestrict[i][1] + orderRestrict[i-1][1]) / 2);
+            }
+
+            return maxHeight;
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
