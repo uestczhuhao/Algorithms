@@ -54,15 +54,16 @@ public class _1763LongestNiceSubstring {
     public static void main(String[] args) {
         Solution t = new _1763LongestNiceSubstring().new Solution();
         String s = "dDzeE";
-        String s1 = "bB";
+        String s1 = "c";
+//        System.out.println(t.longestNiceSubstring(s1));
         System.out.println(t.longestNiceSubstring(s));
-        System.out.println(t.longestNiceSubstring(s1));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
-        public String longestNiceSubstring(String s) {
-            int left = 0, right = 0, maxLen = 0;
+        // 暴力解法，能过
+        public String longestNiceSubstring1(String s) {
+            int left = 0, right = -1, maxLen = 0;
             for (int i = 0; i < s.length() - maxLen; i++) {
                 for (int j = i + 1; j < s.length(); j++) {
                     if (isNiceString(s, i, j)) {
@@ -75,7 +76,7 @@ public class _1763LongestNiceSubstring {
                 }
             }
 
-            return left == right ? "" : s.substring(left, right + 1);
+            return s.substring(left, right + 1);
         }
 
         public boolean isNiceString(String s, int left, int right) {
@@ -98,6 +99,94 @@ public class _1763LongestNiceSubstring {
             }
             return true;
         }
+
+
+        // 全局最大最小值
+        int start = 0, end = -1;
+
+        // 滑动窗口
+        public String longestNiceSubstring(String s) {
+            // 统计出满足条件的总个数
+            // 条件：s中存在某个字符的大小写
+            int totalTypes = 0;
+            char[] ch = new char[26];
+            for (int i = 0; i < s.length(); i++) {
+                char lower = Character.toLowerCase(s.charAt(i));
+                if (ch[lower - 'a'] == 0) {
+                    totalTypes++;
+                }
+                ch[lower - 'a']++;
+            }
+
+            // 对满足条件的每一个值i，在s中找到满足i的最大长度
+            for (int i = 1; i <= totalTypes; i++) {
+                int[] sub = computeSubLen(s, i);
+                if (sub[1] - sub[0] > end - start) {
+                    start = sub[0];
+                    end = sub[1];
+                }
+            }
+
+            return s.substring(start, end + 1);
+        }
+
+        /**
+         * 计算s中有nums种字符（大小写都有）时的左右边界
+         */
+        private int[] computeSubLen(String s, int nums) {
+            char[] upper = new char[26];
+            char[] lower = new char[26];
+            int left = 0, right = 0;
+            int start = 0, end = -1;
+            // 当前窗口中存在的字符种类数
+            // 存在大小写的任意一种都算
+            int lowOrUpType = 0;
+            while (right < s.length()) {
+                char curCh = s.charAt(right);
+                if (curCh >= 'a' && curCh <= 'z') {
+                    if (lower[curCh - 'a'] == 0 && upper[curCh - 'a'] == 0) {
+                        lowOrUpType++;
+                    }
+                    lower[curCh - 'a']++;
+                } else {
+                    if (upper[curCh - 'A'] == 0 && lower[curCh - 'A'] == 0) {
+                        lowOrUpType++;
+                    }
+                    upper[curCh - 'A']++;
+                }
+
+                while (lowOrUpType > nums) {
+                    curCh = s.charAt(left++);
+                    if (curCh >= 'a' && curCh <= 'z') {
+                        lower[curCh - 'a']--;
+                        if (lower[curCh - 'a'] == 0 && upper[curCh - 'a'] == 0) {
+                            lowOrUpType--;
+                        }
+                    } else {
+                        upper[curCh - 'A']--;
+                        if (upper[curCh - 'A'] == 0 && lower[curCh - 'A'] == 0) {
+                            lowOrUpType--;
+                        }
+                    }
+                }
+                // 字符大小都存在的种类数
+                int typeNum = 0;
+                for (int i = 0; i < 26; i++) {
+                    if (lower[i] > 0 && upper[i] > 0) {
+                        typeNum++;
+                    }
+                }
+                if (typeNum == nums && right - left > end - start) {
+                    start = left;
+                    end = right;
+                }
+
+                right++;
+            }
+
+            return new int[]{start, end};
+        }
+
     }
 //leetcode submit region end(Prohibit modification and deletion)
 
