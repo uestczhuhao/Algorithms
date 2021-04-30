@@ -33,7 +33,7 @@ public class _30SubstringWithConcatenationOfAllWords {
             if (findIndex == index) {
                 result.add(findIndex);
             }
-            index += 1;
+            index++;
         }
 
         return result;
