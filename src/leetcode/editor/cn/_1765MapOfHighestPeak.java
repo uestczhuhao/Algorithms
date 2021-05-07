@@ -64,8 +64,8 @@ import java.util.Arrays;
 public class _1765MapOfHighestPeak {
     public static void main(String[] args) {
         Solution t = new _1765MapOfHighestPeak().new Solution();
-        int[][] isWater = {{0, 0, 0, 0, 0, 0, 1, 0}, {0, 1, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 1, 0}, {0, 0, 1, 0, 0, 0, 0, 0}};
-//        int[][] isWater = {{0, 0, 1}, {1, 0, 0}, {0, 0, 0}};
+//        int[][] isWater = {{0, 0, 0, 0, 0, 0, 1, 0}, {0, 1, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 1, 0}, {0, 0, 1, 0, 0, 0, 0, 0}};
+        int[][] isWater = {{0, 0, 1}, {1, 0, 0}, {0, 0, 0}};
 //        int[][] isWater = {{0, 1}, {0, 0}};
         // [[2,1,2,3,2,1,0,1],[1,0,1,2,3,2,1,2],[2,1,2,3,4,3,2,3],[3,2,3,4,5,4,3,4],[4,3,3,4,4,3,2,3],[4,3,2,3,3,2,1,2],[3,2,1,2,2,1,0,1],[2,1,0,1,2,2,1,2]]
         System.out.println(Arrays.deepToString(t.highestPeak(isWater)));
@@ -79,11 +79,8 @@ public class _1765MapOfHighestPeak {
             int[][] answer = new int[row][column];
             for (int i = 0; i < row; i++) {
                 for (int j = 0; j < column; j++) {
-                    if (isWater[i][j] == 1) {
-                        continue;
-                    }
-                    if (adjWater(isWater, i, j)) {
-                        answer[i][j] = 1;
+                    if (isWater[i][j] != 1) {
+                        answer[i][j] = 2001;
                     }
                 }
             }
@@ -91,79 +88,27 @@ public class _1765MapOfHighestPeak {
 
             for (int i = 0; i < row; i++) {
                 for (int j = 0; j < column; j++) {
-                    if (isWater[i][j] == 1 || adjWater(isWater, i, j)) {
-                        continue;
+                    if (i > 0){
+                        answer[i][j] = Math.min(answer[i][j], answer[i-1][j] + 1);
                     }
-
-                    int[] minAndMaxAdj = minAndMaxAdjHeight(answer, true, i, j);
-                    if (minAndMaxAdj[1] - minAndMaxAdj[0] > 1) {
-                        answer[i][j] = (minAndMaxAdj[0] + minAndMaxAdj[1]) / 2;
-                    } else if (minAndMaxAdj[1] - minAndMaxAdj[0] == 1) {
-                        answer[i][j] = minAndMaxAdj[1];
-                    } else {
-                        answer[i][j] = minAndMaxAdj[1] + 1;
+                    if (j > 0) {
+                        answer[i][j] = Math.min(answer[i][j], answer[i][j-1] + 1);
                     }
                 }
             }
 
             for (int i = row - 1; i >= 0; i--) {
                 for (int j = column - 1; j >= 0; j--) {
-                    if (isWater[i][j] == 1 || adjWater(isWater, i, j)) {
-                        continue;
+                    if (i < row - 1) {
+                        answer[i][j] = Math.min(answer[i][j], answer[i + 1][j] + 1);
                     }
-
-                    int[] minAndMaxAdj = minAndMaxAdjHeight(answer, false, i, j);
-                    int target;
-                    if (minAndMaxAdj[1] - minAndMaxAdj[0] > 1) {
-                        target = (minAndMaxAdj[0] + minAndMaxAdj[1]) / 2;
-                    } else if (minAndMaxAdj[1] - minAndMaxAdj[0] == 1) {
-                        target = minAndMaxAdj[1];
-                    } else {
-                        target = minAndMaxAdj[1] + 1;
+                    if (j < column - 1) {
+                        answer[i][j] = Math.min(answer[i][j], answer[i][j + 1] + 1);
                     }
-                    answer[i][j] = Math.min(target, answer[i][j]);
                 }
             }
 
             return answer;
-        }
-
-        private boolean adjWater(int[][] src, int row, int column) {
-            boolean upAdjWater = row != 0 && src[row - 1][column] == 1;
-            boolean downAdjWater = row != src.length - 1 && src[row + 1][column] == 1;
-            boolean leftAdjWater = column != 0 && src[row][column - 1] == 1;
-            boolean rightAdjWater = column != src[0].length - 1 && src[row][column + 1] == 1;
-
-            return upAdjWater || downAdjWater || leftAdjWater || rightAdjWater;
-        }
-
-        private int[] minAndMaxAdjHeight(int[][] src, boolean left, int row, int column) {
-            if ((row == 0 && column == 0) || (row == src.length - 1 && column == src[0].length - 1)) {
-                return new int[]{1, 1};
-            }
-            int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
-            // 上
-            if (row != 0 && left) {
-                min = Math.min(src[row - 1][column], min);
-                max = Math.max(src[row - 1][column], max);
-            }
-            // 下
-            if (row != src.length - 1 && !left) {
-                min = Math.min(src[row + 1][column], min);
-                max = Math.max(src[row + 1][column], max);
-            }
-            // 左
-            if (column != 0 && left) {
-                min = Math.min(src[row][column - 1], min);
-                max = Math.max(src[row][column - 1], max);
-            }
-            // 右
-            if (column != src[0].length - 1 && !left) {
-                min = Math.min(src[row][column + 1], min);
-                max = Math.max(src[row][column + 1], max);
-            }
-
-            return new int[]{min, max};
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)

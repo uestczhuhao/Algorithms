@@ -65,12 +65,7 @@ public class _295FindMedianFromDataStream {
          */
         public MedianFinder() {
             largerMinHeap = new PriorityQueue<>();
-            smallerMaxHeap = new PriorityQueue<>(new Comparator<Integer>() {
-                @Override
-                public int compare(Integer o1, Integer o2) {
-                    return o2 - o1;
-                }
-            });
+            smallerMaxHeap = new PriorityQueue<>((o1, o2) -> o2 - o1);
             size = 0;
         }
 

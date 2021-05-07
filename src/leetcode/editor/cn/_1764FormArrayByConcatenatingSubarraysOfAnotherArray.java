@@ -58,16 +58,39 @@ package leetcode.editor.cn;
 public class _1764FormArrayByConcatenatingSubarraysOfAnotherArray {
     public static void main(String[] args) {
         Solution t = new _1764FormArrayByConcatenatingSubarraysOfAnotherArray().new Solution();
+        int[][] group = {{1, -1, -1}, {3, -2, 0}};
+        int[] nums = {1, -1, 0, 1, -1, -1, 3, -2, 0};
+        System.out.println(t.canChoose(group, nums));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
         public boolean canChoose(int[][] groups, int[] nums) {
-//            int gIndex = 0;
-//            for (int i = 0; i < nums.length; i++) {
-//
-//            }
+            int gIndex = 0;
+            int i = 0;
+            while (i <= nums.length - groups[gIndex].length) {
+                if (equal(nums, i, groups[gIndex])) {
+                    i += groups[gIndex].length;
+                    gIndex++;
+                } else {
+                    i++;
+                }
+
+                if (gIndex == groups.length) {
+                    return true;
+                }
+            }
             return false;
+        }
+
+        private boolean equal(int[] src, int start, int[] tgt) {
+            int i = 0;
+            while (i < tgt.length) {
+                if (src[start++] != tgt[i++]) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
