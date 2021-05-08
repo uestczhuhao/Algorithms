@@ -46,6 +46,12 @@ public class _1793MaximumScoreOfAGoodSubarray {
 
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
+        /**
+         * https://leetcode-cn.com/problems/maximum-score-of-a-good-subarray/solution/c-shuang-zhi-zhen-tan-xin-zui-jian-ji-zu-b3vf/
+         * 双指针 + 贪心，从k开始向左向右寻找以 nums[k] 为最小值的好子数组
+         * 随后更新nums[k] 为左右边界中的较大者，继续寻找以 nums[k] 为最小值的好子数组
+         * 若一边已更新完，直接更新为另一边的边界值即可
+         */
         public int maximumScore(int[] nums, int k) {
             int left = k, right = k;
             int min = nums[k];
