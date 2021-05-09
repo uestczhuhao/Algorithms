@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  */
 public class _240 {
     public static void main(String[] args) {
-        Test t = new Test();
+        _240 t = new _240();
         int[][] logs = {{1993, 1999}, {2000, 2010}};
 //        System.out.println(t.maximumPopulation(logs));
         int[] nums1 = {55, 30, 5, 4, 2}, nums2 = {1, 1};
@@ -136,6 +136,6 @@ public class _240 {
 
     private int computeMaxColor(HashMap<Integer, Set<Integer>> downStream, int node, int[] colorNum, String colorStr) {
         char ch;
-
+        return 0;
     }
 }
