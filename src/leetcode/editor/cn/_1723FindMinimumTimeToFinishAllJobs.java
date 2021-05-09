@@ -40,33 +40,39 @@ package leetcode.editor.cn;
 
 
 import java.util.Arrays;
+import java.util.PriorityQueue;
 
 public class _1723FindMinimumTimeToFinishAllJobs {
     public static void main(String[] args) {
         Solution t = new _1723FindMinimumTimeToFinishAllJobs().new Solution();
+        int[] jobs = {5, 5, 4, 4, 4};
+        int k = 2;
+        System.out.println(t.minimumTimeRequired(jobs, k));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
         public int minimumTimeRequired(int[] jobs, int k) {
             Arrays.sort(jobs);
+
             int len = jobs.length;
-            if (jobs.length <= k) {
+            if (len <= k) {
                 return jobs[len - 1];
             }
-
-            int[] sum = new int[k];
-            int index = len - 1;
-            int i = 0;
-            boolean pos = true;
-            while (index >= 0) {
-                if (pos) {
-                    sum[i] += jobs[index--];
-                } else {
-                    sum[]
-                }
-
+            PriorityQueue<Integer> queue = new PriorityQueue<>(k);
+            for (int i = len - 1; i >= len - k; i--) {
+                queue.add(jobs[i]);
             }
+
+            for (int i = len - k - 1; i >= 0; i--) {
+                queue.add(queue.poll() + jobs[i]);
+            }
+
+            for (int i = 0; i < k - 1; i++) {
+                queue.poll();
+            }
+
+            return queue.poll();
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
