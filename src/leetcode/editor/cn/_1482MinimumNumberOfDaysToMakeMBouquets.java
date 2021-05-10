@@ -76,8 +76,8 @@ import java.util.List;
 public class _1482MinimumNumberOfDaysToMakeMBouquets {
     public static void main(String[] args) {
         Solution t = new _1482MinimumNumberOfDaysToMakeMBouquets().new Solution();
-        int[] nums = {1, 10, 3, 10, 2};
-        System.out.println(t.minDays(nums, 3, 1));
+        int[] nums = {7,7,7,7,12,7,7};
+        System.out.println(t.minDays(nums, 2, 2));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
@@ -96,7 +96,7 @@ public class _1482MinimumNumberOfDaysToMakeMBouquets {
             int min = bloomDay[0], max = bloomDay[0];
             for (int i = 1; i < len; i++) {
                 min = Math.min(min, bloomDay[i]);
-                max = Math.min(max, bloomDay[i]);
+                max = Math.max(max, bloomDay[i]);
             }
 
             while (min < max) {
@@ -116,7 +116,7 @@ public class _1482MinimumNumberOfDaysToMakeMBouquets {
             int curSatisfy = 0;
             int len = bloomDay.length;
             int flowers = 0;
-            for (int i = 0; i < k && curSatisfy < m; i++) {
+            for (int i = 0; i < len && curSatisfy < m; i++) {
                 if (bloomDay[i] <= day) {
                     flowers++;
                     // 当这一波搜集的花朵已经达到k了，则从下一个开始重新记数
