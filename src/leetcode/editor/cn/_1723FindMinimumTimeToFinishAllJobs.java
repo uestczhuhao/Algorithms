@@ -52,6 +52,7 @@ public class _1723FindMinimumTimeToFinishAllJobs {
 
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
+        // TODO:待完成
         public int minimumTimeRequired(int[] jobs, int k) {
             Arrays.sort(jobs);
 
