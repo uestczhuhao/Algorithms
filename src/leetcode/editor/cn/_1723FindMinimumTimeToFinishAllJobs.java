@@ -40,7 +40,6 @@ package leetcode.editor.cn;
 
 
 import java.util.Arrays;
-import java.util.PriorityQueue;
 
 public class _1723FindMinimumTimeToFinishAllJobs {
     public static void main(String[] args) {
@@ -52,28 +51,74 @@ public class _1723FindMinimumTimeToFinishAllJobs {
 
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
-        // TODO:待完成
+        /**
+         * 二分法，最小值为jobs的最大工作量，最大值为jobs的所有工作量（等效为所有工作一个人做）
+         * 在最小值和最大值中寻找最小的满足条件的工作时间
+         * 参考：https://leetcode-cn.com/problems/find-minimum-time-to-finish-all-jobs/solution/wan-cheng-suo-you-gong-zuo-de-zui-duan-s-hrhu/
+         */
         public int minimumTimeRequired(int[] jobs, int k) {
             Arrays.sort(jobs);
 
             int len = jobs.length;
-            if (len <= k) {
-                return jobs[len - 1];
-            }
-            PriorityQueue<Integer> queue = new PriorityQueue<>(k);
-            for (int i = len - 1; i >= len - k; i--) {
-                queue.add(jobs[i]);
-            }
-
-            for (int i = len - k - 1; i >= 0; i--) {
-                queue.add(queue.poll() + jobs[i]);
+            //
+            int min = jobs[len - 1];
+            int max = 0;
+            for (int j : jobs) {
+                max += j;
             }
 
-            for (int i = 0; i < k - 1; i++) {
-                queue.poll();
+            while (min < max) {
+                int candidate = (max - min) / 2 + min;
+                if (check(k, jobs, candidate)) {
+                    max = candidate;
+                } else {
+                    min = candidate + 1;
+                }
             }
 
-            return queue.poll();
+            return min;
+
+        }
+
+        private boolean check(int k, int[] jobs, int limit) {
+            int[] workloads = new int[k];
+            return disJob(jobs, limit, jobs.length - 1, workloads);
+        }
+
+        /**
+         * @param jobs
+         * @param limit 本次最大工作时间
+         * @param end 从大到小分配，传入end
+         * @param workloads 工作数组，规模为工人的个数
+         * @return
+         */
+        private boolean disJob(int[] jobs, int limit, int end, int[] workloads) {
+            if (end < 0) {
+                return true;
+            }
+
+            // 本轮分配的工作量
+            int cur = jobs[end];
+            // 尝试把cur分配给k个工人
+            // 第j个工人可以重复分配工作，所以每一层都从0开始
+            for (int j = 0; j < workloads.length; j++) {
+                if (workloads[j] + cur <= limit) {
+                    workloads[j] += cur;
+                    if (disJob(jobs, limit, end - 1, workloads)) {
+                        return true;
+                    }
+                    workloads[j] -= cur;
+                }
+
+                // 如果当前工人未被分配工作，且cur分配给j时，所有的尝试都是失败的
+                // 那么把这个工作分配给后面的任何一个工人都会出现这种失败
+                if (workloads[j] == 0) {
+                    break;
+                }
+            }
+
+            // 分配失败，返回false
+            return false;
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
