@@ -68,39 +68,58 @@ import java.util.List;
 public class _1849SplittingAStringIntoDescendingConsecutiveValues {
     public static void main(String[] args) {
         Solution t = new _1849SplittingAStringIntoDescendingConsecutiveValues().new Solution();
-//        String s = "14321";
+        String s = "14321";
         String s1 = "3202872336";
-//        System.out.println(t.splitString(s));
+        System.out.println(t.splitString(s));
 //        System.out.println(t.splitString(s1));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
         public boolean splitString(String s) {
-            long t = 0;     //枚举第一个数字的值，因为s长度为20，所以会超过int，要用long类型
-            for (int i = 0; i < s.length() - 1; i++) {  //因为必须要分割成两个子串，所以最后一个字符不可能是组成第一个数字的字符，我们这里也是为了防止刚好20位导致long也会溢出的情况
-                t = t * 10 + s.charAt(i) - '0'; //把当前字符加入到组成第一个数字的字符集中
-                if(t > 10000000000L)    //如果t大于10^10那么后面最多还有9位数，所以不可能组成递减的连续值
-                    return false;
-                if (dfs(s, t, i + 1))   //把t当作第一个数字，找寻后面递减的数
-                    return true;
+            int index = 0;
+            for (; index < s.length(); index++) {
+                if (s.charAt(index) != '0') {
+                    break;
+                }
             }
+
+            // 注意这里，因为至少要划分两个子串，因此i到n-2即可
+            for (int i = index; i < s.length() - 1; i++) {
+                long cur = Long.parseLong(s.substring(index, i + 1));
+                // s一共20位，至少分成两个数
+                // 第一个数的位数大于10位时，第二位最多9位，二者不可能只差1
+                if (cur > Math.pow(10, 10)) {
+                    return false;
+                }
+
+                if (dfs(s, i + 1, cur)) {
+                    return true;
+                }
+            }
+
             return false;
         }
-        //s要分割的字符串；pre前面一个数的值；k当前字符串已经用到了哪个位置
-        private boolean dfs(String s, long pre, int k) {
-            if (k == s.length())    //代表能组成递减的连续值
+
+        private boolean dfs(String s, int start, long pre) {
+            if (start == s.length()) {
                 return true;
-            long t = 0;     //枚举pre后面的一个数字的值
-            for (int i = k; i < s.length(); i++) {  //从第k个字符开始组成数字
-                t = t * 10 + s.charAt(i) -'0';
-                if(t > 10000000000L)
-                    return false;
-                if (pre - 1 == t && dfs(s, t, i + 1))   //如果前面一个数字和当前数组相差为1，则继续往下面寻找满足条件的数组
-                    return true;
-                if (t >= pre)   //当前组成的数大于前面的数表示不符合要求，直接返回false
-                    return false;
             }
+
+            for (int i = start; i < s.length(); i++) {
+                long cur = Long.parseLong(s.substring(start, i + 1));
+                if (cur >= pre) {
+                    break;
+                }
+
+                if (cur > Math.pow(10, 10)) {
+                    return false;
+                }
+                if (cur + 1 == pre && dfs(s, i + 1, cur)) {
+                    return true;
+                }
+            }
+
             return false;
         }
 
