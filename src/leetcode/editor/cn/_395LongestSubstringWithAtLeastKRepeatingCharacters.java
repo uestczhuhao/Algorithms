@@ -35,6 +35,8 @@ package leetcode.editor.cn;
 public class _395LongestSubstringWithAtLeastKRepeatingCharacters {
     public static void main(String[] args) {
         Solution t = new _395LongestSubstringWithAtLeastKRepeatingCharacters().new Solution();
+        String s = "aaadbbb";
+        System.out.println(t.longestSubstring(s, 3));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
@@ -52,6 +54,10 @@ public class _395LongestSubstringWithAtLeastKRepeatingCharacters {
         }
 
         private int dfs(String s, int start, int end) {
+            if (end - start + 1 < maxNum) {
+                return 0;
+            }
+
             int[] chs = new int[26];
             for (int i = start; i <= end; i++) {
                 chs[s.charAt(i) - 'a']++;
@@ -73,26 +79,50 @@ public class _395LongestSubstringWithAtLeastKRepeatingCharacters {
 
             int ans = 0;
             int index = start;
-            while (index <= end) {
-                while (index <= end && s.charAt(index) == split) {
-                    index ++;
-                }
-                if (index > end) {
-                    break;
-                }
-
-                int left = index;
-                while (index <= end && s.charAt(index) != split) {
-                    index ++;
-                }
-
-                int curLen = dfs(s, left, index - 1);
-                ans = Math.max(ans, curLen);
-
+            while (index <= end && s.charAt(index) != split) {
+                index++;
             }
 
+            int leftLen = dfs(s, start, index - 1);
+            ans = Math.max(ans, leftLen);
 
+            // 加上这3行，超过100%
+            // 猜测有测试用例有大量split相同的情况
+            index++;
+            while (index <= end && s.charAt(index) == split) {
+                index++;
+            }
+
+            int rightLen = dfs(s, index, end);
+            ans = Math.max(ans, rightLen);
             return ans;
+        }
+
+        public int longestSubstring1(String s, int k) {
+            if (s.length() < k) {
+                return 0;
+            }
+
+            int[] chs = new int[26];
+            for (int i = 0; i < s.length(); i++) {
+                chs[s.charAt(i) - 'a']++;
+            }
+
+            for (int i = 0; i < 26; i++) {
+                if (chs[i] > 0 && chs[i] < k) {
+                    char ch = (char) (i + 'a');
+                    String[] split = s.split(String.valueOf(ch));
+                    // 对某个满足题意的分割字符做切分的结果
+                    int ans = 0;
+                    for (String sp : split) {
+                        int sLen = longestSubstring(sp, k);
+                        ans = Math.max(ans, sLen);
+                    }
+                    return ans;
+                }
+            }
+            // 如果这个子串中不存在切分点，表示所有的字符已经满足题意
+            return s.length();
         }
 
 
