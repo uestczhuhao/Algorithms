@@ -69,13 +69,13 @@ public class _1269NumberOfWaysToStayInTheSamePlaceAfterSomeSteps {
             dp[0][0] = 1;
             for (int i = 1; i <= steps; i++) {
                 for (int j = 0; j < column; j++) {
+                    dp[i][j] = dp[i - 1][j];
                     if (j != 0) {
                         dp[i][j] = (dp[i][j] + dp[i - 1][j - 1]) % 1_000_000_007;
                     }
                     if (j != column - 1) {
                         dp[i][j] = (dp[i][j] + dp[i - 1][j + 1]) % 1_000_000_007;
                     }
-                    dp[i][j] =  (dp[i][j] +dp[i - 1][j]) % 1_000_000_007;
                 }
             }
 
