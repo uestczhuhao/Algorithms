@@ -53,7 +53,8 @@ import java.util.Arrays;
 public class _1269NumberOfWaysToStayInTheSamePlaceAfterSomeSteps {
     public static void main(String[] args) {
         Solution t = new _1269NumberOfWaysToStayInTheSamePlaceAfterSomeSteps().new Solution();
-        System.out.println(t.numWays(4,3));
+//        System.out.println(t.numWays(4, 3));
+        System.out.println(t.numWays(27, 7));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
@@ -63,25 +64,22 @@ public class _1269NumberOfWaysToStayInTheSamePlaceAfterSomeSteps {
          * 其中 j <= min(step / 2, arrLen)，不然在steps步后就不再能回来了
          */
         public int numWays(int steps, int arrLen) {
-            int column = Math.min(arrLen, steps / 2);
-            int[][] dp = new int[steps + 1][column + 1];
+            int column = Math.min(arrLen, steps / 2 + 1);
+            int[][] dp = new int[steps + 1][column];
             dp[0][0] = 1;
             for (int i = 1; i <= steps; i++) {
-                for (int j = 0; j <= column; j++) {
+                for (int j = 0; j < column; j++) {
                     if (j != 0) {
-                        dp[i][j] += dp[i - 1][j - 1];
-                    } else if (j != column) {
-                        dp[i][j] += dp[i - 1][j + 1];
+                        dp[i][j] = (dp[i][j] + dp[i - 1][j - 1]) % 1_000_000_007;
                     }
-                    dp[i][j] += dp[i - 1][j];
-
-                    if (dp[i][j] > Math.pow(10, 9) + 7) {
-                        dp[i][j] = dp[i][j] % (int) (Math.pow(10, 9) + 7);
+                    if (j != column - 1) {
+                        dp[i][j] = (dp[i][j] + dp[i - 1][j + 1]) % 1_000_000_007;
                     }
+                    dp[i][j] =  (dp[i][j] +dp[i - 1][j]) % 1_000_000_007;
                 }
             }
 
-            System.out.println(Arrays.deepToString(dp));
+//            System.out.println(Arrays.deepToString(dp));
             return dp[steps][0];
         }
     }
