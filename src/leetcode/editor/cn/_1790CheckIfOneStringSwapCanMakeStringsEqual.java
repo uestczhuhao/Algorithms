@@ -46,13 +46,13 @@ package leetcode.editor.cn;
 // 👍 9 👎 0
 
 
-public class _1790CheckIfOneStringSwapCanMakeStringsEqual{
+public class _1790CheckIfOneStringSwapCanMakeStringsEqual {
     public static void main(String[] args) {
         Solution t = new _1790CheckIfOneStringSwapCanMakeStringsEqual().new Solution();
     }
-  
+
     //leetcode submit region begin(Prohibit modification and deletion)
-class Solution {
+    class Solution {
         /**
          * 考虑 abc 和 ace的情况，本解法能过
          * 但是题目没有这种情况发生
@@ -85,7 +85,7 @@ class Solution {
 
             return true;
         }
-}
+    }
 //leetcode submit region end(Prohibit modification and deletion)
 
 }
