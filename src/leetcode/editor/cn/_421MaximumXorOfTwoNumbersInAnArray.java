@@ -57,6 +57,9 @@ package leetcode.editor.cn;
 // 👍 270 👎 0
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class _421MaximumXorOfTwoNumbersInAnArray {
     public static void main(String[] args) {
         Solution t = new _421MaximumXorOfTwoNumbersInAnArray().new Solution();
@@ -64,8 +67,7 @@ public class _421MaximumXorOfTwoNumbersInAnArray {
 
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
-        // TODO: 优化
-        public int findMaximumXOR(int[] nums) {
+        public int findMaximumXOR1(int[] nums) {
             int max = 0;
             for (int i = 0; i < nums.length; i++) {
                 for (int j = i + 1; j < nums.length; j++) {
@@ -75,6 +77,35 @@ public class _421MaximumXorOfTwoNumbersInAnArray {
 
             return max;
 
+        }
+
+        /**
+         * 哈希表，假设最大值位x，从高高低判断其每一位是否能取到1
+         */
+        public int findMaximumXOR(int[] nums) {
+            int preX = 0;
+            for (int i = 30; i >= 0; i--) {
+                // 存放右移i位的preJ
+                Set<Integer> curPreJ = new HashSet<>();
+                for (int num : nums) {
+                    curPreJ.add(num >> i);
+                }
+                // 当前位设置为1
+                preX = (preX << 1) + 1;
+                boolean found = false;
+                for (int num : nums) {
+                    if (curPreJ.contains(preX ^ (num >> i))) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                // 若当前位取不到1，则取0
+                if (!found) {
+                    preX -= 1;
+                }
+            }
+            return preX;
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
