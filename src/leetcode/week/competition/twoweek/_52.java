@@ -21,26 +21,36 @@ public class _52 {
     }
 
     public int sumOfFlooredPairs(int[] nums) {
-        Arrays.sort(nums);
-        int left = 0, right = nums.length - 1;
-        while (left < right) {
-            int tmp = nums[left];
-            nums[left] = nums[right];
-            nums[right] = tmp;
-            left++;
-            right--;
+        int maxValue = Integer.MIN_VALUE;
+        // 存放num出现的次数
+        int[] count = new int[100001];
+        for (int num : nums) {
+            maxValue = Math.max(maxValue, num);
+            count[num]++;
         }
 
+        // 存放小于等于num的前缀和
+        int[] sum = new int[100001];
+        for (int i = 1; i <= maxValue; i++) {
+            sum[i] += sum[i - 1] + count[i];
+        }
 
         long ans = 0;
-        for (int i = 0; i < nums.length; i++) {
-            for (int j = 0; j < nums.length; j++) {
-                ans = (ans + nums[j] / nums[i]) % 1000000007;
+        for (int i = 1; i <= maxValue; i++) {
+            // 判断i出现的频率
+            int fre = count[i];
+            if (fre == 0) {
+                continue;
+            }
+
+            for (int j = i; j <= maxValue; j += i) {
+                // j ~ j+i-1 之间的区间个数
+                int bucketNum = sum[Math.min(i + j - 1, maxValue)] - sum[j - 1];
+                // 区间个数 * i出现的次数 * 当前区间除以i的整数部分
+                ans += (bucketNum * fre * (j / i) % 1000000007);
             }
         }
-
         return (int) ans;
-
     }
 
 
