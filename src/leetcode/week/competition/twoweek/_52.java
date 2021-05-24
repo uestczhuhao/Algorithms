@@ -45,9 +45,9 @@ public class _52 {
 
             for (int j = i; j <= maxValue; j += i) {
                 // j ~ j+i-1 之间的区间个数
-                int bucketNum = sum[Math.min(i + j - 1, maxValue)] - sum[j - 1];
+                long bucketNum = sum[Math.min(i + j - 1, maxValue)] - sum[j - 1];
                 // 区间个数 * i出现的次数 * 当前区间除以i的整数部分
-                ans += (bucketNum * fre * (j / i) % 1000000007);
+                ans = (ans + bucketNum * fre * (j / i)) % 1000000007;
             }
         }
         return (int) ans;
