@@ -115,7 +115,7 @@ public class _395LongestSubstringWithAtLeastKRepeatingCharacters {
                     // 对某个满足题意的分割字符做切分的结果
                     int ans = 0;
                     for (String sp : split) {
-                        int sLen = longestSubstring(sp, k);
+                        int sLen = longestSubstring1(sp, k);
                         ans = Math.max(ans, sLen);
                     }
                     return ans;
