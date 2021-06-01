@@ -1,12 +1,7 @@
 package leetcode.week.competition;
 
-import com.sun.source.tree.BreakTree;
-
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
-import java.util.Queue;
 
 /**
  * @author mizhu
