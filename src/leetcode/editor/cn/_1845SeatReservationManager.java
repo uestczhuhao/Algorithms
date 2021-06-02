@@ -58,24 +58,24 @@ public class _1845SeatReservationManager {
     class SeatManager {
 
         int maxSeat;
-        int minSeqSeat;
+        int seqenceSeat;
         PriorityQueue<Integer> queue = new PriorityQueue<>();
 
         public SeatManager(int n) {
             maxSeat = n;
-            minSeqSeat = 1;
+            seqenceSeat = 1;
         }
 
         public int reserve() {
             if (queue.isEmpty()) {
-                return minSeqSeat++;
+                return seqenceSeat++;
             } else {
                 return queue.poll();
             }
         }
 
         public void unreserve(int seatNumber) {
-            if (seatNumber < minSeqSeat) {
+            if (seatNumber < seqenceSeat) {
                 queue.add(seatNumber);
             }
         }

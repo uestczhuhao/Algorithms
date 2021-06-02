@@ -68,11 +68,11 @@ public class _1723FindMinimumTimeToFinishAllJobs {
             }
 
             while (min < max) {
-                int candidate = (max - min) / 2 + min;
-                if (check(k, jobs, candidate)) {
-                    max = candidate;
+                int mid = (max - min) / 2 + min;
+                if (check(k, jobs, mid)) {
+                    max = mid;
                 } else {
-                    min = candidate + 1;
+                    min = mid + 1;
                 }
             }
 

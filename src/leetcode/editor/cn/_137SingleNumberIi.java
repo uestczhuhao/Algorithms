@@ -36,9 +36,7 @@ package leetcode.editor.cn;
 
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class _137SingleNumberIi {
     public static void main(String[] args) {
@@ -47,19 +45,36 @@ public class _137SingleNumberIi {
 
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
-        public int singleNumber(int[] nums) {
+        public int singleNumber1(int[] nums) {
             int len = nums.length;
             Map<Integer, Integer> map = new HashMap<>();
-            for (int num:nums) {
-                map.put(num, map.getOrDefault(num, 0 ) + 1);
+            for (int num : nums) {
+                map.put(num, map.getOrDefault(num, 0) + 1);
             }
 
-            for (Map.Entry<Integer, Integer> m:map.entrySet()) {
+            for (Map.Entry<Integer, Integer> m : map.entrySet()) {
                 if (m.getValue() == 1) {
                     return m.getKey();
                 }
             }
             return -1;
+        }
+
+        public int singleNumber(int[] nums) {
+            int ans = 0;
+            for (int i = 31; i >= 0; i--) {
+                int total = 0;
+                for (int num : nums) {
+                    // 取第i位，注意要 &1
+                    total += ((num >> i) & 1);
+                }
+
+                // 此时ans的第i位为1，否则为0
+                if (total % 3 != 0) {
+                    ans |= (1 << i);
+                }
+            }
+            return ans;
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
