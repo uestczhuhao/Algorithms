@@ -15,6 +15,7 @@ package leetcode;
  */
 public class _206ReverseLinkedList {
     /**
+     * 翻转链表
      * pre指向node前一个元素（初始为null），
      * behind指向node的下一个元素，令head.next = pre，pre下一次指向node，node指向behing
      */
