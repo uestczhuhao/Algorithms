@@ -121,12 +121,11 @@ public class _23MergeKSortedLists {
             if (node1.val < node2.val) {
                 node.next = new ListNode(node1.val);
                 node1 = node1.next;
-                node = node.next;
             } else {
                 node.next = new ListNode(node2.val);
                 node2 = node2.next;
-                node = node.next;
             }
+            node = node.next;
         }
 
         while (node1 != null) {

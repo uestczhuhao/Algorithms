@@ -146,7 +146,7 @@ public class _130SurroundedRegions {
             }
 
             Deque<Point> stack = new LinkedList<>();
-            stack.add(new Point(curRow, curColumn));
+            stack.offer(new Point(curRow, curColumn));
             while (!stack.isEmpty()) {
                 Point point = stack.peek();
                 int rowNum = point.x;
@@ -166,7 +166,7 @@ public class _130SurroundedRegions {
                     stack.add(new Point(rowNum, columnNum + 1));
                 }
                 // 前后左右都不满足条件，则弹出
-                stack.remove();
+                stack.poll();
             }
         }
 

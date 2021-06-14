@@ -50,14 +50,9 @@ public class _1367LinkedListInBinaryTree {
             return true;
         }
 
-        boolean subPath = false;
-        // 只有在head 和 root值相等的情况下，才能判断链表的下一个值和root的左右节点是否匹配
-        if (head.val == root.val) {
-            subPath = doSubPath(head.next, root.left) || doSubPath(head.next, root.right);
-        }
         // 如果subPath为true，则表明之前的寻找成功，直接返回true
         // 否则，代表匹配到中间时断了，需要重新从头匹配
-        return subPath || isSubPath(head, root.left) || isSubPath(head, root.right);
+        return doSubPath(head, root) || isSubPath(head, root.left) || isSubPath(head, root.right);
     }
 
     public boolean doSubPath(ListNode listNode, TreeNode treeNode) {

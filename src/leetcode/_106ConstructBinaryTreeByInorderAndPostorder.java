@@ -24,7 +24,7 @@ import java.util.Map;
  * 15   7
  */
 public class _106ConstructBinaryTreeByInorderAndPostorder {
-    Map<Integer, Integer> inorderValueIndexMap = new HashMap<>();
+    Map<Integer, Integer> inorderMap = new HashMap<>();
 
     public TreeNode buildTree(int[] inorder, int[] postorder) {
         if (inorder == null || postorder == null
@@ -34,7 +34,7 @@ public class _106ConstructBinaryTreeByInorderAndPostorder {
         }
 
         for (int i = 0; i < inorder.length; i++) {
-            inorderValueIndexMap.put(inorder[i], i);
+            inorderMap.put(inorder[i], i);
         }
 
         return constructTree(inorder, postorder, 0, inorder.length - 1, 0, postorder.length - 1);
@@ -46,7 +46,7 @@ public class _106ConstructBinaryTreeByInorderAndPostorder {
         }
 
         int curRootValue = postorder[postEnd];
-        int inorderMidIndex = inorderValueIndexMap.get(curRootValue);
+        int inorderMidIndex = inorderMap.get(curRootValue);
         int leftLength = inorderMidIndex - inStart;
         TreeNode currentRoot = new TreeNode(curRootValue);
         currentRoot.left = constructTree(inorder, postorder, inStart, inStart + leftLength - 1, postStart, postStart + leftLength - 1);

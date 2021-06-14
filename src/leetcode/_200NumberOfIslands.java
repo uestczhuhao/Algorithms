@@ -52,19 +52,19 @@ public class _200NumberOfIslands {
         // 初始化rank和root
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < column; j++) {
-                int canPos = i * column + j;
+                int pos = i * column + j;
                 if (grid[i][j] != '1') {
-                    parent[canPos] = -1;
+                    parent[pos] = -1;
                     continue;
                 }
-                parent[canPos] = canPos;
+                parent[pos] = pos;
                 count++;
             }
         }
 
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < column; j++) {
-                int canPos = i * column + j;
+                int pos = i * column + j;
                 if (grid[i][j] != '1') {
                     continue;
                 }
@@ -72,16 +72,16 @@ public class _200NumberOfIslands {
                 // 标记已访问过的位置，避免重复合并
                 grid[i][j] = '0';
                 if (i - 1 >= 0 && grid[i - 1][j] == '1') {
-                    union(canPos, (i - 1) * column + j);
+                    union(pos, (i - 1) * column + j);
                 }
                 if (i + 1 < row && grid[i + 1][j] == '1') {
-                    union(canPos, (i + 1) * column + j);
+                    union(pos, (i + 1) * column + j);
                 }
                 if (j - 1 >= 0 && grid[i][j - 1] == '1') {
-                    union(canPos, i * column + j - 1);
+                    union(pos, i * column + j - 1);
                 }
                 if (j + 1 < column && grid[i][j + 1] == '1') {
-                    union(canPos, i * column + j + 1);
+                    union(pos, i * column + j + 1);
                 }
             }
         }
