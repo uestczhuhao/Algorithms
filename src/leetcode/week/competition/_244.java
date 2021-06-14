@@ -14,34 +14,55 @@ public class _244 {
 //        int[][] target = {{1, 1, 1}, {0, 1, 0}, {0, 0, 0}};
         int[][] target = {{1, 0}, {0, 1}};
         _244 t = new _244();
-        System.out.println(t.findRotation(mat, target));
+//        System.out.println(t.findRotation(mat, target));
 //        int[] nums = {1, 1, 2, 2, 3};
 //        System.out.println(t.reductionOperations(nums));
+        System.out.println(t.minFlips("1110"));
     }
 
+    /**
+     * 思路：把s往后加一遍，模拟操作1，再用长度为len的滑动窗口解决
+     * 注意：可能是0101...类型的结果最小，也可能是1010...类型的结果最小，但结果最大为len
+     */
     public int minFlips(String s) {
         int len = s.length();
-        int ans = 0, i = 0;
-        for (; i < len - 1; i++) {
-            if (s.charAt(i) != s.charAt(i + 1)) {
-                break;
+        String zeroOne = "01";
+        String oneZero = "10";
+        int ans = len;
+        int zDiff = 0, oDiff = 0;
+        s += s;
+        for (int i = 0; i < len; i++) {
+            if (s.charAt(i) != zeroOne.charAt(i % 2)) {
+                zDiff++;
+            }
+            if (s.charAt(i) != oneZero.charAt(i % 2)) {
+                oDiff++;
             }
         }
 
-        if (i == len - 1) {
-            return ans;
+        for (int i = len; i < 2 * len; i++) {
+            if (s.charAt(i) != zeroOne.charAt(i % 2)) {
+                zDiff++;
+            }
+            if (s.charAt(i) != oneZero.charAt(i % 2)) {
+                oDiff++;
+            }
+            if (s.charAt(i - len) != zeroOne.charAt((i - len) % 2)) {
+                zDiff--;
+            }
+            if (s.charAt(i - len) != oneZero.charAt((i - len) % 2)) {
+                oDiff--;
+            }
+            ans = Math.min(Math.min(ans, zDiff), oDiff);
         }
-
-        if (i > 0) {
-            s = s.substring(i) + s.substring(0, i);
-        }
-
-//        for ()
-
-        return 0;
-
+        return ans;
     }
 
+    /**
+     * 旋转90度之后：第i行变成第col-1-i列（如第一行变成最后一列，第二行变成倒数第二列）
+     * 第j列变成第j行，如第一列变成第一行
+     * 即 rotate[j][n - 1 -i] = mat[i][j]
+     */
     public boolean findRotation(int[][] mat, int[][] target) {
         int row = mat.length;
         int col = mat[0].length;
@@ -85,12 +106,8 @@ public class _244 {
     private boolean nextValid(int i, int j, int dirIndex, int[][] dir, int row, int col, boolean[][] visit) {
         int ni = i + dir[dirIndex][0];
         int nj = j + dir[dirIndex][1];
-        if (ni < 0 || ni >= row
-            || nj < 0 || nj >= col || visit[ni][nj]) {
-            return false;
-        }
-
-        return true;
+        return ni >= 0 && ni < row
+            && nj >= 0 && nj < col && !visit[ni][nj];
     }
 
     public int reductionOperations(int[] nums) {

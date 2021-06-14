@@ -38,9 +38,10 @@ public class _1ZeroOneKnapsack {
     public static void main(String[] args) {
         int itemNum = 3;
         int totalVolume = 4;
-        int[] volumes = {1, 3, 1};
-        int[] weights = {15, 20, 35};
+        int[] volumes = {3, 1, 1};
+        int[] weights = {20, 15, 35};
         System.out.println(maxValue(itemNum, totalVolume, volumes, weights));
+        System.out.println(maxValue1(itemNum, totalVolume, volumes, weights));
     }
 
     private static int maxValue(int itemNum, int totalVolume, int[] volumes, int[] weights) {
@@ -57,5 +58,22 @@ public class _1ZeroOneKnapsack {
         }
 
         return maxWeight[totalVolume];
+    }
+
+    private static int maxValue1(int itemNum, int totalVolume, int[] volumes, int[] weights) {
+        if (itemNum <= 0 || totalVolume <= 0) {
+            return 0;
+        }
+
+        int[][] maxWeight = new int[itemNum + 1][totalVolume + 1];
+        for (int i = 1; i <= itemNum; i++) {
+            for (int j = volumes[i - 1]; j <= totalVolume; j++) {
+//            for (int j = totalVolume; j >= volumes[i - 1]; j--) {
+                maxWeight[i][j] = Math.max(maxWeight[i - 1][j], maxWeight[i - 1][j - volumes[i - 1]] + weights[i - 1]);
+            }
+        }
+
+        System.out.println(Arrays.deepToString(maxWeight));
+        return maxWeight[itemNum][totalVolume];
     }
 }
