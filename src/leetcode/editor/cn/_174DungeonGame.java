@@ -55,6 +55,8 @@ import java.util.Arrays;
 public class _174DungeonGame {
     public static void main(String[] args) {
         Solution t = new _174DungeonGame().new Solution();
+        int[][] dun = {{-2,-3,3},{-5,-10,1},{10,30,-5}};
+        System.out.println(t.calculateMinimumHP(dun));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
@@ -62,15 +64,18 @@ public class _174DungeonGame {
         public int calculateMinimumHP(int[][] dungeon) {
             int row = dungeon.length;
             int col = dungeon[0].length;
+            // dp[i][j]表示从i，j能到右下角的最小健康值
             int[][] dp = new int[row + 1][col + 1];
             for (int i = 0; i <= row; i++) {
                 Arrays.fill(dp[i], Integer.MAX_VALUE);
             }
 
+            // 初始化为1（健康值不能为0）
             dp[row][col - 1] = dp[row - 1][col] = 1;
             for (int i = row - 1; i >= 0; i--) {
                 for (int j = col - 1; j >= 0; j--) {
                     int min = Math.min(dp[i + 1][j], dp[i][j + 1]);
+                    // dp[i][j]从下面或右边转化而来，取较小值
                     dp[i][j] = Math.max(min - dungeon[i][j], 1);
                 }
             }
