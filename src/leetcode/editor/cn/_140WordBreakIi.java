@@ -132,11 +132,11 @@ public class _140WordBreakIi {
             }
 
             // 可以拆分的左边界从 len - 1 依次枚举到 0
-            for (int i = len - 1; i >= 0; i--) {
-                String suffix = s.substring(i, len);
-                if (wordSet.contains(suffix) && dp[i]) {
+            for (int left = len - 1; left >= 0; left--) {
+                String suffix = s.substring(left, len);
+                if (wordSet.contains(suffix) && dp[left]) {
                     path.addFirst(suffix);
-                    dfs(s, i, wordSet, dp, path, res);
+                    dfs(s, left, wordSet, dp, path, res);
                     path.removeFirst();
                 }
             }
