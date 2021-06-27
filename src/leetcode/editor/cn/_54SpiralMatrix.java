@@ -52,10 +52,10 @@ public class _54SpiralMatrix {
          * 1 初始化四个方向：右-下-左-上，按顺序遍历
          * 2 利用visited数组跟踪已访问的元素，遇到已访问的元素则调转方向
          * 3 记录当前为止的总访问元素个数，访问数达到总节点个数则退出
-         *
+         * <p>
          * 注意：判断当前位置的下一个位置是否越界，而不是当前位置（否则还要退回到合法位置再继续）
          */
-        public List<Integer> spiralOrder(int[][] matrix) {
+        public List<Integer> spiralOrder1(int[][] matrix) {
             List<Integer> answer = new ArrayList<>();
             if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
                 return answer;
@@ -83,6 +83,40 @@ public class _54SpiralMatrix {
             }
             return answer;
         }
+
+        public List<Integer> spiralOrder(int[][] matrix) {
+            List<Integer> answer = new ArrayList<>();
+            if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+                return answer;
+            }
+
+            int top = 0, bottom = matrix.length - 1;
+            int left = 0, right = matrix[0].length - 1;
+            while (top <= bottom && left <= right) {
+                for (int i = left; i<=right ;i++) {
+                    answer.add(matrix[top][i]);
+                }
+                for (int i = top + 1; i<= bottom; i++) {
+                    answer.add(matrix[i][right]);
+                }
+                if (top < bottom && left < right) {
+                    for (int i = right - 1; i > left; i--) {
+                        answer.add(matrix[bottom][i]);
+                    }
+                    for (int i = bottom; i> top;i--){
+                        answer.add(matrix[i][left]);
+                    }
+                }
+                left ++;
+                right--;
+                top ++;
+                bottom--;
+            }
+
+            return answer;
+        }
+
+
     }
 //leetcode submit region end(Prohibit modification and deletion)
 
