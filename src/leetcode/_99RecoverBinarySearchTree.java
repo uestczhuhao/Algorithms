@@ -65,7 +65,7 @@ public class _99RecoverBinarySearchTree {
         Deque<TreeNode> stack = new LinkedList<>();
         TreeNode node = root;
         // 前置节点
-        TreeNode pred = null;
+        TreeNode pre = null;
         // 一遍中序遍历，找出逆序对
         // 然后交换两个逆序位置节点的值
         TreeNode src = null;
@@ -77,19 +77,19 @@ public class _99RecoverBinarySearchTree {
             }
 
             node = stack.pop();
-            if (pred != null) {
-                if (node.val < pred.val) {
+            if (pre != null) {
+                if (node.val < pre.val) {
                     tgt = node;
 
                     if (src == null) {
-                        src = pred;
+                        src = pre;
                     } else {
                         break;
                     }
                 }
             }
 
-            pred = node;
+            pre = node;
             node = node.right;
         }
 
