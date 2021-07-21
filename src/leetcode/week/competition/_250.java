@@ -42,6 +42,7 @@ public class _250 {
             }
 
             // 当k > j时，points[i][j]+j+max(ans[i−1][k]−k)
+            // 当 j = n-3 时，需要取 n-3，n-2和n-1的最大值，因此需要倒序遍历
             tmpMax = Long.MIN_VALUE;
             for (int j = n - 1; j >= 0; j--) {
                 tmpMax = Math.max(tmpMax, ans[i - 1][j] - j);
