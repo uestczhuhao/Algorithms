@@ -39,22 +39,32 @@ import java.util.Set;
 public class _345ReverseVowelsOfAString {
     public static void main(String[] args) {
         Solution t = new _345ReverseVowelsOfAString().new Solution();
+        System.out.println(t.reverseVowels("hello"));
         System.out.println(t.reverseVowels("aA"));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
-        public String reverseVowels(String s) {
-            Set<Character> vowelSet = new HashSet<>();
+        public Set<Character> vowelSet = new HashSet<>();
+
+        {
             vowelSet.add('a');
+            vowelSet.add('A');
             vowelSet.add('e');
+            vowelSet.add('E');
             vowelSet.add('i');
+            vowelSet.add('I');
             vowelSet.add('o');
+            vowelSet.add('O');
             vowelSet.add('u');
+            vowelSet.add('U');
+        }
+
+        public String reverseVowels1(String s) {
             char[] chs = s.toCharArray();
             List<Integer> vowelIndexList = new ArrayList<>();
             for (int i = 0; i < chs.length; i++) {
-                if (vowelSet.contains(Character.toLowerCase(chs[i]))) {
+                if (vowelSet.contains(chs[i])) {
                     vowelIndexList.add(i);
                 }
             }
@@ -67,6 +77,29 @@ public class _345ReverseVowelsOfAString {
                 chs[tgt] = tmp;
             }
 
+            return new String(chs);
+        }
+
+        public String reverseVowels(String s) {
+            char[] chs = s.toCharArray();
+            int low = 0, high = chs.length - 1;
+            while (low < high) {
+                if (vowelSet.contains(chs[low]) && vowelSet.contains(chs[high])) {
+                    char tmp = chs[low];
+                    chs[low] = chs[high];
+                    chs[high] = tmp;
+                    low ++;
+                    high --;
+                } else {
+                    if (!vowelSet.contains(chs[low])) {
+                        low++;
+                    }
+
+                    if (!vowelSet.contains(chs[high])) {
+                        high--;
+                    }
+                }
+            }
             return new String(chs);
         }
     }
