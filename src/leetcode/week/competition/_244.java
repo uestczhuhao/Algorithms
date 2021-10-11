@@ -15,9 +15,9 @@ public class _244 {
         int[][] target = {{1, 0}, {0, 1}};
         _244 t = new _244();
 //        System.out.println(t.findRotation(mat, target));
-//        int[] nums = {1, 1, 2, 2, 3};
-//        System.out.println(t.reductionOperations(nums));
-        System.out.println(t.minFlips("1110"));
+        int[] nums = {1, 1, 2, 2, 3};
+        System.out.println(t.reductionOperations(nums));
+//        System.out.println(t.minFlips("1110"));
     }
 
     /**

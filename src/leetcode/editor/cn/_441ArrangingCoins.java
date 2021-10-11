@@ -44,8 +44,8 @@ public class _441ArrangingCoins {
     class Solution {
         /**
          * 二分法，用<的方式，把结果归拢到层数k，其中k为总硬币数小于等于n的最大的台阶
-         * @param n
-         * @return
+         * 注意1：根据业务含义，当coins(mid) < n时可能mid是候选（最后一排不满），因此不能跳过，即left=mid；反之可以直接跳过high=mid-1
+         * 注意2：由于left=mid，因此求mid时需要向前走一步，避免死循环，即 mid = low + (high - low + 1) / 2
          */
         public int arrangeCoins(int n) {
             long high = (long) Math.sqrt(2 * (long) n);
