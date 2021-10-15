@@ -36,6 +36,33 @@ public class _262 {
 
     }
 
+    /**
+     * 1. 任找一个基准元素a，若其余的元素和a的距离都为x的整数倍，则任意两个元素差距都为x的整数倍
+     * 2. 在1满足的情况下，找到grid的中位数y，其余元素与它差多少个x即为答案
+     * 假设y不是中位数，比y小的为p，比y大的为q，假设p > q，则把y减小x，会使答案减少p - q（p<q亦然）
+     */
+    public int minOperations(int[][] grid, int x) {
+        int row = grid.length;
+        int col = grid[0].length;
+        int[] nums = new int[row * col];
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                if (Math.abs(grid[i][j] - grid[0][0]) % x != 0) {
+                    return -1;
+                }
+                // 这里注意，是i * col + j
+                nums[i * col + j] = grid[i][j];
+            }
+        }
+        Arrays.sort(nums);
+        int mid = nums[(row * col) / 2];
+        int ans = 0;
+        for (int n : nums) {
+            ans += Math.abs(n - mid) / x;
+        }
+        return ans;
+    }
+
 
     public List<Integer> twoOutOfThree(int[] nums1, int[] nums2, int[] nums3) {
         Set<Integer> set1 = new HashSet<>();
