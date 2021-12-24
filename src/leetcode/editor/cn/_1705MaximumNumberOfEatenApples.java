@@ -78,12 +78,12 @@ public class _1705MaximumNumberOfEatenApples {
                 while (!priorityQueue.isEmpty() && priorityQueue.peek()[0] < i) {
                     priorityQueue.poll();
                 }
+                // 可以不用每次都弹出/插入，而是只判断堆顶元素减1后是否是0，是则弹出，节约入队列和出队列的时间
                 if (!priorityQueue.isEmpty()) {
-                    int[] dayAppleArr = priorityQueue.poll();
-                    ans++;
-                    if (--dayAppleArr[1] > 0) {
-                        priorityQueue.offer(dayAppleArr);
+                    if (--priorityQueue.peek()[1] <= 0) {
+                        priorityQueue.poll();
                     }
+                    ans++;
                 }
                 i++;
             }
