@@ -51,7 +51,7 @@ public class _1685SumOfAbsoluteDifferencesInASortedArray {
          * left数组：left[i]为左边所有数到i的绝对值之和，考虑left[i-1]，从left[i-1]到left[i]
          * 只需要把nums[i] - nums[i-1]这段距离加 i 次即可
          */
-        public int[] getSumAbsoluteDifferences(int[] nums) {
+        public int[] getSumAbsoluteDifferences1(int[] nums) {
             int len = nums.length;
             int[] left = new int[len];
             int[] right = new int[len];
@@ -63,6 +63,26 @@ public class _1685SumOfAbsoluteDifferencesInASortedArray {
             for (int i = len - 2; i >= 0; i--) {
                 right[i] = right[i + 1] + (len - 1 - i) * (nums[i + 1] - nums[i]);
                 ans[i] = left[i] + right[i];
+            }
+            ans[len - 1] = left[len - 1];
+            return ans;
+        }
+
+        /**
+         * 可以优化掉right数组，采用一个变量代替
+         */
+        public int[] getSumAbsoluteDifferences(int[] nums) {
+            int len = nums.length;
+            int[] left = new int[len];
+            int right = 0;
+            int[] ans = new int[len];
+            for (int i = 1; i < len; i++) {
+                left[i] = left[i - 1] + i * (nums[i] - nums[i - 1]);
+            }
+
+            for (int i = len - 2; i >= 0; i--) {
+                right += (len - 1 - i) * (nums[i + 1] - nums[i]);
+                ans[i] = left[i] + right;
             }
             ans[len - 1] = left[len - 1];
             return ans;

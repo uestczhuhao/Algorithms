@@ -17,6 +17,49 @@ public class _273 {
 //        System.out.println(Arrays.toString(t.executeInstructions(1, new int[] {0, 0}, "LRUD")));
     }
 
+    public long[] getDistances(int[] arr) {
+        Map<Integer, List<Integer>> valueIndexMap = new HashMap<>();
+        for (int i = 0; i < arr.length; i++) {
+            int value = arr[i];
+            valueIndexMap.putIfAbsent(value, new ArrayList<>());
+            valueIndexMap.get(value).add(i);
+        }
+
+        long[] ans = new long[arr.length];
+        for (Map.Entry<Integer, List<Integer>> entry : valueIndexMap.entrySet()) {
+            List<Integer> indexList = entry.getValue();
+            if (indexList.size() == 1) {
+                ans[indexList.get(0)] = 0;
+                continue;
+            }
+            Collections.sort(indexList);
+            Integer[] indexArr = indexList.toArray(new Integer[0]);
+            long[] sumList = getSumAbsoluteDifferences(indexArr);
+            for (int i = 0; i < indexArr.length; i++) {
+                ans[indexArr[i]] = sumList[i];
+            }
+        }
+
+        return ans;
+    }
+
+    public long[] getSumAbsoluteDifferences(Integer[] nums) {
+        int len = nums.length;
+        long[] left = new long[len];
+        long right = 0;
+        long[] ans = new long[len];
+        for (int i = 1; i < len; i++) {
+            left[i] = left[i - 1] + (long) i * (nums[i] - nums[i - 1]);
+        }
+
+        for (int i = len - 2; i >= 0; i--) {
+            right += (long) (len - 1 - i) * (nums[i + 1] - nums[i]);
+            ans[i] = left[i] + right;
+        }
+        ans[len - 1] = left[len - 1];
+        return ans;
+    }
+
 
     public int[] executeInstructions(int n, int[] startPos, String s) {
         int[] ans = new int[s.length()];
