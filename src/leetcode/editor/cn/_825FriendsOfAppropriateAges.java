@@ -87,9 +87,11 @@ public class _825FriendsOfAppropriateAges {
                 if (age < 15) {
                     continue;
                 }
+                // left一直右移到合法区域内
                 while (ages[left] <= 0.5 * age + 7) {
                     left++;
                 }
+                // right一直右移到不合法区域内，得到区间[left, right)
                 while (right < num && ages[right] <= age) {
                     right++;
                 }
