@@ -1,5 +1,7 @@
 package leetcode.editor.cn;
 
+import java.util.Arrays;
+
 /**
  * <p>给定一个字符串 <code>s</code><strong> </strong>和一个字符串 <code>t</code> ，计算在 <code>s</code> 的子序列中 <code>t</code> 出现的个数。</p>
  *
@@ -48,7 +50,8 @@ package leetcode.editor.cn;
 public class _115DistinctSubsequences {
     public static void main(String[] args) {
         Solution t = new _115DistinctSubsequences().new Solution();
-        System.out.println(t.numDistinct("babgbag", "bag"));
+        System.out.println(t.numDistinct("rabbbit", "rabbit"));
+        System.out.println(t.numDistinct1("rabbbit", "rabbit"));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
@@ -60,7 +63,7 @@ public class _115DistinctSubsequences {
          * 1. 当s[i] == t[j]时，dp[i][j] += dp[i-1][j-1]
          * 2. s[i] != t[j]，dp[i][j]数量不变
          */
-        public int numDistinct(String s, String t) {
+        public int numDistinct1(String s, String t) {
             int n = s.length();
             int m = t.length();
             // dp[i][j] 代表t的前j个字符 在 s的前i个字符 的子序列中出现的种类数
@@ -76,8 +79,66 @@ public class _115DistinctSubsequences {
                         dp[i][j] += dp[i - 1][j - 1];
                     }
                 }
+//                System.out.println(Arrays.toString(dp[i]));
             }
             return dp[n][m];
+        }
+
+        public int numDistinct2(String s, String t) {
+            int n = s.length();
+            int m = t.length();
+            int[] dp = new int[m + 1];
+            dp[0] = 1;
+            for (int i = 1; i <= n; i++) {
+                for (int j = m; j >= 1; j--) {
+                    if (s.charAt(i - 1) == t.charAt(j - 1)) {
+                        dp[j] += dp[j - 1];
+                    }
+                }
+//                System.out.println(Arrays.toString(dp));
+            }
+            return dp[m];
+        }
+
+        /**
+         * 记忆化递归解法，dfs[i, j] 表示代表t的前j个字符 在 s的前i个字符 的子序列中出现的种类数，考虑s的第i个字符
+         * 当s[i]==t[j] 时，可以选择s[i]和t匹配，也可以不选择，则dfs[i, j] = dfs[i - 1][j - 1] + dfs[i - 1][j]
+         * 否则，s[i]不能参与匹配，dfs[i, j] = dfs[i - 1][j]
+         */
+        public int numDistinct(String s, String t) {
+            int n = s.length();
+            int m = t.length();
+            // 记忆下递归的结果，避免重复计算
+            int[][] remember = new int[n][m];
+            // 要初始化为-1，初始化判0时会超时
+            // 因为有很多情况下dfs会为0（如s的长度小于t长度时），应该被剪枝，若初始化判0则会把这些可能性计算多次
+            for (int i = 0;i<n;i++) {
+                for (int j = 0;j<m;j++) {
+                    remember[i][j] = -1;
+                }
+            }
+            return dfs(n - 1, m - 1, remember, s, t);
+        }
+
+        private int dfs(int i, int j, int[][] remember, String s, String t) {
+            // 当j为空串时，返回1，代表s只能选空串
+            if (j < 0) {
+                return 1;
+            }
+            // 当i为空串且j不为空串时，没有满足条件的情况，返回0
+            if (i < 0) {
+                return 0;
+            }
+            if (remember[i][j] != -1) {
+                return remember[i][j];
+            }
+
+            if (s.charAt(i) == t.charAt(j)) {
+                remember[i][j] = dfs(i - 1, j - 1, remember, s, t) + dfs(i - 1, j, remember, s, t);
+            } else {
+                remember[i][j] = dfs(i - 1, j, remember, s, t);
+            }
+            return remember[i][j];
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
