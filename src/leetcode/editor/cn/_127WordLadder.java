@@ -1,49 +1,49 @@
 package leetcode.editor.cn;
 
-//字典 wordList 中从单词 beginWord 和 endWord 的 转换序列 是一个按下述规格形成的序列： 
+//字典 wordList 中从单词 beginWord 和 endWord 的 转换序列 是一个按下述规格形成的序列：
 //
-// 
-// 序列中第一个单词是 beginWord 。 
-// 序列中最后一个单词是 endWord 。 
-// 每次转换只能改变一个字母。 
-// 转换过程中的中间单词必须是字典 wordList 中的单词。 
-// 
+//
+// 序列中第一个单词是 beginWord 。
+// 序列中最后一个单词是 endWord 。
+// 每次转换只能改变一个字母。
+// 转换过程中的中间单词必须是字典 wordList 中的单词。
+//
 //
 // 给你两个单词 beginWord 和 endWord 和一个字典 wordList ，找到从 beginWord 到 endWord 的 最短转换序列 中
-//的 单词数目 。如果不存在这样的转换序列，返回 0。 
-// 
+//的 单词数目 。如果不存在这样的转换序列，返回 0。
 //
-// 示例 1： 
 //
-// 
+// 示例 1：
+//
+//
 //输入：beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","lo
 //g","cog"]
 //输出：5
 //解释：一个最短转换序列是 "hit" -> "hot" -> "dot" -> "dog" -> "cog", 返回它的长度 5。
-// 
 //
-// 示例 2： 
 //
-// 
+// 示例 2：
+//
+//
 //输入：beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","lo
 //g"]
 //输出：0
-//解释：endWord "cog" 不在字典中，所以无法进行转换。 
+//解释：endWord "cog" 不在字典中，所以无法进行转换。
 //
-// 
 //
-// 提示： 
 //
-// 
-// 1 <= beginWord.length <= 10 
-// endWord.length == beginWord.length 
-// 1 <= wordList.length <= 5000 
-// wordList[i].length == beginWord.length 
-// beginWord、endWord 和 wordList[i] 由小写英文字母组成 
-// beginWord != endWord 
-// wordList 中的所有字符串 互不相同 
-// 
-// Related Topics 广度优先搜索 
+// 提示：
+//
+//
+// 1 <= beginWord.length <= 10
+// endWord.length == beginWord.length
+// 1 <= wordList.length <= 5000
+// wordList[i].length == beginWord.length
+// beginWord、endWord 和 wordList[i] 由小写英文字母组成
+// beginWord != endWord
+// wordList 中的所有字符串 互不相同
+//
+// Related Topics 广度优先搜索
 // 👍 697 👎 0
 
 
@@ -85,8 +85,9 @@ public class _127WordLadder {
             Queue<String> queue = new LinkedList<>();
             queue.add(beginWord);
 
-            int step = 1;
+            int level = 1;
             while (!queue.isEmpty()) {
+                // 对每一层做bfs，即对每一层符合要求的字符串尝试进行下一步
                 int curSize = queue.size();
                 for (int i = 0; i < curSize; i++) {
                     String curStr = queue.poll();
@@ -94,8 +95,8 @@ public class _127WordLadder {
                     for (int index = 0; index < chars.length; index++) {
                         char origin = chars[index];
                         for (char k = 'a'; k <= 'z'; k++) {
-                            // 跳过原有的字符串
-                            if (curStr.charAt(index) == k) {
+                            // 跳过原有的字符串curStr
+                            if (origin == k) {
                                 continue;
                             }
 
@@ -105,7 +106,7 @@ public class _127WordLadder {
 
                             if (wordSet.contains(replace) && !visited.contains(replace)) {
                                 if (replace.equals(endWord)) {
-                                    return step + 1;
+                                    return level + 1;
                                 }
 
                                 queue.add(replace);
@@ -118,7 +119,7 @@ public class _127WordLadder {
                     }
                 }
                 // bfs每一层完成后step + 1
-                step++;
+                level++;
             }
 
 
