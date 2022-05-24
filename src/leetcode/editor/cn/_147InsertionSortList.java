@@ -93,8 +93,9 @@ public class _147InsertionSortList {
                     while (prev.next.val <= cur.val) {
                         prev = prev.next;
                     }
-                    // 插入cur的同时，原链表删除cur
+                    // 原链表删除cur，同时移动lastSorted
                     lastSorted.next = cur.next;
+                    // 插入cur至合适的位置
                     cur.next = prev.next;
                     prev.next = cur;
                 }
