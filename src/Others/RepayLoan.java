@@ -51,7 +51,7 @@ public class RepayLoan {
 //        data.add("\n原还每月还款金额: " +  FORMAT.format(preLoan));//原还每月还款金额
 //        data.add("\n已还总金额: " +  FORMAT.format(payTotal));//已还总金额
 //        data.add("\n已还本金: " +  FORMAT.format(payLoan));//已还本金
-//        data.add("\n已还利息: " +  FORMAT.format(payInterest));//已还利息
+        data.add("\n已还利息: " +  FORMAT.format(payInterest));//已还利息
         data.add("\n提前还款总额: " +  FORMAT.format(aheadTotalMoney));//提前还款总额
         data.add("\n剩余还款总额: " +  FORMAT.format(leftTotalMoney));//剩余还款总额
         data.add("\n剩余还款总利息: " +  FORMAT.format(leftInterest));//剩余还款总利息
@@ -69,8 +69,8 @@ public class RepayLoan {
         int months = 360;
         int payTimes = 12;
         double rate = 5.73;
-        for (int i = 40; i <= 60; i+=5) {
-            System.out.println(calculateEqualPrincipalAndInterestApart(1500000, 360, i * 10000, 12, 5.73));
+        for (int i = 45; i <= 50; i+=1) {
+            System.out.println(calculateEqualPrincipalAndInterestApart(1500000, 360, i * 10000, 13, 5.73));
         }
     }
 }
