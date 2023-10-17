@@ -75,6 +75,8 @@ public class _274HIndex {
                         pages++;
                     }
                 }
+                // https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/solutions/698050/gong-shui-san-xie-kao-cha-dui-er-fen-de-86bk0/
+                // 如果要找到最大值，则取low = mid；最小值，则取high = mid，参考上面的题解
                 if (pages >= mid) {
                     low = mid;
                 } else {
