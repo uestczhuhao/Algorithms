@@ -9,12 +9,12 @@ public class _232ImplementQueueUsingStacks {
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
-    class MyQueue {
+    class MyQueue1 {
         Deque<Integer> pushStack;
         Deque<Integer> popStack;
         Integer peek = null;
 
-        public MyQueue() {
+        public MyQueue1() {
             pushStack = new LinkedList<>();
             popStack = new LinkedList<>();
         }
@@ -51,6 +51,49 @@ public class _232ImplementQueueUsingStacks {
 
         public boolean empty() {
             return pushStack.isEmpty() && popStack.isEmpty();
+        }
+    }
+
+    /**
+     * 可以在需要的时候再倒数据，不用每次都倒
+     */
+    class MyQueue {
+        // 逆序的元素
+        Deque<Integer> pushStack;
+        // 顺序的元素，可以当队列用
+        Deque<Integer> popStack;
+
+        public MyQueue() {
+            pushStack = new LinkedList<>();
+            popStack = new LinkedList<>();
+        }
+
+        public void push(int x) {
+            pushStack.push(x);
+        }
+
+        public int pop() {
+            if (popStack.isEmpty()) {
+                push2Pop();
+            }
+            return popStack.pop();
+        }
+
+        public int peek() {
+            if (popStack.isEmpty()) {
+                push2Pop();
+            }
+            return popStack.peek();
+        }
+
+        public boolean empty() {
+            return pushStack.isEmpty() && popStack.isEmpty();
+        }
+
+        private void push2Pop() {
+            while (!pushStack.isEmpty()) {
+                popStack.push(pushStack.pop());
+            }
         }
     }
 
