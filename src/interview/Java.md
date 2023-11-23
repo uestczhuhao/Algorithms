@@ -15,8 +15,28 @@
 
 
 ### hashmap红黑树阈值为8原因：
-随机hashCode下，转化为红黑树的概率服从泊松分布，阈值为8时概率为0.00000006
+- 随机hashCode下，转化为红黑树的概率服从泊松分布，阈值为8时概率为0.00000006
+- 8的时候链表要比较8次，红黑树理想情况下只需要4次
+- 为什么不一开始用红黑树？
+  - 红黑树的左右旋比较耗时，数据小时性价比不如链表
+- 为什么转回链表阈值是6？
+  - 避免频繁的来回转换
 
+### hashmap的扩容因子为什么是0.75
+- 只需要回答为什么不是0.5和1就行，0.8其实也可以
+
+### 本地方法栈会发生垃圾回收吗？
+
+#### ISR队列是什么？
+
+
+#### 哪些场景会触发类的加载
+
+#### JVM怎么创建一个对象
+
+#### 线程同步有哪些策略和类
+
+#### 
 
 ### 字符串用常量的原因
 1. 字符串常量池的实现，多个变量指向池中的同一个，性能高
@@ -210,6 +230,13 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
     - 对象的属性，由一个线程修改，其他线程立即可见
     - 高性能读-写锁策略，volatile保证读可见性，锁保证赋值操作的原子性
 
+#### synchronized能禁止指令重排序吗
+- synchronized 的原理和锁相同，实际上是在monitorenter和monitorexit处增加了两个院子指令，构成了内存栅栏
+- 作用是保证monitorenter之后的指令不会逃逸到前面；monitorexit之前的指令也不会逃逸到后面
+- 同时保证了这两个字节码前的副作用都生效
+- 因此答案只会保证栅栏内外不会重排，栅栏内的不会禁止重排
+
+
 ### 线程池锁回收空闲线程
 - 超过corePoolSize的空闲线程由线程池回收，线程池Worker启动跑第一个任务之后就一直循环遍历线程池任务队列，超过指定超时时间获取不到任务就remove Worker，最后由垃圾回收器回收。
 - 另外，线程池在提交任务时新建核心线程（若需要）并执行task
@@ -301,6 +328,9 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
         - A 创建过程中需要 B， 于是 A 将自己放到三级缓存里面，去实例化 B
         - B 实例化的时候发现需要 A，于是 B 先查一级缓存，没有，再查二级缓存，还是没有，再查三级缓存找到了A，然后把三级缓存中的 A 放到二级缓存，并删除三级缓存中的 A
         - B 顺利初始化完毕，将自己放到一级缓存中(此时 B 中的 A 还是创建中状态，并没有完全初始化)，删除三级缓存中的 B然后接着回来创建 A，此时 B 已经完成创建，直接从一级缓存中拿到 B，完成 A 的创建，并将 A 添加到单例池，删除二级缓存中的 A
+4. 为什么要用三级缓存？二级行不行？
+   - 二级解决不了动态代理生成的bean的循环依赖，需要三级缓存
+   - 三级也能解决弱依赖中有代理的情况
 
 
 ### FactoryBean和BeanFactory区别
@@ -308,7 +338,15 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
 - 以Bean结尾，表示它是一个Bean，不同于普通Bean的是：它是实现了FactoryBean<T>接口的Bean，根据该Bean的ID从BeanFactory中获取的实际上是FactoryBean的getObject()返回的对象，而不是FactoryBean本身，如果要获取FactoryBean对象，请在id前面加一个&符号来获取。
     - 一般情况下，Spring通过反射机制利用<bean>的class属性指定实现类实例化Bean，在某些情况下，实例化Bean过程比较复杂，如果按照传统的方式，则需要在<bean>中提供大量的配置信息。配置方式的灵活性是受限的，这时采用编码的方式可能会得到一个简单的方案。
     - Spring为此提供了一个org.springframework.bean.factory.FactoryBean的工厂类接口，用户可以通过实现该接口定制实例化Bean的逻辑。FactoryBean接口对于Spring框架来说占用重要的地位，Spring自身就提供了70多个FactoryBean的实现。它们隐藏了实例化一些复杂Bean的细节，给上层应用带来了便利。从Spring3.0开始，FactoryBean开始支持泛型，即接口声明改为FactoryBean<T>的形式。
+    
+### Spring的IOC，本质是个全局Map，管理进程中的各种对象，然后处理对象之间的依赖关系（比如解决循环依赖）
 
+### 什么是线程池预热？预热的好处是？
+
+### 为什么youngGC很频繁？
+- 要看youngGC的效果
+  - 如果老年代一直增加，且后面的FullGC也不能回收内存，则可能是内存泄露了
+  - 如果FullGc回收了很多内存，表示年轻代给的小，无法分配内存导致频繁gc，此时可以调大年轻代内存，让对象在年轻代中被回收
 
 ### thread有几种状态，和操作系统的对应关系
 1. java线程状态
@@ -403,6 +441,52 @@ BeanFactory和ApplicationContext都是接口，并且ApplicationContext（即为
 - addHeadNode：处理前置哨兵head，让head和curNode相连，原先的head.next连接到curNode的后面
 - move2Head：先deleteNode，再add2Head
 
+### 垃圾回收算法和特点？
+
+### Bean的生命周期
+- 通过Spring下的beanFactory工厂利用反射机制创建bean对象
+- 根据set方法或有参构造方法给对象的属性进行依赖注入
+- 判断当前的bean对象是否实现相关的aware节课，如beanNameAware，有的话执行相关的方法
+- 执行bean的前置处理器postProcessBeforeInitialization
+- 执行初始化方法initMethod
+- 执行bean对象的后置处理器postProcessAfterInitialization
+- 判断当前bean对象是否为单例，是则放到Spring对象容器中，多例则直接返回bean对象
+- 使用bean对象
+- 关闭容器，调用destroy方法销毁对象
+
+### 循环依赖有哪些情况？怎么解决？
+
+### Autowired 变量都是单例吗？
+
+### SpringBootApplication注解，分为哪三个？详细介绍
+
+### synchronized和ReentrantLock的加锁和解锁能在不同线程吗？
+- 不能，二者加锁时都会记录线程号，syn记录在对象头，ren记录在AQS队列
+
+### 如何排查OOM
+
+### Collections的排序是哪一种？具体是怎么使用的
+
+#### 字节码是如何被JVM读取的？Java一次编译，到处运行的原因是？
+
+#### java的agent技术是什么？
+
+#### Hash的扩容流程？渐进式Rehash的时候会影响主流程吗？
+
+#### Spring boot、Spring cloud和dubbo的设计原理和应用场景
+- boot基于spring，实现了自动装配
+- cloud可以看做是boot的集合，单机和分布式项目的区别
+
+#### docker和JVM的区别
+
+#### 手写单例模式，并说明为什么这么写？（涉及到volatile的原理）
+
+#### spring的设计模式，如模板、策略、适配、责任链、观察者、单例等（了解下）
+- AOP的底层是责任链？？？
+
+#### Mybatis怎么使用事务
+
+#### beanfactory和ApplicationContext是什么关系？使用有什么区别？
 
 #### 性能问题
 在反射调用方法的例子中，我们先后调用了Class.forName，Class.getMethod，以及Method.invoke三个操作。其中Class.forName 会调用本地方法，Class.getMethod 会遍历该类的公有方法。如果没有匹配到它还会遍历父级的公有方法，可以知道这两个操作非常耗费时间。
