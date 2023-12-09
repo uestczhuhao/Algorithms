@@ -1,5 +1,6 @@
 package leetcode.week.competition;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -70,6 +71,41 @@ public class _244 {
             || equal(mat, target, 0, col - 1, 1)
             || equal(mat, target, row - 1, col - 1, 2)
             || equal(mat, target, row - 1, 0, 3);
+    }
+
+/**
+     * Radix sort function
+     * @param nums the array to be sorted
+     */
+    public void radixSort(int[] nums) {
+        // Find the maximum number to know the number of digits
+        int max = Arrays.stream(nums).max().getAsInt();
+
+        // Apply counting sort for every digit. Note that instead of passing digit number, exp is passed.
+        // exp is 10^i where i is current digit number
+        for (int exp = 1; max / exp > 0; exp *= 10) {
+            countingSortByDigit(nums, exp);
+        }
+    }
+
+    private void countingSortByDigit(int[] nums, int exp) {
+        int[] output = new int[nums.length];
+        int[] count = new int[10];
+
+        for (int num : nums) {
+            count[(num / exp) % 10]++;
+        }
+
+        for (int i = 1; i < 10; i++) {
+            count[i] += count[i - 1];
+        }
+
+        for (int i = nums.length - 1; i >= 0; i--) {
+            output[count[(nums[i] / exp) % 10] - 1] = nums[i];
+            count[(nums[i] / exp) % 10]--;
+        }
+
+        System.arraycopy(output, 0, nums, 0, nums.length);
     }
 
     private boolean equal(int[][] src, int[][] tgt, int si, int sj, int sDirIndex) {

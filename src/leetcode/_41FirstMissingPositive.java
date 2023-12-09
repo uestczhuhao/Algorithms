@@ -31,6 +31,8 @@ public class _41FirstMissingPositive {
      * 思路：对于0-n 的数，尽量交换使得其出现在 i = num[i] - 1的地方（如：1 出现在第 0 项）
      * 完成后遍历数组，第一个不在其位置上的就是要找的数
      * 否则，返回n+1
+     * 注意：while条件中，必须比较nums[nums[i] - 1] != nums[i]，而不是nums[i] - 1 != i
+     * 原因是在[1, 1]的测试用例里，当i=1时，nums[i] - 1 != i，但nums[nums[i] - 1] == nums[i]，此时需要退出循环，否则会死循环
      */
     public int firstMissingPositive(int[] nums) {
         if (nums == null) {

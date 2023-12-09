@@ -5,6 +5,9 @@ import sun.reflect.generics.tree.Tree;
 
 import java.util.*;
 
+/**
+ * 二叉树的前序遍历、中序遍历、后序遍历，含递归/迭代的方法
+ */
 public class Method2TraverseTrees {
     public static void main(String[] args) {
         TreeNode root = new TreeNode(0);
@@ -108,7 +111,6 @@ public class Method2TraverseTrees {
         Stack<TreeNode> stack = new Stack<>();
         TreeNode node = root;
         while (node != null || !stack.isEmpty()){
-
             while (node != null){
                 stack.push(node);
                 node = node.left;
@@ -150,6 +152,7 @@ public class Method2TraverseTrees {
 
         while (!stack.isEmpty()){
             curNode = stack.peek();
+            // 表示curNode的右孩子还未被访问，当前节点还不可弹出
             if (curNode.right != null && curNode.right != lastVisit){
 
                 curNode = curNode.right;

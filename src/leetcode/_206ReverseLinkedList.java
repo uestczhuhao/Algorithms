@@ -14,12 +14,24 @@ package leetcode;
  *
  */
 public class _206ReverseLinkedList {
+
+    public ListNode reverseList(ListNode head) {
+        ListNode pre = null, node = head;
+        while (node != null) {
+            // 保留next的位置
+            ListNode next = node.next;
+            node.next = pre;
+            pre = node;
+            node = next;
+        }
+        return pre;
+    }
     /**
      * 翻转链表
      * pre指向node前一个元素（初始为null），
      * behind指向node的下一个元素，令head.next = pre，pre下一次指向node，node指向behing
      */
-    public ListNode reverseList(ListNode head) {
+    public ListNode reverseList2(ListNode head) {
         if (head == null || head.next == null) {
             return head;
         }
@@ -60,10 +72,10 @@ public class _206ReverseLinkedList {
         ListNode node1 = new ListNode(2);
         ListNode node2 = new ListNode(3);
         ListNode node3 = new ListNode(4);
-        head.next = node1;
+//        head.next = node1;
         node1.next = node2;
         node2.next = node3;
-        ListNode listNode = t.reverseList(head);
+        ListNode listNode = t.reverseList(null);
         System.out.println(listNode);
     }
 }

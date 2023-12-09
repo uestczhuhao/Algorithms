@@ -72,14 +72,16 @@ public class _160IntersectionNode {
     }
 
     public static void main(String[] args) {
-//        ListNode a = new ListNode(1);
+        ListNode a = new ListNode(1);
+        ListNode a1 = new ListNode(5);
+        a.next = a1;
         ListNode b = new ListNode(2);
-        ListNode c = new ListNode(3);
+        ListNode c = new ListNode(6);
         ListNode d = new ListNode(4);
 //        a.next = b;
         b.next = c;
-        d.next = c;
+        c.next = d;
         _160IntersectionNode t = new _160IntersectionNode();
-        System.out.println(t.getIntersectionNode1(b, c));
+        System.out.println(t.getIntersectionNode1(a, b));
     }
 }

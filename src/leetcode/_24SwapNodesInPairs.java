@@ -3,13 +3,13 @@ package leetcode;
 public class _24SwapNodesInPairs {
     public static void main(String[] args) {
         ListNode head1 = new ListNode(1);
-        head1.next = new ListNode(4);
-        head1.next.next = new ListNode(5);
-        head1.next.next.next = new ListNode(6);
-        head1.next.next.next.next = new ListNode(2);
-        head1.next.next.next.next.next = new ListNode(3);
+//        head1.next = new ListNode(4);
+//        head1.next.next = new ListNode(5);
+//        head1.next.next.next = new ListNode(6);
+//        head1.next.next.next.next = new ListNode(2);
+//        head1.next.next.next.next.next = new ListNode(3);
 
-        ListNode res = swapPairs1(head1);
+        ListNode res = swapPairs2(head1);
         System.out.println();
     }
 
@@ -56,5 +56,26 @@ public class _24SwapNodesInPairs {
         head.next = swapPairs(newHead.next);
         newHead.next = head;
         return newHead;
+    }
+
+    public static ListNode swapPairs2(ListNode head) {
+        ListNode pre = new ListNode(-1);
+        pre.next = head;
+        ListNode newPreHead = pre;
+        while (pre.next != null && pre.next.next != null) {
+            // 找到要交互的两个节点
+            ListNode cur = pre.next;
+            ListNode nxt = cur.next;
+
+            ListNode behind = nxt.next;
+            pre.next = nxt;
+            nxt.next = cur;
+            cur.next = behind;
+            // pre往前移动2个位置，指向下一次要移动的位置的前一个（即pre）
+            pre = cur;
+        }
+
+        return newPreHead.next;
+
     }
 }

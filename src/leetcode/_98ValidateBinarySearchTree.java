@@ -34,11 +34,11 @@ import java.util.LinkedList;
  */
 public class _98ValidateBinarySearchTree {
     public static void main(String[] args) {
-        TreeNode root = new TreeNode(Integer.MIN_VALUE);
-        TreeNode left = new TreeNode(5);
-        TreeNode right = new TreeNode(15);
-        TreeNode right1 = new TreeNode(6);
-        TreeNode right2 = new TreeNode(20);
+        TreeNode root = new TreeNode(5);
+        TreeNode left = new TreeNode(4);
+        TreeNode right = new TreeNode(6);
+        TreeNode right1 = new TreeNode(3);
+        TreeNode right2 = new TreeNode(7);
 
 //        long a = -2147483648;
 //        int b= (int) a;
@@ -46,12 +46,43 @@ public class _98ValidateBinarySearchTree {
 //        System.out.println(b);
 //        System.out.println(Integer.MIN_VALUE);
 
-//        root.left = left;
-//        root.right = right;
-//        right.left = right1;
-//        right.right = right2;
+        root.left = left;
+        root.right = right;
+        right.left = right1;
+        right.right = right2;
         _98ValidateBinarySearchTree t = new _98ValidateBinarySearchTree();
         System.out.println(t.isValidBST(root));
+        System.out.println(t.isValidBST1(root));
+    }
+
+    long pre = Long.MIN_VALUE;
+    public boolean isValidBST(TreeNode root) {
+        if (root == null) {
+            return true;
+        }
+        boolean left = isValidBST(root.left);
+        if (root.val <= pre) {
+            return false;
+        }
+        pre = root.val;
+        return left && isValidBST(root.right);
+    }
+
+
+    public boolean isValidBST2(TreeNode root) {
+        return isValidBST2(root, Long.MIN_VALUE, Long.MAX_VALUE);
+    }
+
+    private boolean isValidBST2(TreeNode root, long low, long high) {
+        if (root == null) {
+            return true;
+        }
+        if (root.val <= low || root.val >= high) {
+            return false;
+        }
+        boolean left = isValidBST2(root.left, low, root.val);
+        boolean right = isValidBST2(root.right, root.val, high);
+        return left && right;
     }
 
     /**
@@ -59,7 +90,7 @@ public class _98ValidateBinarySearchTree {
      *
      * @return
      */
-    public boolean isValidBST(TreeNode root) {
+    public boolean isValidBST1(TreeNode root) {
         if (root == null) {
             return true;
         }

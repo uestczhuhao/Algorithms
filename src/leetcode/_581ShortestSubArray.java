@@ -12,13 +12,12 @@ import java.util.LinkedList;
  */
 public class _581ShortestSubArray {
     public static void main(String[] args) {
-//        int[] nums = {2, 6, 4, 8, 10, 9, 15};
+        int[] nums = {2, 6, 4, 8, 10, 9, 15};
 //        int[] nums = {1, 2, 3, 4};
-        int[] nums = {1, 3, 2, 2, 2};
+//        int[] nums = {1, 3, 2, 2, 2};
 //        int[] nums = { 3, 2};
         System.out.println(findShortestSubArray(nums));
         _581ShortestSubArray t = new _581ShortestSubArray();
-        System.out.println(t.findShortestSubArray1(nums));
         System.out.println(t.findShortestSubArray2(nums));
     }
 
@@ -97,18 +96,14 @@ public class _581ShortestSubArray {
             }
         }
 
-        int left = 0, right = 0;
+        int left = -1, right = -1;
         for (int i = 0; i < len; i++) {
-            if (nums[i] > min) {
+            if (nums[i] > min && left == -1) {
                 left = i;
-                break;
             }
-        }
-
-        for (int i = len - 1; i >= 0; i--) {
-            if (nums[i] < max) {
-                right = i;
-                break;
+            int j = len - 1 - i;
+            if (nums[j] < max && right == -1) {
+                right = j;
             }
         }
 

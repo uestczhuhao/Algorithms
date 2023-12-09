@@ -6,7 +6,7 @@ public class _189RotateArray {
     public static void main(String[] args) {
         Solution t = new _189RotateArray().new Solution();
         int[] nums = {1, 2, 3, 4, 5, 6, 7};
-        t.rotate(nums, 3);
+        t.rotate2(nums, 3);
         System.out.println(Arrays.toString(nums));
     }
 
