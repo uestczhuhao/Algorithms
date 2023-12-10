@@ -36,10 +36,10 @@ public class _105ConstructBinaryTree {
             return null;
         }
 
-        for (int i = 0; i < preorder.length; i++) {
+        for (int i = 0; i < inorder.length; i++) {
             inIndexMap.put(inorder[i], i);
         }
-        return doBuildTree(preorder, 0, 0, preorder.length - 1);
+        return doBuildTree(preorder, 0, 0, inorder.length - 1);
     }
 
     public TreeNode doBuildTree(int[] preOrder, int preStart, int inStart, int inEnd) {
@@ -49,6 +49,8 @@ public class _105ConstructBinaryTree {
 
         TreeNode root = new TreeNode(preOrder[preStart]);
         int minIndex = inIndexMap.get(preOrder[preStart]);
+        // 这里是个难点：如何找到右子树的根节点？
+        // 此时的左子树节点数为 minIndex - inStart 个，因此右子树的根节点即为preStart + leftSubTreeNum + 1
         int leftSubTreeNum = minIndex - inStart;
         root.left = doBuildTree(preOrder, preStart + 1, inStart, minIndex - 1);
         root.right = doBuildTree(preOrder, preStart + leftSubTreeNum + 1, minIndex + 1, inEnd);

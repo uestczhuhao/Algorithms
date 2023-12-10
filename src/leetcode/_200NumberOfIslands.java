@@ -35,11 +35,45 @@ public class _200NumberOfIslands {
 //        int islands = test.numIslands(grid);
         System.out.println(islands);
     }
+
+
+    /**
+     * 岛屿问题的通用模板
+     * https://leetcode.cn/problems/number-of-islands/solutions/211211/dao-yu-lei-wen-ti-de-tong-yong-jie-fa-dfs-bian-li-/?envType=study-plan-v2&envId=top-100-liked
+     */
+    public int numIslands(char[][] grid) {
+        if (grid == null || grid.length == 0 || grid[0].length == 0) {
+            return 0;
+        }
+        int count = 0;
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                if (grid[i][j] == '1') {
+                    count++;
+                    dfs(grid, i, j);
+                }
+            }
+        }
+        return count;
+    }
+
+    private void dfs(char[][] grid, int i, int j) {
+        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] != '1') {
+            return;
+        }
+
+        grid[i][j] = '0';
+        dfs(grid, i, j - 1);
+        dfs(grid, i, j + 1);
+        dfs(grid, i - 1, j);
+        dfs(grid, i + 1, j);
+    }
+
     int count = 0;
     int[] rank;
     int[] parent;
 
-    public int numIslands(char[][] grid) {
+    public int numIslands1(char[][] grid) {
         if (grid == null || grid.length == 0 || grid[0].length == 0) {
             return 0;
         }
@@ -93,6 +127,7 @@ public class _200NumberOfIslands {
      * 合并时更新秩
      * 注意只更新root的秩即可，一个并查集统一用它的根节点秩处理
      * 否则cover不全
+     *
      * @param src
      * @param tgt
      */
