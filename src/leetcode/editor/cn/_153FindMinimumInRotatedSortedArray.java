@@ -63,7 +63,7 @@ public class _153FindMinimumInRotatedSortedArray {
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
         /**
-         * 对于区间的右端点high，在最小值左边的元素一定大于它，在最小值右边的元素一定小于它
+         * 对于区间的右端点high，在最小值左边的元素一定大于它（因为最后一个元素在旋转前，是在当前的最左边元素的左边），在最小值右边的元素一定小于它
          * 因此每次二分，只需要关注mid和high的关系，其中mid = low + (high - low) / 2，表示当low和high相邻时，取low为mid值
          * 若nums[mid] > nums[high]，表示最小值在[mid+1, high] 的区间内，此时mid不可能为最小（起码high比它小）
          * 若nums[mid] < nums[high]，表示最小值在[low, mid] 的区间内，注意此时mid可能为最小值

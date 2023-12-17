@@ -40,6 +40,7 @@ public class _22GenerateParentheses {
 
     /**
      * dfs，每一层先放左括号，再放右括号
+     * 非集合类的回溯，类似于二叉树的dfs，图参考：https://leetcode.cn/problems/generate-parentheses/solutions/35947/hui-su-suan-fa-by-liweiwei1419/?envType=study-plan-v2&envId=top-100-liked
      */
     public void generate(int n, int left, int right) {
         // 剪枝，左括号大于右括号时直接退出

@@ -48,7 +48,6 @@ public class _46Permutations {
      * 将每个未被访问的元素依次加入当前解中
      * 当前解的个数等于nums的长度时，产生了一个解，记录下这个解，然后回溯
      * 回溯：从当前解中依次删除最后的元素，将删除元素的visit置为false
-     * 删除后，再
      */
     private void doPermute(List<List<Integer>> permutation, List<Integer> curPermute, int[] nums, boolean[] visited) {
         if (curPermute.size() == nums.length) {

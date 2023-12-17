@@ -41,13 +41,30 @@ import java.util.concurrent.locks.LockSupport;
 public class _1143LongestCommonSubsequence {
     public static void main(String[] args) {
         _1143LongestCommonSubsequence t = new _1143LongestCommonSubsequence();
-//        String text1 = "ace";
-        String text1 = "hofubmnylkra";
+        String text1 = "ace";
+//        String text1 = "hofubmnylkra";
 //        String text1 =  "pmjghexybyrgzczy";
 //        String text2 = "hafcdqbgncrcbihkd";
-        String text2 = "pqhgxgdofcvmr";
-//        String text2 = "abcde";
-        System.out.println(t.longestCommonSubsequence3(text1, text2));
+//        String text2 = "pqhgxgdofcvmr";
+        String text2 = "abcde";
+        System.out.println(t.longestCommonSubsequence0(text1, text2));
+    }
+
+    public int longestCommonSubsequence0(String text1, String text2) {
+
+        int len1 = text1.length();
+        int len2 = text2.length();
+        int[][] dp = new int[len1 + 1][len2 + 1];
+        for (int i = 1; i <= len1; i++) {
+            for (int j = 1; j <= len2; j++) {
+                if (text1.charAt(i - 1) == text2.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    dp[i][j] = Math.max(dp[i][j - 1], dp[i - 1][j]);
+                }
+            }
+        }
+        return dp[len1][len2];
     }
 
     /**
@@ -58,7 +75,7 @@ public class _1143LongestCommonSubsequence {
      */
     public int longestCommonSubsequence(String text1, String text2) {
         if (null == text1 || null == text2
-                || text1.length() == 0 || text2.length() == 0) {
+            || text1.length() == 0 || text2.length() == 0) {
             return 0;
         }
 
@@ -100,7 +117,7 @@ public class _1143LongestCommonSubsequence {
 
     public int longestCommonSubsequence1(String text1, String text2) {
         if (null == text1 || null == text2
-                || text1.length() == 0 || text2.length() == 0) {
+            || text1.length() == 0 || text2.length() == 0) {
             return 0;
         }
 
@@ -128,7 +145,7 @@ public class _1143LongestCommonSubsequence {
      */
     public int longestCommonSubsequence2(String text1, String text2) {
         if (null == text1 || null == text2
-                || text1.length() == 0 || text2.length() == 0) {
+            || text1.length() == 0 || text2.length() == 0) {
             return 0;
         }
 
@@ -158,7 +175,7 @@ public class _1143LongestCommonSubsequence {
      */
     public int longestCommonSubsequence3(String text1, String text2) {
         if (null == text1 || null == text2
-                || text1.length() == 0 || text2.length() == 0) {
+            || text1.length() == 0 || text2.length() == 0) {
             return 0;
         }
 
@@ -175,7 +192,7 @@ public class _1143LongestCommonSubsequence {
                 now[0] = 1;
             }
             now[0] = Math.max(now[0], prev[0]);
-            for (int j = 1; j <len2; j++) {
+            for (int j = 1; j < len2; j++) {
                 if (text1.charAt(i) == text2.charAt(j)) {
                     now[j] = prev[j - 1] + 1;
                 } else {
@@ -185,7 +202,7 @@ public class _1143LongestCommonSubsequence {
 
         }
 
-        return now[len2-1];
+        return now[len2 - 1];
     }
 }
 

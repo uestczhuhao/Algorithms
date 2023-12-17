@@ -22,18 +22,46 @@ import java.util.*;
  */
 public class _347TopKFrequentElements {
     public static void main(String[] args) {
-        int[] nums = {1,1,1,1,1,3};
+//        int[] nums = {1, 1, 1, 1, 1, 3};
+        int[] nums = {4, 1, -1, 2, -1, 2, 3};
 //        int[] nums = {1};
-        System.out.println(topKFrequent(nums,1));
+        System.out.println(Arrays.toString(topKFrequent(nums, 2)));
+    }
+
+    public static int[] topKFrequent(int[] nums, int k) {
+        Map<Integer, Integer> numFreqMap = new HashMap<>();
+        for (int num : nums) {
+            numFreqMap.put(num, numFreqMap.getOrDefault(num, 0) + 1);
+        }
+
+        List<Integer>[] freNumList = new List[nums.length + 1];
+        for (Map.Entry<Integer, Integer> numFre : numFreqMap.entrySet()) {
+            int num = numFre.getKey();
+            int fre = numFre.getValue();
+            if (freNumList[fre] == null) {
+                freNumList[fre] = new ArrayList<>();
+            }
+            freNumList[fre].add(num);
+        }
+
+        List<Integer> ans = new ArrayList<>();
+        for (int i = nums.length; i >= 0 && ans.size() < k; i--) {
+            if (freNumList[i] == null) {
+                continue;
+            }
+            ans.addAll(freNumList[i]);
+        }
+
+//        return ans.toArray(new Integer[0]);
+        return ans.stream().mapToInt(Integer::intValue).toArray();
     }
 
     /**
      * 先遍历一次数组，将元素 -> 出现次数放入map
      * 再将map放入优先队列中（小的在前，因为队列先进先出），保留前k项，就是所求的结果
-     *
      */
-    public static List<Integer> topKFrequent(int[] nums, int k) {
-        if (null == nums || nums.length == 0 || k> nums.length) {
+    public static List<Integer> topKFrequent1(int[] nums, int k) {
+        if (null == nums || nums.length == 0 || k > nums.length) {
             return new ArrayList<>();
         }
 

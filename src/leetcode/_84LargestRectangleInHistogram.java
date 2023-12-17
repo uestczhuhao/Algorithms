@@ -21,7 +21,8 @@ import java.util.LinkedList;
 public class _84LargestRectangleInHistogram {
     public static void main(String[] args) {
 //        int[] height = {2, 1, 5, 6, 2, 3};
-        int[] height = {4, 5, 6, 3};
+        int[] height = {1, 2, 3, 2, 1};
+//        int[] height = {4, 5, 6, 3};
 //        int[] height = {2, 4, 6, 8, 100};
         System.out.println(largestRectangleArea(height));
 //        System.out.println(test1(height));
@@ -80,13 +81,13 @@ public class _84LargestRectangleInHistogram {
         Deque<Integer> stack = new LinkedList<>();
         for (int i = 0; i < len; i++) {
             while (!stack.isEmpty() && heights[stack.peek()] >= heights[i]) {
-                Integer h = stack.pop();
                 // 弹出时确定当前位置右边界
                 // 不一定是最右侧，因为此处不是严格小于
                 // 但最右侧也会经历一次此过程，且计算结果更大
-                right[h] = i;
+                // 换句话说，只有最右侧的结果是对的，前面是不对的，考虑1 2 3 2 1，第一个2判定结果是4，第二个是6，因为取最大，所以取到了第二个
+                right[stack.pop()] = i;
             }
-            // 遍历时确定当前位置左边界
+            // 遍历时确定当前位置左边界，值为第一个小于i位置的下标（因为大于等于它的都弹出了）
             left[i] = stack.isEmpty()? -1 : stack.peek();
             stack.push(i);
         }
