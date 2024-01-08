@@ -7,6 +7,18 @@ public class TreeNode {
     TreeNode left;
     TreeNode right;
 
+    public Integer getValue() {
+        return this.val;
+    }
+
+    public TreeNode getLeft() {
+        return this.left;
+    }
+
+    public TreeNode getRight() {
+        return this.right;
+    }
+
     TreeNode(int x) {
         val = x;
     }

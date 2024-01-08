@@ -12,6 +12,8 @@
 2. 扩容时机
     - 数组tab长度小于64，且某个链表长于8，则扩容
     - 数组tab长度大于等于64，且某个链表长于8，则转变为红黑树
+3. 1.7和1.8有的实现方式啥不同？
+   - 
 
 
 ### hashmap红黑树阈值为8原因：
@@ -24,11 +26,13 @@
 
 ### hashmap的扩容因子为什么是0.75
 - 只需要回答为什么不是0.5和1就行，0.8其实也可以
+- 0.5 空间利用率太低
+- 1 可能会出现大量的Hash的冲突，底层的链表/红黑树变得异常复杂。
+  - 对于查询效率不利
 
 ### 本地方法栈会发生垃圾回收吗？
 
 #### ISR队列是什么？
-
 
 #### 哪些场景会触发类的加载
 
@@ -36,7 +40,9 @@
 
 #### 线程同步有哪些策略和类
 
-#### 
+#### HashMap和TreeMap的区别
+
+#### CountDownLatch是什么？应用场景是什么
 
 ### 字符串用常量的原因
 1. 字符串常量池的实现，多个变量指向池中的同一个，性能高
@@ -100,9 +106,6 @@
 
 ### future，futureTask的区别
 future是个接口，不同的实现是不一样的，常见的是FutureTask（线程池提交Callback）是直接依赖LockSupport.park(nanos)/unpark的，Lock锁/AQS也是依赖这个。get时会检查有没有完成，没完成会进入阻塞，等到任务的流程跑完后，会塞入结果，然后唤醒等待的线程。另一个常见的是CompletableFuture，get的时候的特点是先自旋一定次数，尝试获取结果，拿不到再进入阻塞
-
-### select poll和epoll的区别
-select和poll差不多，一个是数组，一个是链表，所以后者没有数量的限制；epoll多注册了一个ctrl事件监听。套接字是操作系统在管理，所以硬件的中断反馈给操作系统，进程从操作系统读取套接字的fd，所以有一个内存拷贝的过程，select和poll是轮询每个套接字，每次都要全部拷贝，而epoll是在初始化时拷贝，每次事件触发时直接响应，不需要再复制
 
 
 ### 线上问题排查
@@ -314,6 +317,19 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
 ### Spring Boot Starter怎么实现？如何自定义Starter
 利用starter实现自动化配置只需要两个条件——maven依赖、配置文件
 
+### 循环依赖有哪些情况？怎么解决？
+- 构造函数循环依赖
+  - 这种依赖spring是处理不了的，直接抛出BeanCurrentlylnCreationException异常。
+- 属性循环依赖
+  - 通过“三级缓存”处理循环依赖
+- 方法循环依赖。
+- 避免手段
+  - 构造函数注入： 在构造函数中注入依赖项，而不是在属性中注入。
+  - Setter注入： 使用setter方法注入依赖项，而不是在构造函数中注入。
+  - 延迟注入： 使用@Lazy注解延迟加载依赖项。
+  - @Autowired注解的required属性： 将required属性设置为false，以避免出现循环依赖问题。
+  - @DependsOn注解： 使用@DependsOn注解指定依赖项的加载顺序，以避免出现循环依赖问题
+
 ### Spring循环依赖
 1. 构造器循环依赖
     - 通过构造器注入构成的循环依赖，此依赖是无法解决的，只能抛出BeanCurrentlyInCreationException异常表示循环依赖
@@ -321,14 +337,26 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
 2. prototype范围的依赖处理
 - 对于scope为prototype范围的bean，Spring容器无法完成依赖注入，因为Spring容器不进行缓存“prototype”作用域的bean，因此无法提前暴露一个创建中的bean，所以检测到循环依赖会直接抛出BeanCurrentlyInCreationException异常
 3. Setter方法注入
-    - 一级缓存：用于存放完全初始化好的 bean
-    - 二级缓存：存放原始的 bean 对象（尚未填充属性），用于解决循环依赖
-    - 三级级缓存：存放 bean 工厂对象
+    - 一级缓存（singletonObjects）：用于存放完全初始化好的 bean
+    - 二级缓存（earlySingletonObjects）：存放原始的 bean 对象（尚未填充属性），用于解决循环依赖
+    - 三级级缓存（singletonFactories）：存放 bean 工厂对象
     - 过程
         - A 创建过程中需要 B， 于是 A 将自己放到三级缓存里面，去实例化 B
         - B 实例化的时候发现需要 A，于是 B 先查一级缓存，没有，再查二级缓存，还是没有，再查三级缓存找到了A，然后把三级缓存中的 A 放到二级缓存，并删除三级缓存中的 A
         - B 顺利初始化完毕，将自己放到一级缓存中(此时 B 中的 A 还是创建中状态，并没有完全初始化)，删除三级缓存中的 B然后接着回来创建 A，此时 B 已经完成创建，直接从一级缓存中拿到 B，完成 A 的创建，并将 A 添加到单例池，删除二级缓存中的 A
-4. 为什么要用三级缓存？二级行不行？
+    - 过程（详细版）
+      - 实例化 A，此时 A 还未完成属性填充和初始化方法（@PostConstruct）的执行，A 只是一个半成品。
+      - 为 A 创建一个 Bean工厂，并放入到 singletonFactories 中。
+      - 发现 A 需要注入 B 对象，但是一级、二级、三级缓存均为发现对象 B。
+      - 实例化 B，此时 B 还未完成属性填充和初始化方法（@PostConstruct）的执行，B 只是一个半成品。
+      - 为 B 创建一个 Bean工厂，并放入到 singletonFactories 中。
+      - 发现 B 需要注入 A 对象，此时在一级、二级未发现对象A，但是在三级缓存中发现了对象 A，从三级缓存中得到对象 A，并将对象 A 放入二级缓存中，同时删除三级缓存中的对象 A。（注意，此时的 A 还是一个半成品，并没有完成属性填充和执行初始化方法）
+      - 将对象 A 注入到对象 B 中
+      - 对象 B 完成属性填充，执行初始化方法，并放入到一级缓存中，同时删除二级缓存中的对象 B。（此时对象 B 已经是一个成品）
+      - 对象 A 得到对象B，将对象 B 注入到对象 A 中。（对象 A 得到的是一个完整的对象 B）
+      - 对象 A完成属性填充，执行初始化方法，并放入到一级缓存中，同时删除二级缓存中的对象 A。
+         
+4. 为什么要用三级缓存（本质是三个Map）？二级行不行？
    - 二级解决不了动态代理生成的bean的循环依赖，需要三级缓存
    - 三级也能解决弱依赖中有代理的情况
 
@@ -454,11 +482,23 @@ BeanFactory和ApplicationContext都是接口，并且ApplicationContext（即为
 - 使用bean对象
 - 关闭容器，调用destroy方法销毁对象
 
-### 循环依赖有哪些情况？怎么解决？
-
 ### Autowired 变量都是单例吗？
+- 默认情况下是，但是不绝对
+- 因为使用Autowired注解是进行Spring中Bean的注入的，而Spring中Bean的默认作用域是Singleton，在Singleton作用域下，Spring中的Bean都是单例的。
+- 那为什么又说不是绝对的呢：因为Spring中Bean的作用域可以通过@scope注解或是在xml文件添加scope属性修改
+  - 还可以修改为Prototype（每次getBean时创建一个新的Bean实例）
+  - Requset（每次请求创建Bean）
+  - Session（每个会话Bean）
+  - Application（在Web应用程序的整个生命周期内，只创建一个Bean实例）
+
 
 ### SpringBootApplication注解，分为哪三个？详细介绍
+- @SpringBootConfiguration // 继承了Configuration，表示当前是注解类
+- @EnableAutoConfiguration // 开启springboot的注解功能，springboot的四大神器（auto-configuration、starters、cli、actuator）之一，其借助@import的帮助，从各个spring.factories配置文件中加载需要的bean到IOC容器
+  - 通过@Import(AutoConfigurationImportSelector.class)，从classpath中搜寻所有的META-INF/spring.factories配置文件，
+  - 并将其中org.springframework.boot.autoconfigure.EnableAutoConfiguration对应的配置项通过反射（Java Refletion）
+  - 实例化为对应的标注了@Configuration的JavaConfig形式的IoC容器配置类，然后汇总为一个并加载到IoC容器。
+- @ComponentScan // 扫描路径设置
 
 ### synchronized和ReentrantLock的加锁和解锁能在不同线程吗？
 - 不能，二者加锁时都会记录线程号，syn记录在对象头，ren记录在AQS队列
@@ -487,6 +527,9 @@ BeanFactory和ApplicationContext都是接口，并且ApplicationContext（即为
 #### Mybatis怎么使用事务
 
 #### beanfactory和ApplicationContext是什么关系？使用有什么区别？
+
+#### 主线程的上下文如何传递给子线程
+- InheritableThreadLocal是ThreadLocal的一个子类，它可以在子线程中继承主线程的上下文信息。
 
 #### 性能问题
 在反射调用方法的例子中，我们先后调用了Class.forName，Class.getMethod，以及Method.invoke三个操作。其中Class.forName 会调用本地方法，Class.getMethod 会遍历该类的公有方法。如果没有匹配到它还会遍历父级的公有方法，可以知道这两个操作非常耗费时间。
