@@ -38,7 +38,7 @@ public class _279PerfectSquares {
         Solution t = new _279PerfectSquares().new Solution();
 //        System.out.println(t.numSquares(3));
 //        System.out.println(t.numSquares(4));
-        System.out.println(t.numSquares(12));
+        System.out.println(t.numSquares(3));
     }
 
     /**

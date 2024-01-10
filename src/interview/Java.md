@@ -62,23 +62,51 @@
     - 分配的少了：比如虚拟机本身可使用的内存（一般通过启动时的VM参数指定）太少。
     - 应用用的太多，并且用完没释放，浪费了。此时就会造成内存泄露或者内存溢出。
 2. 举例
-    - java.lang.OutOfMemoryError: Java heap space ------>java堆内存溢出，此种情况最常见，一般由于内存泄露或者堆的大小设置不当引起。对于内存泄露，需要通过内存监控软件查找程序中的泄露代码，而堆大小可以通过虚拟机参数-Xms（最小），-Xmx等修改。
-    - java.lang.OutOfMemoryError: PermGen space 或 java.lang.OutOfMemoryError：MetaSpace ------>java方法区，（java8 元空间）溢出了，一般出现于大量Class或者jsp页面，或者采用cglib等反射机制的情况，因为上述情况会产生大量的Class信息存储于方法区。此种情况可以通过更改方法区的大小来解决，使用类似-XX:PermSize=64m -XX:MaxPermSize=256m的形式修改。另外，过多的常量尤其是字符串也会导致方法区溢出。
-    - java.lang.StackOverflowError ------> 不会抛OOM error，但也是比较常见的Java内存溢出。JAVA虚拟机栈溢出，一般是由于程序中存在死循环或者深度递归调用造成的，栈大小设置太小也会出现此种溢出。可以通过虚拟机参数-Xss来设置栈的大小。
+    - java.lang.OutOfMemoryError: Java heap space ------>java堆内存溢出，此种情况最常见，
+      - 一般由于内存泄露或者堆的大小设置不当引起。
+      - 对于内存泄露，需要通过内存监控软件查找程序中的泄露代码，
+      - 而堆大小可以通过虚拟机参数-Xms（最小），-Xmx等修改。
+    - java.lang.OutOfMemoryError: PermGen space 或 java.lang.OutOfMemoryError：
+      - MetaSpace ------>java方法区，（java8 元空间）溢出了，一般出现于大量Class或者jsp页面，
+      - 或者采用cglib等反射机制的情况，因为上述情况会产生大量的Class信息存储于方法区。
+      - 此种情况可以通过更改方法区的大小来解决，使用类似-XX:PermSize=64m -XX:MaxPermSize=256m的形式修改。
+      - 另外，过多的常量尤其是字符串也会导致方法区溢出。
+    - java.lang.StackOverflowError ------> 
+      - 不会抛OOM error，但也是比较常见的Java内存溢出。
+      - JAVA虚拟机栈溢出，一般是由于程序中存在死循环或者深度递归调用造成的，栈大小设置太小也会出现此种溢出。
+      - 可以通过虚拟机参数-Xss来设置栈的大小。
 
 ### 自己实现一个阻塞队列
-一个reentrantLock，派生两个condition，一个notEmpty，一个notFull，一个object数组存放元素，一个size标识队列规模（实际的元素个数，非最大值），一个head和tail，标识头尾元素的下标
-1. 初始化：object数组初始化为size大小
-2. put方法：先lock.lock()，当size == object数组的len时，代表队列满，notFull.await()，直到被唤醒；放置元素在tail位置，tail+1，size++；然后notEmpty.signal()，唤醒可能在等素的线程；最后在finally块中释放锁
-3. take方法：先lock.lock()，当size == 0时，代表队列空，notEmpty.await()，直到被唤醒；取出head处元素，强转为E；head++，size++；然后notFull.signal()，唤醒可能在等素的线程；最后在finally块中释放锁
-4. 注意：当head或tail为数组长度时，要及时更新为0
+- 数据结构
+  - 一个reentrantLock，派生两个condition，一个notEmpty，一个notFull，一个object数组存放元素，
+  - 一个size标识队列规模（实际的元素个数，非最大值），一个head和tail，标识头尾元素的下标
+- 流程
+  1. 初始化：object数组初始化为size大小
+  2. put方法：先lock.lock()，当size == object数组的len时，代表队列满，notFull.await()，直到被唤醒；
+     - 放置元素在tail位置，tail+1，size++；然后notEmpty.signal()，唤醒可能在等待的线程；最后在finally块中释放锁
+  3. take方法：先lock.lock()，当size == 0时，代表队列空，notEmpty.await()，直到被唤醒；
+     - 取出head处元素，强转为E；head++，size++；然后notFull.signal()，唤醒可能在等待的线程；最后在finally块中释放锁
+  4. 注意：当head或tail为数组长度时，要及时更新为0
 
 ### 多线程交替打印
 1. LockSupport.park()和LockSupport.unpark(thread)方法，每次线程打印后调用park方法挂起自己，同时unpark另一个线程
-2. synchronized方法，同一把锁，每个线程打印后，notify另一个，自己wait；另一个线程被唤醒后，打印，再notify，然后自己wait
-3. 阻塞队列（长度为1的两个ArrayBlockingQueue，或两个SynchronousQueue），线程从一个队列中取，同时往另一个队列塞，队列为空则自动阻塞
-4. 不使用锁，用一个AtomicInteger，一个线程在其为偶数时打印，一个奇数打印，打印完++
-5. ReentrantLock和Condition，每个线程先打印，然后调用condition的signal，唤醒另一个线程；再调用wait，自己挂起，等待被唤醒
+   - 要注意LockSupport.park()和LockSupport.unpark(thread)在线程内部调用
+   - 线程t1（for循环打印1 3 5...）：System.out.println(i);  LockSupport.unpark(t2);  LockSupport.park();
+   - 线程t2（for循环打印2 4 6...）：LockSupport.park();  System.out.println(i);  LockSupport.unpark(t1);
+2. 阻塞队列（长度为1的两个ArrayBlockingQueue，或两个SynchronousQueue），线程从一个队列中取，同时往另一个队列塞，队列为空则自动阻塞
+   - 线程t1（for循环打印1 3 5...）：q1.put(i);  System.out.println(q2.take());
+   - 线程t2（for循环打印2 4 6...）：System.out.println(q1.take()); q2.put(i);
+3. 不使用锁，用一个AtomicInteger，一个线程在其为偶数时打印，一个奇数打印，打印完++
+4. ReentrantLock和Condition，每个线程先打印，然后调用condition的signal，唤醒另一个线程；再调用wait，自己挂起，等待被唤醒
+   - 1个Lock，一个Condition，一个count（注意在finally中释放锁）
+   - 线程t1（while循环，count <=100）
+     - 如果count是奇数，打印并+1，并condition.signal();
+     - 如果count是偶数，直接condition.await(); 阻塞等待
+   - 线程t2（while循环，count <=100）
+     - 如果count是偶数，打印并+1，并condition.signal();
+     - 如果count是技术，直接condition.await(); 阻塞等待
+5. synchronized方法，同一把锁，每个线程打印后，notify另一个，自己wait；另一个线程被唤醒后，打印，再notify，然后自己wait
+    - 类似4，变成notify和wait
 
 
 ### LinkedBlockingQueue和ConcurrentLikedQueue（无边界）的区别，为什么要有两个？
@@ -104,8 +132,6 @@
 1. 可能是内存泄漏，内存使用完了没释放；jmap（jmap -histo  pid）看对象的存活，哪些对象数太多
 2. 内存设置问题，jstat看看，根据业务，新生代、老年代和永久代的设置情况
 
-### future，futureTask的区别
-future是个接口，不同的实现是不一样的，常见的是FutureTask（线程池提交Callback）是直接依赖LockSupport.park(nanos)/unpark的，Lock锁/AQS也是依赖这个。get时会检查有没有完成，没完成会进入阻塞，等到任务的流程跑完后，会塞入结果，然后唤醒等待的线程。另一个常见的是CompletableFuture，get的时候的特点是先自旋一定次数，尝试获取结果，拿不到再进入阻塞
 
 
 ### 线上问题排查
@@ -115,7 +141,6 @@ future是个接口，不同的实现是不一样的，常见的是FutureTask（�
 3. "VM Thread" 是 JVM 自身启动的一个线程, 它主要用来协调其它线程达到安全点(Safepoint)
 4. jmap生成Heap Dump文件
     - jhat 是JDK自带的用于分析JVM Heap Dump文件的工具，使用下面的命令可以将堆文件的分析结果以HTML网页的形式进行展示：jhat <heap-dump-file>
-
 
 
 ### jvm的命名空间
@@ -162,10 +187,15 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
 
 
 ### Java对异常的设计以及为何这么设计
-1. error：Error是程序无法处理的错误，它是由JVM产生和抛出的，比如OutOfMemoryError、ThreadDeath等。这些异常发生时，Java虚拟机（JVM）一般会选择线程终止。
+1. error：Error是程序无法处理的错误，它是由JVM产生和抛出的，
+   - 比如OutOfMemoryError、ThreadDeath等。这些异常发生时，Java虚拟机（JVM）一般会选择线程终止。
 2. exception：Exception是程序本身可以处理的异常，这种异常分两大类运行时异常和非运行时异常。程序中应当尽可能去处理这些异常。
-    - RuntimeException：运行时异常都是RuntimeException类及其子类异常，如NullPointerException、IndexOutOfBoundsException等，这些异常是不检查异常，程序中可以选择捕获处理，也可以不处理。这些异常一般是由程序逻辑错误引起的，程序应该从逻辑角度尽可能避免这类异常的发生。
-    - 受检异常：非运行时异常是RuntimeException以外的异常，类型上都属于Exception类及其子类。从程序语法角度讲是必须进行处理的异常，如果不处理，程序就不能编译通过。如IOException、SQLException等以及用户自定义的Exception异常，一般情况下不自定义检查异常。
+    - RuntimeException：运行时异常都是RuntimeException类及其子类异常，
+      - 如NullPointerException、IndexOutOfBoundsException等，这些异常是不检查异常，程序中可以选择捕获处理，也可以不处理。
+      - 这些异常一般是由程序逻辑错误引起的，程序应该从逻辑角度尽可能避免这类异常的发生。
+    - 受检异常：非运行时异常是RuntimeException以外的异常，类型上都属于Exception类及其子类。
+      - 从程序语法角度讲是必须进行处理的异常，如果不处理，程序就不能编译通过。
+      - 如IOException、SQLException等以及用户自定义的Exception异常，一般情况下不自定义检查异常。
 
 
 ### spring的注解
@@ -189,14 +219,16 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
 ### spring mvc从request到controller的过程
 1. 请求打到DispatcherServlet
 2. 处理器映射
-    - SpringMVC在初始化的时候加入的各种处理器，对于请求到Controller的映射，比较重要的是HandlerMapping和HandlerAdapter，HandlerMapping是用来查找处理请求的对象，HandlerAdaptor是用来处理请求参数
+    - SpringMVC在初始化的时候加入的各种处理器，对于请求到Controller的映射，
+    - 比较重要的是HandlerMapping和HandlerAdapter，HandlerMapping是用来查找处理请求的对象，HandlerAdaptor是用来处理请求参数
 3. 对应的控制器处理
 4. 对应的model
 5. 返回对应的view给视图解析器
 6. 返回视图给用户
 
 ### volatile用处，如何实现的
-- synchronized 关键字是防止多个线程同时执行一段代码，那么就会很影响程序执行效率，而 volatile 关键字在某些情况下性能要优于 synchronized ，但是要注意 volatile 关键字是无法替代 synchronized 关键字的，因为 volatile 关键字无法保证操作的原子性。通常来说，使用 volatile 必须具备以下 2 个条件：
+- synchronized 关键字是防止多个线程同时执行一段代码，那么就会很影响程序执行效率，而 volatile 关键字在某些情况下性能要优于 synchronized ，
+- 但是要注意 volatile 关键字是无法替代 synchronized 关键字的，因为 volatile 关键字无法保证操作的原子性。通常来说，使用 volatile 必须具备以下 2 个条件：
     - 对变量的写操作不依赖于当前值
     - 该变量没有包含在具有其他变量的不变式中，例如
         ```java
@@ -274,7 +306,7 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
     - DiscardOldestPolicy（弃老策略）：如果线程池未关闭，就弹出队列头部的元素，然后尝试执行
 3. 常用的线程池（5种）
     - FixedThreadPool：固定大小（最大=核心），keepAliveTime为0，无界队列
-    - CachedThreadPool：核心0，最大int最大值，队列采用SynchronousQueue，不存储任务，有新任务就起线程运行之，keepAliveTime为60s
+    - CachedThreadPool：核心0，最大线程数为int最大值，队列采用SynchronousQueue，不存储任务，有新任务就起线程运行之，keepAliveTime为60s
     - SingleThreadExecutor：单线程池，max和core都为1，keepAliveTime为0，队列无界
     - ScheduledThreadPool：处理延时任务或定时任务，队列为DelayQueue（无界队列），内部封装了一个PriorityQueue，它会根据time的先后时间排序，若time相同则根据sequenceNumber排序；
     - newWorkStealingPool：基于ForkJoinPool，不是ThreadPoolExecutor，使用所有可用处理器作为目标并行度，创建一个窃取线程的池
@@ -284,7 +316,8 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
 1. 把堆划分为大小相等的Region（2048个），保留新生代和老年代，但不再物理隔离
 2. 每次回收价值最大的Region（价值：回收所获得的空间大小以及回收所需时间的经验值），在后台维护一个优先列表，每次根据允许的回收时间，优先回收价值最大的
 3. 在回收一个Region的时候不需要执行全堆扫描，只需要检查它的RS（Remembered Set，记录外部指向本Region的所有引用）就可以找到外部引用，而这些引用就是initial mark的根之一
-4. G1还有一个及其重要的特性：软实时（soft real-time）。所谓的实时垃圾回收，是指在要求的时间内完成垃圾回收。“软实时”则是指，用户可以指定垃圾回收时间的限时，G1会努力在这个时限内完成垃圾回收，但是G1并不担保每次都能在这个时限内完成垃圾回收。
+4. G1还有一个及其重要的特性：软实时（soft real-time）。所谓的实时垃圾回收，是指在要求的时间内完成垃圾回收。
+   - “软实时”则是指，用户可以指定垃圾回收时间的限时，G1会努力在这个时限内完成垃圾回收，但是G1并不担保每次都能在这个时限内完成垃圾回收。
 5. 回收过程
     - 初始标记(Initial Marking)：这个阶段是STW(Stop the World )的，所有应用线程会被暂停，标记出从GC Root开始直接可达的对象。（触发一次年轻代GC）
     - 并发标记：从GC Roots开始对堆中对象进行可达性分析，找出存活对象，耗时较长。
@@ -292,7 +325,8 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
     - 独占清理(cleanup,STW): 计算各个区域的存活对象和GC回收比例,并进行排序，识别可以混合回收的区域。为下阶段做铺垫。是STW的。
     - 并发清理阶段: 识别并清理完全空闲的区域。
 6. GC模式
-    - YoungGC年轻代收集：在分配一般对象（非巨型对象）时，当所有eden region使用达到最大阀值并且无法申请足够内存时，会触发一次YoungGC。每次younggc会回收所有Eden以及Survivor区，并且将存活对象复制到Old区以及另一部分的Survivor区。
+    - YoungGC年轻代收集：在分配一般对象（非巨型对象）时，当所有eden region使用达到最大阀值并且无法申请足够内存时，会触发一次YoungGC。
+      - 每次younggc会回收所有Eden以及Survivor区，并且将存活对象复制到Old区以及另一部分的Survivor区。
     - mixed gc：当越来越多的对象晋升到老年代old region时，为了避免堆内存被耗尽，虚拟机会触发一个混合的垃圾收集器，即mixed gc，该算法并不是一个old gc，除了回收整个young region，还会回收一部分的old region，这里需要注意：是一部分老年代，而不是全部老年代，可以选择哪些old region进行收集，从而可以对垃圾回收的耗时时间进行控制。（用的是5的回收过程）
     - G1没有fullGC概念，需要fullGC时，调用serialOldGC进行全堆扫描（包括eden、survivor、o、perm）。
 7. young GC过程
@@ -307,7 +341,9 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
 
 
 ### ThreadLocal内存泄漏
-- ThreadLocalMap使用ThreadLocal的弱引用作为key，如果一个ThreadLocal没有外部强引用来引用它，那么系统 GC 的时候，这个ThreadLocal势必会被回收，这样一来，ThreadLocalMap中就会出现key为null的Entry，就没有办法访问这些key为null的Entry的value，如果当前线程再迟迟不结束的话，这些key为null的Entry的value就会一直存在一条强引用链：Thread Ref -> Thread -> ThreadLocalMap -> Entry -> value永远无法回收，造成内存泄漏。
+- ThreadLocalMap使用ThreadLocal的弱引用作为key，如果一个ThreadLocal没有外部强引用来引用它，那么系统 GC 的时候，这个ThreadLocal势必会被回收，
+  - 这样一来，ThreadLocalMap中就会出现key为null的Entry，就没有办法访问这些key为null的Entry的value
+  - 如果当前线程再迟迟不结束的话，这些key为null的Entry的value就会一直存在一条强引用链：Thread Ref -> Thread -> ThreadLocalMap -> Entry -> value永远无法回收，造成内存泄漏。
 - 其实，ThreadLocalMap的设计中已经考虑到这种情况，也加上了一些防护措施：在ThreadLocal的get(),set(),remove()的时候都会清除线程ThreadLocalMap里所有key为null的value。
 - 但是这些被动的预防措施并不能保证不会内存泄漏：
     - 使用线程池的时候，这个线程执行任务结束，ThreadLocal对象被回收了，线程放回线程池中不销毁，这个线程一直不被使用，导致内存泄漏。
@@ -333,7 +369,8 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
 ### Spring循环依赖
 1. 构造器循环依赖
     - 通过构造器注入构成的循环依赖，此依赖是无法解决的，只能抛出BeanCurrentlyInCreationException异常表示循环依赖
-    - 原理：Spring容器将每一个正在创建的bean标识符放在一个“当前创建bean池”中，bean标识符创建过程中将一直保持在这个池中，因为如果在创建bean过程中发现自己已经在“当前创建bean池”中时，将会抛出BeanCurrentlyInCreationException异常表示循环依赖；而对于创建完毕的bean将从“当前创建bean池”中清除掉。
+    - 原理：Spring容器将每一个正在创建的bean标识符放在一个“当前创建bean池”中，bean标识符创建过程中将一直保持在这个池中，
+      - 因为如果在创建bean过程中发现自己已经在“当前创建bean池”中时，将会抛出BeanCurrentlyInCreationException异常表示循环依赖；而对于创建完毕的bean将从“当前创建bean池”中清除掉。
 2. prototype范围的依赖处理
 - 对于scope为prototype范围的bean，Spring容器无法完成依赖注入，因为Spring容器不进行缓存“prototype”作用域的bean，因此无法提前暴露一个创建中的bean，所以检测到循环依赖会直接抛出BeanCurrentlyInCreationException异常
 3. Setter方法注入
@@ -365,11 +402,16 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
 - BeanFactory，以Factory结尾，表示它是一个工厂类(接口)， 它负责生产和管理bean的一个工厂。在Spring中，BeanFactory是IOC容器的核心接口，它的职责包括：实例化、定位、配置应用程序中的对象及建立这些对象间的依赖。（如XMLBeanFactory）
 - 以Bean结尾，表示它是一个Bean，不同于普通Bean的是：它是实现了FactoryBean<T>接口的Bean，根据该Bean的ID从BeanFactory中获取的实际上是FactoryBean的getObject()返回的对象，而不是FactoryBean本身，如果要获取FactoryBean对象，请在id前面加一个&符号来获取。
     - 一般情况下，Spring通过反射机制利用<bean>的class属性指定实现类实例化Bean，在某些情况下，实例化Bean过程比较复杂，如果按照传统的方式，则需要在<bean>中提供大量的配置信息。配置方式的灵活性是受限的，这时采用编码的方式可能会得到一个简单的方案。
-    - Spring为此提供了一个org.springframework.bean.factory.FactoryBean的工厂类接口，用户可以通过实现该接口定制实例化Bean的逻辑。FactoryBean接口对于Spring框架来说占用重要的地位，Spring自身就提供了70多个FactoryBean的实现。它们隐藏了实例化一些复杂Bean的细节，给上层应用带来了便利。从Spring3.0开始，FactoryBean开始支持泛型，即接口声明改为FactoryBean<T>的形式。
+    - Spring为此提供了一个org.springframework.bean.factory.FactoryBean的工厂类接口，用户可以通过实现该接口定制实例化Bean的逻辑。
+      - FactoryBean接口对于Spring框架来说占用重要的地位，Spring自身就提供了70多个FactoryBean的实现。它们隐藏了实例化一些复杂Bean的细节，给上层应用带来了便利。
+      - 从Spring3.0开始，FactoryBean开始支持泛型，即接口声明改为FactoryBean<T>的形式。
     
 ### Spring的IOC，本质是个全局Map，管理进程中的各种对象，然后处理对象之间的依赖关系（比如解决循环依赖）
 
 ### 什么是线程池预热？预热的好处是？
+- 在系统启动时，提前创建一定数量的线程，以便在系统运行时，能够快速响应请求，减少线程创建的时间，从而提高系统的性能。
+- 预热的好处是可以避免在系统运行时，因为线程创建时间过长而导致的性能瓶颈。
+- 可以启动所有核心线程（prestartAllCoreThreads），也可以只启动一个核心线程（prestartCoreThread，如果所有核心线程都被启动，则返回false）
 
 ### 为什么youngGC很频繁？
 - 要看youngGC的效果
@@ -406,7 +448,8 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
 2. CGlib动态代理（Enhancer增强类，把代理类设置为其父类）：利用ASM（开源的Java字节码编辑库，操作字节码）开源包，将代理对象类的class文件加载进来，通过修改其字节码生成子类来处理。
 3. 区别
     - JDK代理使用的是反射机制实现aop的动态代理，CGLIB代理使用字节码处理框架asm，通过修改字节码生成子类。所以jdk动态代理的方式创建代理对象效率较高，执行效率较低，cglib创建效率较低，执行效率高；
-    - JDK动态代理机制是委托机制，具体说动态实现接口类，在动态生成的实现类里面委托handler去调用原始实现类方法，CGLIB则使用的继承机制，具体说被代理类和代理类是继承关系，所以代理类是可以赋值给被代理类的，如果被代理类有接口，那么代理类也可以赋值给接口。
+    - JDK动态代理机制是委托机制，具体说动态实现接口类，在动态生成的实现类里面委托handler去调用原始实现类方法，
+      - CGLIB则使用的继承机制，具体说被代理类和代理类是继承关系，所以代理类是可以赋值给被代理类的，如果被代理类有接口，那么代理类也可以赋值给接口。
 
 ### springboot 的启动
 1. SpringBootApplication注解
@@ -452,14 +495,38 @@ BeanFactory和ApplicationContext都是接口，并且ApplicationContext（即为
 - 没有异常处理
 - 
 #### 解决
-- 使用CompletableFuture.complete() 手工的完成一个 Future
+- 使用CompletableFuture.complete(T value) 手工的完成一个 Future
+  - 其作用为：手动完成一个Future，并把结果置为value；以便所有的客户端都能获取到指定的结果
 - 使用 runAsync() 运行异步计算或 使用 supplyAsync() 运行一个异步任务并且返回结果
 - 可以使用 thenApply(), thenAccept() 和thenRun()方法附上一个回调给CompletableFuture
 - 使用 thenCompose() /thenCombine() 组合两个独立的future，前者用于当一个future依赖另外一个future的时候用来组合两个future，后者用于当两个独立的Future都完成的时候，用来做一些事情（还有allOf()/ anyOf() 可以使用）
 - 使用 exceptionally() 回调处理异常 / 使用 handle() 方法处理异常
 
+### future，futureTask和CompletableFuture的区别
+- 应用场景
+    - Java中线程的实现方式一般有实现Runable接口，实现Callable接口，继承Thread类三种。
+    - 而Runable和Thread的run方法都是void，也就是没有返回值，
+        - 所以这种情况下获取线程的返回值就要使用线程间通信的手段，一般比较麻烦；
+    - 或者使用Callable接口，但是Callable接口本身只能支持同步的结果获取
+- future是个接口，不同的实现是不一样的，主要用于异步获取结果
+- 常见的是FutureTask（java 5）（线程池提交Callback）是直接依赖LockSupport.park(nanos)/unpark的，Lock锁/AQS也是依赖这个。
+    - get时会检查有没有完成，没完成会进入阻塞，等到任务的流程跑完后，会塞入结果，然后唤醒等待的线程。
+- 另一个常见的是CompletableFuture（Java 8），get的时候的特点是先自旋一定次数，尝试获取结果，拿不到再进入阻塞
+- CompletableFuture
+    - CompletableFuture 支持链式调用和组合操作，
+    - 只要任务完成，即执行我们设置的函数（不用再去考虑什么时候任务完成）
+        - thenApply()、thenAccept()、thenRun()
+    - 如果发生异常，同样会执行我们处理异常的函数，甚至连默认返回值都有（异常情况处理更加省力）
+        - handle()、exceptionally()
+    - 如果有复杂任务，比如依赖问题，组合问题等，同样可以写好处理函数来处理（能应付复杂任务的处理）
+        - thenCombine()、thenCompose()
+- FutureTask
+    - 只能通过get方法或者死循环判断isDone来获取。
+    - 实现了Runable接口，所以我们可以直接将FutureTask提交到线程池执行，同时也可以获取执行结果
+        - CompletableFuture.supplyAsync()也支持线程池
 
-### 实现lru
+
+### 实现lru（参考: _146LRUCache）
 一个map（键为元素的值，值为node本身），内部放node，实现O(1)时间内判断是否在集合中；节点采用双端队列，方便删除、新增节点；
 1. get：首先判断map中是否存在元素，不存在返回-1；存在则从map中get节点，把节点move2Head，返回节点的值即可
 2. put：首先判断map中是否存在，不存在则新建节点并添加链表的头，并将其添加到map；存在则更新map中的值，并把节点move2Head
@@ -470,6 +537,18 @@ BeanFactory和ApplicationContext都是接口，并且ApplicationContext（即为
 - move2Head：先deleteNode，再add2Head
 
 ### 垃圾回收算法和特点？
+- 标记-清除算法
+  - 该算法分为两个阶段，标记阶段和清除阶段。
+  - 标记阶段遍历所有的对象，标记出所有需要回收的对象，清除阶段则回收被标记的对象。
+  - 该算法的优点是不需要额外的空间，缺点是会产生内存碎片。
+- 复制算法：
+  - 该算法将内存分为两个区域，每次只使用其中一个区域。
+  - 当这个区域用完了，就将还存活的对象复制到另一个区域中，然后清除当前区域中的所有对象。
+  - 该算法的优点是简单高效，缺点是需要额外的空间。
+- 标记-整理算法：
+  - 该算法是标记-清除算法的改进版，它在标记阶段和清除阶段之间增加了一个整理阶段。
+  - 在整理阶段，它会将所有存活的对象向一端移动，然后清除掉边界以外的所有内存。
+  - 该算法的优点是不会产生内存碎片，缺点是需要额外的空间和时间.
 
 ### Bean的生命周期
 - 通过Spring下的beanFactory工厂利用反射机制创建bean对象
@@ -503,6 +582,9 @@ BeanFactory和ApplicationContext都是接口，并且ApplicationContext（即为
 ### synchronized和ReentrantLock的加锁和解锁能在不同线程吗？
 - 不能，二者加锁时都会记录线程号，syn记录在对象头，ren记录在AQS队列
 
+### AQS队列的原理
+
+
 ### 如何排查OOM
 
 ### Collections的排序是哪一种？具体是怎么使用的
@@ -532,8 +614,10 @@ BeanFactory和ApplicationContext都是接口，并且ApplicationContext（即为
 - InheritableThreadLocal是ThreadLocal的一个子类，它可以在子线程中继承主线程的上下文信息。
 
 #### 性能问题
-在反射调用方法的例子中，我们先后调用了Class.forName，Class.getMethod，以及Method.invoke三个操作。其中Class.forName 会调用本地方法，Class.getMethod 会遍历该类的公有方法。如果没有匹配到它还会遍历父级的公有方法，可以知道这两个操作非常耗费时间。
-- Method.invoke 内部有两种实现，一个是 Native 版本，一个是 Java 版本；开始native版本，超过15次后编译成机器码，用java版本。Inflation 机制：java版本的生成需要比native长3倍，但生成之后，要比java的生成快20倍
+- 在反射调用方法的例子中，我们先后调用了Class.forName，Class.getMethod，以及Method.invoke三个操作。其中Class.forName 会调用本地方法，
+  - Class.getMethod 会遍历该类的公有方法。如果没有匹配到它还会遍历父级的公有方法，可以知道这两个操作非常耗费时间。
+- Method.invoke 内部有两种实现，一个是 Native 版本，一个是 Java 版本；开始native版本，超过15次后编译成机器码，用java版本。
+  - Inflation 机制：java版本的生成需要比native长3倍，但生成之后，要比java的生成快20倍
 - 需要检查方法可见性
 - 需要校验参数
 - 反射方法难以内联
@@ -545,3 +629,4 @@ BeanFactory和ApplicationContext都是接口，并且ApplicationContext（即为
 - 反射让开发人员可以枚举出类的全部成员，包括构造函数、属性、方法。以帮助开发者写出正确的代码。
 - 测试时可以利用反射 API 访问类的私有成员，以保证测试代码覆盖率。
 - 反射机制是构建框架技术的基础所在，使用反射可以避免将代码写死在框架中。
+  - 举例：
