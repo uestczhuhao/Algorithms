@@ -375,6 +375,9 @@
 - 使用管道能增加qps
 - 其他业务会再fork新进程处理，如rehash，写日志等 
 
+#### Hash的扩容流程？渐进式Rehash的时候会影响主流程吗？
+- 见 https://www.processon.com/mindmap/634199f41efad41678790a2a
+
 ### Redis 是否可以作为分布式锁？
 - 问你用 Redis 实现分布式锁会存在哪些问题
 - 为什么 Redis 会采用 AP 模型等

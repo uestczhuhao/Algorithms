@@ -1,4 +1,3 @@
-
 ### string 的 intern
 如果字符串常量池已经包含一个等于此String对象的字符串，则返回字符串常量池中这个字符串的引用, 否则将当前String对象的引用地址（堆中，即当前字符串）添加到字符串常量池中并返回。
 
@@ -12,8 +11,17 @@
 2. 扩容时机
     - 数组tab长度小于64，且某个链表长于8，则扩容
     - 数组tab长度大于等于64，且某个链表长于8，则转变为红黑树
-3. 1.7和1.8有的实现方式啥不同？
-   - 
+3. 1.7和1.8有的实现方式啥不同？ （https://blog.csdn.net/qq_32224047/article/details/108990363）
+- 1.7 
+  - 分段（segment）继承 ReentrantLock，通过段来加锁
+  - concurrencyLevel，并发数（段数，默认16），初始化后不可扩容
+  - segment内部是个数组+链表（参考HashMap），每个segment中put时加锁
+  - put时先tryLock，重试1次（单核）或64次（多核）后，阻塞等待获取锁，获取到之后就执行put
+  - get不加锁
+- 1.8 
+  - 使用采用 Node + CAS + synchronized 保证线程安全，每个数组的位置一个锁（若元素非空）
+  - 引入红黑树，超过8时链表转红黑树
+  - put，如果该 bin 尚未创建，只需要使用 cas 创建 bin；如果已经有了，锁住链表头进行后续 put 操作，元素添加至 bin 的尾部
 
 
 ### hashmap红黑树阈值为8原因：
@@ -32,15 +40,34 @@
 
 ### 本地方法栈会发生垃圾回收吗？
 
-#### ISR队列是什么？
 
 #### 哪些场景会触发类的加载
+- 使用new关键字实例化对象、读取或设置一个类的静态字段（final字段除外），调用一个类的静态方法
+- 使用java.lang.reflect包对类进行反射调用
+- 初始化一个类时，发现其父类还未初始化，此时要初始化父类 
+  - 接口初始化时，不要求其所有父接口全部完成初始化，只有在用到时才会初始化
+- 虚拟机启动时，用户需要指定一个要执行的主类，虚拟机要先初始化这个类
+- 1.7以上，一个MethodHandle实例最后解析结果为REF_getStatic、REF_putStatic、REF_invokeStatic且这个句柄对应的类还没进行过初始化
 
 #### JVM怎么创建一个对象
-
-#### 线程同步有哪些策略和类
+- 检查类是否被加载、解析和初始化过
+- 虚拟机为新生对象分配内存 
+  - 线程安全解决
+    - 如果在方法体内部生成，且未在外部引用（逃逸），尝试在栈上分配（把实例变量取出来初始化，不初始化对象）
+    - 按线程划分空间，即本地线程分配缓冲（Thread Local Allocation Buffer）
+      - JVM在Eden区为每条线程划分的一块私有缓冲内存，避免多个线程竞争
+    - 采用CAS配上失败重试的方式保证更新操作的原子性（在空白内存处分配）
+- 初始化内存空间（除对象头）为零值
+- 保证实例变量不赋值就直接使用
+- 对对象进行必要的设置（如哈希码、GC年龄，锁状态）
+  - 放置于对象头中
+- init方法（构造函数，应用程序角度的第一步）
 
 #### HashMap和TreeMap的区别
+- HashMap 是基于哈希表实现的，它使用哈希函数将键映射到桶中，然后在桶中查找值。
+  - HashMap 的查询、插入和删除操作的时间复杂度都是 O(1)。但是，HashMap 中的元素是无序的，因此不能保证元素的顺序。
+- TreeMap 是基于红黑树实现的，它可以保证元素按照键的自然顺序排序。（也支持自定义排序）
+  - TreeMap 的查询、插入和删除操作的时间复杂度都是 O(log n)。但是，由于红黑树的平衡性，TreeMap 的性能比 HashMap 差一些。
 
 #### CountDownLatch是什么？应用场景是什么
 
@@ -55,6 +82,18 @@
 2. 实现Runnable接口
 3. 实现Callable接口
 4. 线程池 
+
+### 线上问题排查
+1. jstack（1.5）生成thread dump，记录JVM在某一时刻各个线程执行的情况，是一个文本文件
+    - 需要在多个时间段提出多个 Thread Dump信息，然后综合进行对比分析，单独分析一个文件是没有意义的。
+2. jstat命令用于见识虚拟机各种运行状态信息的命令行工具。它可以显示本地或者远程虚拟机进程中的类装载、内存、垃圾收集、jit编译等运行数据
+3. "VM Thread" 是 JVM 自身启动的一个线程, 它主要用来协调其它线程达到安全点(Safepoint)
+4. jmap生成Heap Dump文件
+    - jhat 是JDK自带的用于分析JVM Heap Dump文件的工具，使用下面的命令可以将堆文件的分析结果以HTML网页的形式进行展示：jhat <heap-dump-file>
+    
+### 频繁GC
+1. 可能是内存泄漏，内存使用完了没释放；jmap（jmap -histo  pid）看对象的存活，哪些对象数太多
+2. 内存设置问题，jstat看看，根据业务，新生代、老年代和永久代的设置情况
 
 
 ### OOM如何排查？
@@ -97,6 +136,8 @@
    - 线程t1（for循环打印1 3 5...）：q1.put(i);  System.out.println(q2.take());
    - 线程t2（for循环打印2 4 6...）：System.out.println(q1.take()); q2.put(i);
 3. 不使用锁，用一个AtomicInteger，一个线程在其为偶数时打印，一个奇数打印，打印完++
+   - 线程t1（while循环，小于100）：判断当前counter.get()是否是奇数，是则打印，然后counter.getAndIncrement()
+   - 线程t2（while循环，小于100）：同上，判断是否为偶数
 4. ReentrantLock和Condition，每个线程先打印，然后调用condition的signal，唤醒另一个线程；再调用wait，自己挂起，等待被唤醒
    - 1个Lock，一个Condition，一个count（注意在finally中释放锁）
    - 线程t1（while循环，count <=100）
@@ -128,25 +169,12 @@
     - 死循环，不断cas将操作节点的item设置null， 表示出列成功
     - 一旦出列成功需要对head进行移动
 
-### 频繁GC
-1. 可能是内存泄漏，内存使用完了没释放；jmap（jmap -histo  pid）看对象的存活，哪些对象数太多
-2. 内存设置问题，jstat看看，根据业务，新生代、老年代和永久代的设置情况
-
-
-
-### 线上问题排查
-1. jstack（1.5）生成thread dump，记录JVM在某一时刻各个线程执行的情况，是一个文本文件
-    - 需要在多个时间段提出多个 Thread Dump信息，然后综合进行对比分析，单独分析一个文件是没有意义的。
-2. jstat命令用于见识虚拟机各种运行状态信息的命令行工具。它可以显示本地或者远程虚拟机进程中的类装载、内存、垃圾收集、jit编译等运行数据
-3. "VM Thread" 是 JVM 自身启动的一个线程, 它主要用来协调其它线程达到安全点(Safepoint)
-4. jmap生成Heap Dump文件
-    - jhat 是JDK自带的用于分析JVM Heap Dump文件的工具，使用下面的命令可以将堆文件的分析结果以HTML网页的形式进行展示：jhat <heap-dump-file>
-
 
 ### jvm的命名空间
 - 每个类加载器都有自己的命名空间。和我们Java中的Package的概念是一样的，和XML中的namespace的概念类似。同一个命名空间内的类是相互可见的，命名空间由该加载器及所有父加载器所加载的类组成。
 - 子加载器加载的类能看见父加载器的类，但是父加载器看不到子加载器加载的类
 - 在同一个命名空间中，不会出现类的完整名字（包括类的包名）相同的两个类；在不同的命名空间中，有可能会出现类的完整名字（包括类的包名）相同的两个类。
+
 
 
 ### 系统线程状态 (Native Thread Status)
@@ -181,10 +209,6 @@
     - 当线程获得了Monitor，进入了临界区之后，如果发现线程继续运行的条件没有满足，它则调用对象（通常是被synchronized的对象）的wait()方法，放弃Monitor，进入 "Wait Set"队列。只有当别的线程在该对象上调用了 notify()或者notifyAll()方法，"Wait Set"队列中的线程才得到机会去竞争，但是只有一个线程获得对象的Monitor，恢复到运行态。"Wait Set"中的线程在Thread Dump中显示的状态为 in Object.wait()。通常来说，当CPU很忙的时候关注 Runnable 状态的线程，反之则关注 waiting for monitor entry 状态的线程。
 
 
-### java反射如何实现
-基于4个类：class（类对象），Constructor（构造器对象，包括无参数和有参数的构造函数），Field，Method
-JVM层面能拿到class文件中的类内容，进而获取它的属性，方法，父类等
-
 
 ### Java对异常的设计以及为何这么设计
 1. error：Error是程序无法处理的错误，它是由JVM产生和抛出的，
@@ -197,34 +221,6 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
       - 从程序语法角度讲是必须进行处理的异常，如果不处理，程序就不能编译通过。
       - 如IOException、SQLException等以及用户自定义的Exception异常，一般情况下不自定义检查异常。
 
-
-### spring的注解
-- @Component, @Service, @Controller, @Repository是spring注解，注解后可以被spring框架所扫描并注入到spring容器来进行管理
-- @Component是通用注解，其他三个注解是这个注解的拓展，并且具有了特定的功能
-- @Repository注解在持久层中，具有将数据库操作抛出的原生异常翻译转化为spring的持久层异常的功能。
-- @Controller层是spring-mvc的注解，具有将请求进行转发，重定向的功能。
-- @Service层是业务逻辑层注解，这个注解只是标注该类处于业务逻辑层。
-- 用这些注解对应用进行分层之后，就能将请求处理，业务逻辑处理，数据库操作处理分离出来，为代码解耦，也方便了以后项目的维护和开发。
-
-
-### spring事物传播行为（事物传播级别）7种
-- PROPAGATION_REQUIRED	如果当前没有事务，就新建一个事务，如果已经存在一个事务中，加入到这个事务中。这是最常见的选择。
-- PROPAGATION_SUPPORTS	支持当前事务，如果当前没有事务，就以非事务方式执行。
-- PROPAGATION_MANDATORY	使用当前的事务，如果当前没有事务，就抛出异常。
-- PROPAGATION_REQUIRES_NEW	新建事务，如果当前存在事务，把当前事务挂起。
-- PROPAGATION_NOT_SUPPORTED	以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。
-- PROPAGATION_NEVER	以非事务方式执行，如果当前存在事务，则抛出异常。
-- PROPAGATION_NESTED	如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则执行与PROPAGATION_REQUIRED类似的操作。
-
-### spring mvc从request到controller的过程
-1. 请求打到DispatcherServlet
-2. 处理器映射
-    - SpringMVC在初始化的时候加入的各种处理器，对于请求到Controller的映射，
-    - 比较重要的是HandlerMapping和HandlerAdapter，HandlerMapping是用来查找处理请求的对象，HandlerAdaptor是用来处理请求参数
-3. 对应的控制器处理
-4. 对应的model
-5. 返回对应的view给视图解析器
-6. 返回视图给用户
 
 ### volatile用处，如何实现的
 - synchronized 关键字是防止多个线程同时执行一段代码，那么就会很影响程序执行效率，而 volatile 关键字在某些情况下性能要优于 synchronized ，
@@ -257,6 +253,8 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
     - volatile没有synchronized使用的广泛。
     - volatile不需要加锁，比synchronized更轻量级，不会阻塞线程。
     - 从内存可见性角度看，volatile读相当于加锁，volatile写相当于解锁。
+      - volatile可以保证对变量的访问均需要从共享内存中获取对它的改变必须同步刷新回共享内存
+      - synchronized确保每一个时刻只有一个线程处于方法或同步块中，保证线程对变量访问的可见性和排他性
     - synchronized既能保证可见性，又能保证原子性，而volatile只能保证可见性，无法保证原子性。
     - volatile本身不保证获取和设置操作的原子性，仅仅保持修改的可见性。但是java的内存模型保证声明为volatile的long和double变量的get和set操作是原子的。
 - 使用场景
@@ -277,10 +275,11 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
 - 另外，线程池在提交任务时新建核心线程（若需要）并执行task
 
 ### 线程池关闭
-- shutdown：启动有序关闭，其中执行先前提交的任务，但不会接受新任务。
+- shutdown：启动有序关闭，其中执行先前提交的任务和队列中等待的任务，但不会接受新任务。
     - 一定要确保任务里不会有永久阻塞等待的逻辑，否则线程池就关闭不了。
-- shutdownNow：尝试终止所有正在执行的任务，并停止处理等待队列中的的任务，最后将所有未执行的任务列表的形式返回，此方法会将任务队列中的任务移除并以列表形式返回。此方法不会等待正在执行的任务执行完毕，要等待任务执行完毕可以使用awaitTermination()方法
-    - 因为此方法底层实现是通过 Thread 类的interrupt()方法终止任务的，所以interrupt()未能终止的任务可能无法结束。
+- shutdownNow：尝试终止所有正在执行的任务，并停止处理等待队列中的的任务，最后将所有未执行的任务列表的形式返回，此方法会将任务队列中的任务移除并以列表形式返回。
+  - 此方法不会等待正在执行的任务执行完毕，要等待任务执行完毕可以使用awaitTermination()方法
+  - 因为此方法底层实现是通过 Thread 类的interrupt()方法终止任务的，所以interrupt()未能终止的任务可能无法结束。
 - 记得shutdownNow和shuwdown调用完，线程池并不是立刻就关闭了，要想等待线程池关闭，还需调用awaitTermination方法来阻塞等待。
 
 
@@ -312,26 +311,63 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
     - newWorkStealingPool：基于ForkJoinPool，不是ThreadPoolExecutor，使用所有可用处理器作为目标并行度，创建一个窃取线程的池
 
 ### G1回收器
-特点：高吞吐、没有内存碎片、收集时间可控
+- 特点：高吞吐、没有内存碎片、收集时间可控，整体看是基于标记-整理算法，局部看是基于复制算法（2个Region之间）
 1. 把堆划分为大小相等的Region（2048个），保留新生代和老年代，但不再物理隔离
 2. 每次回收价值最大的Region（价值：回收所获得的空间大小以及回收所需时间的经验值），在后台维护一个优先列表，每次根据允许的回收时间，优先回收价值最大的
-3. 在回收一个Region的时候不需要执行全堆扫描，只需要检查它的RS（Remembered Set，记录外部指向本Region的所有引用）就可以找到外部引用，而这些引用就是initial mark的根之一
+3. 在回收一个Region的时候不需要执行全堆扫描，只需要检查它的RS（Remembered Set，记录外部指向本Region的所有引用，可能跨代）就可以找到外部引用，而这些引用就是initial mark的根之一
 4. G1还有一个及其重要的特性：软实时（soft real-time）。所谓的实时垃圾回收，是指在要求的时间内完成垃圾回收。
    - “软实时”则是指，用户可以指定垃圾回收时间的限时，G1会努力在这个时限内完成垃圾回收，但是G1并不担保每次都能在这个时限内完成垃圾回收。
 5. 回收过程
     - 初始标记(Initial Marking)：这个阶段是STW(Stop the World )的，所有应用线程会被暂停，标记出从GC Root开始直接可达的对象。（触发一次年轻代GC）
     - 并发标记：从GC Roots开始对堆中对象进行可达性分析，找出存活对象，耗时较长。
-    - 最终标记(Final Marking)：标记那些在并发标记阶段发生变化的对象，将被回收。
+    - 最终标记(Final Marking)：标记那些在并发标记阶段发生变化的存活的对象，将被回收。（非全部扫描，比较快）
     - 独占清理(cleanup,STW): 计算各个区域的存活对象和GC回收比例,并进行排序，识别可以混合回收的区域。为下阶段做铺垫。是STW的。
     - 并发清理阶段: 识别并清理完全空闲的区域。
+      - 因为要保证时间，所以Mix GC时清理所有的年轻代和价值高的老年代Region
 6. GC模式
     - YoungGC年轻代收集：在分配一般对象（非巨型对象）时，当所有eden region使用达到最大阀值并且无法申请足够内存时，会触发一次YoungGC。
       - 每次younggc会回收所有Eden以及Survivor区，并且将存活对象复制到Old区以及另一部分的Survivor区。
-    - mixed gc：当越来越多的对象晋升到老年代old region时，为了避免堆内存被耗尽，虚拟机会触发一个混合的垃圾收集器，即mixed gc，该算法并不是一个old gc，除了回收整个young region，还会回收一部分的old region，这里需要注意：是一部分老年代，而不是全部老年代，可以选择哪些old region进行收集，从而可以对垃圾回收的耗时时间进行控制。（用的是5的回收过程）
+    - mixed gc：当越来越多的对象晋升到老年代old region时，为了避免堆内存被耗尽，虚拟机会触发一个混合的垃圾收集器，即mixed gc，
+      - 该算法并不是一个old gc，除了回收整个young region，还会回收一部分的old region，
+      - 这里需要注意：是一部分老年代，而不是全部老年代，可以选择哪些old region进行收集，从而可以对垃圾回收的耗时时间进行控制。（用的是5的回收过程）
     - G1没有fullGC概念，需要fullGC时，调用serialOldGC进行全堆扫描（包括eden、survivor、o、perm）。
 7. young GC过程
    年轻代垃圾回收只会回收Eden区和Survivor区。
 - 扫描根 -> 更新RSet -> 处理RSet -> 复制对象（如果Survivor空间不够,Eden空间的部分数据会直接晋升到老年代空间） -> 处理引用
+- GC root对象
+  - 虚拟机栈（栈帧中的本地变量表）中引用的对象
+  - 方法区中类静态属性引用的对象
+  - 方法区中常量引用的对象
+  - 本地方法栈中JNI（Native方法）引用的对象
+
+### 垃圾回收器
+- java8默认：Parallel Scavenge（多线程、复制算法） + Parallel Old（多线程、标记-整理算法）
+- Parallel Scavenge ：关注点在于达到一个可控制的吞吐量（用户代码时间/CPU总时间）CMS等关注尽可能缩短垃圾收集时用户线程停顿的时间
+- Parallel Old：Parallel Scavenge的老年代版本，多线程 + 标记-整理算法
+- CMS（Concurrent Mark Sweep）：JDK 14开始弃用，JDK15中完全删除
+  - CMS收集器在Minor GC时会暂停所有的应用线程，并以多线程的方式进行垃圾回收。
+  - 在Full GC时不再暂停应用线程，而是使用若干个后台线程定期的对老年代空间进行扫描，及时回收其中不再使用的对象。
+  - 缺点：
+    - 无法处理碎片化的内存，其老年代采用 标记-清除回收策略，因此会有内存碎片问题，有时候不得不进行一次Full GC（新生代、老年代和永久代都GC）
+    - 不能充分使用内存，并发标记和并发清理阶段，用户线程是还在继续运行的，程序在运行自然就还会伴随有新的垃圾对象不断产生，
+      - 而这部分的垃圾对象是出现在标记过程结束以后，CMS无法在当次收集中处理掉它们，只好留在下次垃圾收集时再清理掉。
+    - 进行垃圾回收时需要占用 CPU 资源，可能会影响应用程序的性能
+
+
+### 垃圾回收算法和特点？
+- 标记-清除算法
+    - 该算法分为两个阶段，标记阶段和清除阶段。
+    - 标记阶段遍历所有的对象，标记出所有需要回收的对象，清除阶段则回收被标记的对象。
+    - 该算法的优点是不需要额外的空间，缺点是会产生内存碎片。
+- 复制算法：
+    - 该算法将内存分为两个区域，每次只使用其中一个区域。
+    - 当这个区域用完了，就将还存活的对象复制到另一个区域中，然后清除当前区域中的所有对象。
+    - 该算法的优点是简单高效，缺点是需要额外的空间。
+- 标记-整理算法：
+    - 该算法是标记-清除算法的改进版，它在标记阶段和清除阶段之间增加了一个整理阶段。
+    - 在整理阶段，它会将所有存活的对象向一端移动，然后清除掉边界以外的所有内存。
+    - 该算法的优点是不会产生内存碎片，缺点是需要额外的空间和时间.
+
 
 ### 引用类型
 - 强引用是使用最普遍的引用。如果一个对象具有强引用，那垃圾回收器绝不会回收它。
@@ -350,64 +386,6 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
     - 分配使用了ThreadLocal又不再调用get(),set(),remove()方法，那么这个期间就会发生内存泄漏。
     - 每次使用完ThreadLocal，都调用它的remove()方法，清除数据。
 
-### Spring Boot Starter怎么实现？如何自定义Starter
-利用starter实现自动化配置只需要两个条件——maven依赖、配置文件
-
-### 循环依赖有哪些情况？怎么解决？
-- 构造函数循环依赖
-  - 这种依赖spring是处理不了的，直接抛出BeanCurrentlylnCreationException异常。
-- 属性循环依赖
-  - 通过“三级缓存”处理循环依赖
-- 方法循环依赖。
-- 避免手段
-  - 构造函数注入： 在构造函数中注入依赖项，而不是在属性中注入。
-  - Setter注入： 使用setter方法注入依赖项，而不是在构造函数中注入。
-  - 延迟注入： 使用@Lazy注解延迟加载依赖项。
-  - @Autowired注解的required属性： 将required属性设置为false，以避免出现循环依赖问题。
-  - @DependsOn注解： 使用@DependsOn注解指定依赖项的加载顺序，以避免出现循环依赖问题
-
-### Spring循环依赖
-1. 构造器循环依赖
-    - 通过构造器注入构成的循环依赖，此依赖是无法解决的，只能抛出BeanCurrentlyInCreationException异常表示循环依赖
-    - 原理：Spring容器将每一个正在创建的bean标识符放在一个“当前创建bean池”中，bean标识符创建过程中将一直保持在这个池中，
-      - 因为如果在创建bean过程中发现自己已经在“当前创建bean池”中时，将会抛出BeanCurrentlyInCreationException异常表示循环依赖；而对于创建完毕的bean将从“当前创建bean池”中清除掉。
-2. prototype范围的依赖处理
-- 对于scope为prototype范围的bean，Spring容器无法完成依赖注入，因为Spring容器不进行缓存“prototype”作用域的bean，因此无法提前暴露一个创建中的bean，所以检测到循环依赖会直接抛出BeanCurrentlyInCreationException异常
-3. Setter方法注入
-    - 一级缓存（singletonObjects）：用于存放完全初始化好的 bean
-    - 二级缓存（earlySingletonObjects）：存放原始的 bean 对象（尚未填充属性），用于解决循环依赖
-    - 三级级缓存（singletonFactories）：存放 bean 工厂对象
-    - 过程
-        - A 创建过程中需要 B， 于是 A 将自己放到三级缓存里面，去实例化 B
-        - B 实例化的时候发现需要 A，于是 B 先查一级缓存，没有，再查二级缓存，还是没有，再查三级缓存找到了A，然后把三级缓存中的 A 放到二级缓存，并删除三级缓存中的 A
-        - B 顺利初始化完毕，将自己放到一级缓存中(此时 B 中的 A 还是创建中状态，并没有完全初始化)，删除三级缓存中的 B然后接着回来创建 A，此时 B 已经完成创建，直接从一级缓存中拿到 B，完成 A 的创建，并将 A 添加到单例池，删除二级缓存中的 A
-    - 过程（详细版）
-      - 实例化 A，此时 A 还未完成属性填充和初始化方法（@PostConstruct）的执行，A 只是一个半成品。
-      - 为 A 创建一个 Bean工厂，并放入到 singletonFactories 中。
-      - 发现 A 需要注入 B 对象，但是一级、二级、三级缓存均为发现对象 B。
-      - 实例化 B，此时 B 还未完成属性填充和初始化方法（@PostConstruct）的执行，B 只是一个半成品。
-      - 为 B 创建一个 Bean工厂，并放入到 singletonFactories 中。
-      - 发现 B 需要注入 A 对象，此时在一级、二级未发现对象A，但是在三级缓存中发现了对象 A，从三级缓存中得到对象 A，并将对象 A 放入二级缓存中，同时删除三级缓存中的对象 A。（注意，此时的 A 还是一个半成品，并没有完成属性填充和执行初始化方法）
-      - 将对象 A 注入到对象 B 中
-      - 对象 B 完成属性填充，执行初始化方法，并放入到一级缓存中，同时删除二级缓存中的对象 B。（此时对象 B 已经是一个成品）
-      - 对象 A 得到对象B，将对象 B 注入到对象 A 中。（对象 A 得到的是一个完整的对象 B）
-      - 对象 A完成属性填充，执行初始化方法，并放入到一级缓存中，同时删除二级缓存中的对象 A。
-         
-4. 为什么要用三级缓存（本质是三个Map）？二级行不行？
-   - 二级解决不了动态代理生成的bean的循环依赖，需要三级缓存
-   - 三级也能解决弱依赖中有代理的情况
-
-
-### FactoryBean和BeanFactory区别
-- BeanFactory，以Factory结尾，表示它是一个工厂类(接口)， 它负责生产和管理bean的一个工厂。在Spring中，BeanFactory是IOC容器的核心接口，它的职责包括：实例化、定位、配置应用程序中的对象及建立这些对象间的依赖。（如XMLBeanFactory）
-- 以Bean结尾，表示它是一个Bean，不同于普通Bean的是：它是实现了FactoryBean<T>接口的Bean，根据该Bean的ID从BeanFactory中获取的实际上是FactoryBean的getObject()返回的对象，而不是FactoryBean本身，如果要获取FactoryBean对象，请在id前面加一个&符号来获取。
-    - 一般情况下，Spring通过反射机制利用<bean>的class属性指定实现类实例化Bean，在某些情况下，实例化Bean过程比较复杂，如果按照传统的方式，则需要在<bean>中提供大量的配置信息。配置方式的灵活性是受限的，这时采用编码的方式可能会得到一个简单的方案。
-    - Spring为此提供了一个org.springframework.bean.factory.FactoryBean的工厂类接口，用户可以通过实现该接口定制实例化Bean的逻辑。
-      - FactoryBean接口对于Spring框架来说占用重要的地位，Spring自身就提供了70多个FactoryBean的实现。它们隐藏了实例化一些复杂Bean的细节，给上层应用带来了便利。
-      - 从Spring3.0开始，FactoryBean开始支持泛型，即接口声明改为FactoryBean<T>的形式。
-    
-### Spring的IOC，本质是个全局Map，管理进程中的各种对象，然后处理对象之间的依赖关系（比如解决循环依赖）
-
 ### 什么是线程池预热？预热的好处是？
 - 在系统启动时，提前创建一定数量的线程，以便在系统运行时，能够快速响应请求，减少线程创建的时间，从而提高系统的性能。
 - 预热的好处是可以避免在系统运行时，因为线程创建时间过长而导致的性能瓶颈。
@@ -421,10 +399,13 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
 ### thread有几种状态，和操作系统的对应关系
 1. java线程状态
     - NEW
-    - RUNNABLE：对应操作系统的READY和RUNNING
+    - RUNNABLE：对应操作系统的READY和RUNNING，即此状态的线程可能已经在运行，也可能在等待CPU运行时间
     - BLOCKED
+      - 表示线程正在等待获取锁，以便进入同步代码块或方法。当另一个线程持有锁时，线程将进入BLOCKED状态，直到它获得锁为止
     - WAITING
+      - 无限期等待，线程正在等待其他线程执行某个操作，例如调用Object.wait()或Thread.join()方法。
     - TIMED_WAITING
+      - 限期等待，不会被分配CPU执行时间，一定时间后会被系统自动唤醒
     - TERMINATED
 2. 操作系统线程状态
     - NEW：进程正在被创建
@@ -443,48 +424,7 @@ JVM层面能拿到class文件中的类内容，进而获取它的属性，方法
     - 阻塞调用是指调用结果返回之前，当前线程会被挂起。调用线程只有在得到结果之后才会返回。
     - 非阻塞调用指在不能立刻得到结果之前，该调用不会阻塞当前线程。
 
-### 动态代理
-1. JDK动态代理：利用反射机制生成一个实现代理接口的匿名类，在调用具体方法前调用InvokeHandler来处理。
-2. CGlib动态代理（Enhancer增强类，把代理类设置为其父类）：利用ASM（开源的Java字节码编辑库，操作字节码）开源包，将代理对象类的class文件加载进来，通过修改其字节码生成子类来处理。
-3. 区别
-    - JDK代理使用的是反射机制实现aop的动态代理，CGLIB代理使用字节码处理框架asm，通过修改字节码生成子类。所以jdk动态代理的方式创建代理对象效率较高，执行效率较低，cglib创建效率较低，执行效率高；
-    - JDK动态代理机制是委托机制，具体说动态实现接口类，在动态生成的实现类里面委托handler去调用原始实现类方法，
-      - CGLIB则使用的继承机制，具体说被代理类和代理类是继承关系，所以代理类是可以赋值给被代理类的，如果被代理类有接口，那么代理类也可以赋值给接口。
 
-### springboot 的启动
-1. SpringBootApplication注解
-    - @SpringBootConfiguration // 继承了Configuration，表示当前是注解类
-    - @EnableAutoConfiguration // 开启springboot的注解功能，springboot的四大神器（auto-configuration、starters、cli、actuator）之一，其借助@import的帮助，从各个spring.factories配置文件中加载需要的bean到IOC容器
-        - 通过@Import(AutoConfigurationImportSelector.class)，从classpath中搜寻所有的META-INF/spring.factories配置文件，并将其中org.springframework.boot.autoconfigure.EnableAutoConfiguration对应的配置项通过反射（Java Refletion）实例化为对应的标注了@Configuration的JavaConfig形式的IoC容器配置类，然后汇总为一个并加载到IoC容器。
-    - @ComponentScan // 扫描路径设置
-2. 启动过程
-    - 从spring.factories配置文件中加载EventPublishingRunListener对象，该对象拥有SimpleApplicationEventMulticaster属性，即在SpringBoot启动过程的不同阶段用来发射内置的生命周期事件;
-    - 准备环境变量，包括系统变量，环境变量，命令行参数，默认变量，servlet相关配置变量，随机值以及配置文件（比如application.properties）等;
-    - 控制台打印SpringBoot的bannner标志；
-    - 根据不同类型环境创建不同类型的applicationcontext容器，因为这里是servlet环境，所以创建的是AnnotationConfigServletWebServerApplicationContext容器对象；
-    - 从spring.factories配置文件中加载FailureAnalyzers对象,用来报告SpringBoot启动过程中的异常；
-    - 为刚创建的容器对象做一些初始化工作，准备一些容器属性值等，对ApplicationContext应用一些相关的后置处理和调用各个ApplicationContextInitializer的初始化方法来执行一些初始化逻辑等，其中最核心的一步，将之前通过@EnableAutoConfiguration获取的所有配置以及其他形式的IoC容器配置加载到已经准备完毕的ApplicationContext。
-    - 刷新容器，这一步至关重要。比如调用bean factory的后置处理器，注册BeanPostProcessor后置处理器，初始化事件广播器且广播事件，初始化剩下的单例bean和SpringBoot创建内嵌的Tomcat服务器等等重要且复杂的逻辑都在这里实现，主要步骤可见代码的注释，关于这里的逻辑会在以后的spring源码分析专题详细分析；
-    - 执行刷新容器后的后置处理逻辑，注意这里为空方法；
-    - 调用ApplicationRunner和CommandLineRunner的run方法，我们实现这两个接口可以在spring容器启动后需要的一些东西比如加载一些业务数据等;
-    - 报告启动异常，即若启动过程中抛出异常，此时用FailureAnalyzers来报告异常;
-    - 最终返回容器对象，这里调用方法没有声明对象来接收。
-
-
-#### BeanFactory 和ApplicationContext的区别
-BeanFactory和ApplicationContext都是接口，并且ApplicationContext（即为IOC容器）间接继承了BeanFactory。
-- BeanFactory是Spring中最底层的接口，提供了最简单的容器的功能，只提供了实例化对象和获取对象的功能
-- ApplicationContext是Spring的一个更高级的容器，提供了更多的有用的功能。例如：获取Bean的详细信息(如定义、类型)、国际化的功能、统一加载资源的功能、强大的事件机制、对Web应用的支持
-
-
-
-### springboot 四大神器
-- actuator：Spring Boot Actuator的关键特性是在应用程序里提供众多Web端点，通过它们了解应用程序 运行时的内部状况。
-- starters：构建Spring Boot启动器是为了解决复杂的依赖管理。Starter POM是一组方便的依赖描述符，您可以在应用程序中包含这些描述符。
-    - 创建一个ConfigurationProperties用于保存你的配置信息（如果你的项目不使用配置信息则可以跳过这一步，不过这种情况非常少见）
-    - 配置spring.factories配置文件；在spring boot启动时会加载各个starter的配置文件，汇总成一个配置类，加载到IOC容器
-- CLI：可以检测到代码中使用的类，知道需要给Classpath中添加的哪些起步依赖才能让程序运行起来。
-- auto-configuration：Spring Boot自动配置代表了一种基于类路径上存在的依赖关系自动配置Spring应用程序的方法。还可以通过定义消除自动配置类中包含的某些bean。这些可以使开发更快更容易。
 
 ### CompletableFuture
 #### Future的局限
@@ -526,107 +466,123 @@ BeanFactory和ApplicationContext都是接口，并且ApplicationContext（即为
         - CompletableFuture.supplyAsync()也支持线程池
 
 
-### 实现lru（参考: _146LRUCache）
-一个map（键为元素的值，值为node本身），内部放node，实现O(1)时间内判断是否在集合中；节点采用双端队列，方便删除、新增节点；
-1. get：首先判断map中是否存在元素，不存在返回-1；存在则从map中get节点，把节点move2Head，返回节点的值即可
-2. put：首先判断map中是否存在，不存在则新建节点并添加链表的头，并将其添加到map；存在则更新map中的值，并把节点move2Head
-- 注意当判定size >= capacity时，要找到tail的前置节点curNode，remove map中的节点，并删除curNode
-3. 私有方法
-- deleteNode：找到pre和next节点，相互连接，把curNode的pre和next置为null，size--
-- addHeadNode：处理前置哨兵head，让head和curNode相连，原先的head.next连接到curNode的后面
-- move2Head：先deleteNode，再add2Head
-
-### 垃圾回收算法和特点？
-- 标记-清除算法
-  - 该算法分为两个阶段，标记阶段和清除阶段。
-  - 标记阶段遍历所有的对象，标记出所有需要回收的对象，清除阶段则回收被标记的对象。
-  - 该算法的优点是不需要额外的空间，缺点是会产生内存碎片。
-- 复制算法：
-  - 该算法将内存分为两个区域，每次只使用其中一个区域。
-  - 当这个区域用完了，就将还存活的对象复制到另一个区域中，然后清除当前区域中的所有对象。
-  - 该算法的优点是简单高效，缺点是需要额外的空间。
-- 标记-整理算法：
-  - 该算法是标记-清除算法的改进版，它在标记阶段和清除阶段之间增加了一个整理阶段。
-  - 在整理阶段，它会将所有存活的对象向一端移动，然后清除掉边界以外的所有内存。
-  - 该算法的优点是不会产生内存碎片，缺点是需要额外的空间和时间.
-
-### Bean的生命周期
-- 通过Spring下的beanFactory工厂利用反射机制创建bean对象
-- 根据set方法或有参构造方法给对象的属性进行依赖注入
-- 判断当前的bean对象是否实现相关的aware节课，如beanNameAware，有的话执行相关的方法
-- 执行bean的前置处理器postProcessBeforeInitialization
-- 执行初始化方法initMethod
-- 执行bean对象的后置处理器postProcessAfterInitialization
-- 判断当前bean对象是否为单例，是则放到Spring对象容器中，多例则直接返回bean对象
-- 使用bean对象
-- 关闭容器，调用destroy方法销毁对象
-
-### Autowired 变量都是单例吗？
-- 默认情况下是，但是不绝对
-- 因为使用Autowired注解是进行Spring中Bean的注入的，而Spring中Bean的默认作用域是Singleton，在Singleton作用域下，Spring中的Bean都是单例的。
-- 那为什么又说不是绝对的呢：因为Spring中Bean的作用域可以通过@scope注解或是在xml文件添加scope属性修改
-  - 还可以修改为Prototype（每次getBean时创建一个新的Bean实例）
-  - Requset（每次请求创建Bean）
-  - Session（每个会话Bean）
-  - Application（在Web应用程序的整个生命周期内，只创建一个Bean实例）
-
-
-### SpringBootApplication注解，分为哪三个？详细介绍
-- @SpringBootConfiguration // 继承了Configuration，表示当前是注解类
-- @EnableAutoConfiguration // 开启springboot的注解功能，springboot的四大神器（auto-configuration、starters、cli、actuator）之一，其借助@import的帮助，从各个spring.factories配置文件中加载需要的bean到IOC容器
-  - 通过@Import(AutoConfigurationImportSelector.class)，从classpath中搜寻所有的META-INF/spring.factories配置文件，
-  - 并将其中org.springframework.boot.autoconfigure.EnableAutoConfiguration对应的配置项通过反射（Java Refletion）
-  - 实例化为对应的标注了@Configuration的JavaConfig形式的IoC容器配置类，然后汇总为一个并加载到IoC容器。
-- @ComponentScan // 扫描路径设置
 
 ### synchronized和ReentrantLock的加锁和解锁能在不同线程吗？
 - 不能，二者加锁时都会记录线程号，syn记录在对象头，ren记录在AQS队列
 
-### AQS队列的原理
 
+### Java有几种锁，区别是什么？
+- synchronized锁：是Java中最基本的锁，它是一种重量级锁，适用于线程竞争不激烈的场景。
+    - 它是一种非公平锁，即线程获取锁的顺序是不确定的。
+    - 它是可重入锁，即同一个线程可以多次获取同一个锁而不会死锁。
+    - 它是独享锁，即同一时间只能有一个线程获取到锁
+- ReentrantLock锁：是Java中的另一种重量级锁，它是一种可重入锁，适用于线程竞争激烈的场景。
+    - 它是一种非公平锁，但可以通过构造函数指定为公平锁。
+    - 它是独享锁，即同一时间只能有一个线程获取到锁。
+- ReentrantReadWriteLock锁：是Java中的读写锁，它是一种轻量级锁，适用于读多写少的场景。
+    - 它是一种非公平锁，但可以通过构造函数指定为公平锁。
+    - 它是共享锁，即多个线程可以同时获取到读锁，但只有一个线程可以获取到写锁。
+- StampedLock锁：是Java中的另一种读写锁，它是一种乐观锁，适用于读多写少的场景。
+    - 它是一种非公平锁，但可以通过构造函数指定为公平锁。
+    - 它是共享锁，即多个线程可以同时获取到读锁，但只有一个线程可以获取到写锁。
+- Semaphore锁：是Java中的信号量，它是一种轻量级锁，本质上就是一个信号计数器，用于限制同一时间的最大访问数量
+    - 它是一种非公平锁，但可以通过构造函数指定为公平锁。
+    - 它是共享锁，即多个线程可以同时获取到锁。
+- CountDownLatch锁：是Java中的倒计时锁，它是一种轻量级锁，适用于等待其他线程完成后再执行的场景。
+    - 它是一种非公平锁，但可以通过构造函数指定为公平锁。
+    - 它是共享锁，即多个线程可以同时获取到锁。
+    - 公平锁的实现：在AQS的队列中，查看队列中等待最长的线程是不是当前线程，如果是则获取（实现了先到先得）
+- CyclicBarrier锁：是Java中的循环屏障锁，它是一种轻量级锁，适用于等待其他线程到达某个状态后再执行的场景。
+    - 它是一种非公平锁，但可以通过构造函数指定为公平锁。
+    - 它是共享锁，即多个线程可以同时获取到锁
+    - 与CountDownLatch锁的区别
+      - 可以重复使用，后者不行（CyclicBarrier所有线程到达栅栏时，会重置到初始状态）
+      - CyclicBarrier还可以指定一个可选的Runnable对象，所有线程到达栅栏位置时，该对象被执行
 
-### 如何排查OOM
-
+### AQS（AbstractQueuedSynchronizer）队列的原理
+- AQS本身没有公平\非公平的概念，需要实现类自己实现
+- 维护了一个 state（共享资源变量）和一个 FIFO 线程等待队列（CLH 队列），多个线程竞争 state 被阻塞时就会进入此队列中。
+  - ReentrantLock、ReentrantReadWriteLock、CountDownLatch、Semaphore这些常用的实现类都是基于AQS实现的
+  - CyclicBarrier 的底层实现是基于 ReentrantLock 和 Condition 的组合使用，而不是基于 AbstractQueuedSynchronizer
+- state 是用 volatile 修饰的一个 int 类型的共享资源变量
+  - 作用是可重入，当线程多次加锁时，state=线程加锁次数
+  - 每次解锁state-1，当为0时代表解锁成功
+- 队列：是一个双端队列，包含目前正在等待锁的线程，每个线程被包装成一个Node
+  - node有四种状态
+    - CANCELLED：线程处于超时或者中断状态，值为1
+    - SIGNAL表示后继节点被唤醒，值为-1
+    - CONDITION表示线程处于等待队列中，无法在同步队列中使用，值为-2，直到调用signal方法后将其转移到同步队列中
+    - PROPAGATE表示下一个共享模式下获取同步状态会被持续传播下去，值为-3
+- 支持独占和共享
+  - isHeldExclusively()；// 是否为独占模式；但是只有使用到了Condition的，才需要去实现它。例如：ReentrantLock。 
+  - boolean tryAcquire(int arg); // 独占模式；尝试获取资源，成功返回true，失败返回false。 
+  - boolean tryRelease(int arg) ; // 独占模式；尝试释放资源，成功返回true，失败返回false。 
+  - int tryAcquireShared(int arg); // 共享模式；尝试获取资源，负数表示失败；0表示成功，但是没有剩余可用资源了；正数表示成功，且有剩余可用资源。 
+  - boolean tryReleaseShared(int arg) ; // 共享模式；尝试释放资源，若释放资源后允许唤醒后续等待节点返回true，否则返回false。
+- 获取锁的过程
+  - 当线程CAS获取锁失败，将当前线程入队列，把前驱节点状态设置为SIGNAL状态（表示自己要被唤醒），并将自己挂起。 
+- 解锁的过程（简化：把state置0，唤醒下一个合法的节点，被唤醒的节点线程自然就会去获取锁）
+  - 外界调用unlock方法时，实际上会调用AQS的release方法，而release方法会调用子类tryRelease方法（又回到了ReentrantLock中）
+  - tryRelease会把state一直减（锁重入可使state>1），直至到0，当前线程说明已经把锁释放了
+  - 随后从队尾往前找节点状态需要 < 0，并离头节点最近的节点进行唤醒
+    - 从后往前找
+      - 原因1：节点入队并不是原子操作，pred.next = node在CAS之后执行，此时从前往后找，就找不到了
+      - 原因2：在产生CANCELLED状态节点的时候，先断开的是Next指针，Prev指针并未断开，因此也是必须要从后往前遍历才能够遍历完全部的Node
+      - 原因3：前面的线程可能已经阻塞了（内核态），调起的成本比较高
+  - 唤醒之后，被唤醒的线程则尝试使用CAS获取锁，假设获取锁得到则把头节点给干掉，把自己设置为头节点
 ### Collections的排序是哪一种？具体是怎么使用的
+- java8中，将入参list先转为了数组Object[]，之后利用Arrays.sort进行排序
+- java.util.Arrays.useLegacyMergeSort 的系统属性，可以用于控制 sort 方法是否使用旧版本的归并排序算法。
+  - 默认关闭
+- 使用TimSort排序(一个自适应的、混合的、稳定的排序算法)
+  - TimSort排序算法是归并排序算法的优化版
+  - 核心在于利用数列中的原始顺序，所以可以提高很多效率。
+- Arrays.sort对long、Int、double等基本数据类型排序是采用的是DualPivotQuicksort
+  - 小于某个阈值时，采用双轴快排
 
 #### 字节码是如何被JVM读取的？Java一次编译，到处运行的原因是？
-
-#### java的agent技术是什么？
-
-#### Hash的扩容流程？渐进式Rehash的时候会影响主流程吗？
-
-#### Spring boot、Spring cloud和dubbo的设计原理和应用场景
-- boot基于spring，实现了自动装配
-- cloud可以看做是boot的集合，单机和分布式项目的区别
-
-#### docker和JVM的区别
-
-#### 手写单例模式，并说明为什么这么写？（涉及到volatile的原理）
-
-#### spring的设计模式，如模板、策略、适配、责任链、观察者、单例等（了解下）
-- AOP的底层是责任链？？？
-
-#### Mybatis怎么使用事务
-
-#### beanfactory和ApplicationContext是什么关系？使用有什么区别？
+- Java 语言的编译器将 Java 代码编译成字节码，而不是机器码。字节码是一种与具体平台无关的中间代码。
+- Java 虚拟机（JVM）是运行 Java 字节码的虚拟机。
+  - JVM 有针对不同系统的特定实现（Windows，Linux，macOS），目的是使用相同的字节码，它们都会给出相同的结果。
+  - 字节码和不同系统的 JVM 实现是 Java 语言“一次编译，到处运行”的关键所在。
+- 如何读取
+  - 当执行 Java 程序时，JVM 首先搜索已经加载过的类，如果找不到该类，则会去系统的类路径下查找是否有该类的 .class 文件，然后进行加载、链接和初始化。
+  - 在 JVM 中，字节码文件的加载过程由类加载器完成。
+  - 类加载器负责从文件系统或网络中加载字节码文件，并将其转换为 JVM 内部的类对象。
+  - 类加载器还负责检查字节码文件的格式是否正确，以及检查该类是否已经被加载过。
+  - 如果字节码文件的格式正确且该类没有被加载过，则类加载器会将该字节码文件加载到 JVM 中，并生成一个代表该类的类对象。
+  - 这个类对象包含了该类的所有信息，例如类的名称、方法、变量等。
 
 #### 主线程的上下文如何传递给子线程
 - InheritableThreadLocal是ThreadLocal的一个子类，它可以在子线程中继承主线程的上下文信息。
 
-#### 性能问题
-- 在反射调用方法的例子中，我们先后调用了Class.forName，Class.getMethod，以及Method.invoke三个操作。其中Class.forName 会调用本地方法，
-  - Class.getMethod 会遍历该类的公有方法。如果没有匹配到它还会遍历父级的公有方法，可以知道这两个操作非常耗费时间。
-- Method.invoke 内部有两种实现，一个是 Native 版本，一个是 Java 版本；开始native版本，超过15次后编译成机器码，用java版本。
-  - Inflation 机制：java版本的生成需要比native长3倍，但生成之后，要比java的生成快20倍
-- 需要检查方法可见性
-- 需要校验参数
-- 反射方法难以内联
-- 因为动态加载的类型，所以无法进行JIT优化
+### java反射如何实现
+- 基于4个类：class（类对象），Constructor（构造器对象，包括无参数和有参数的构造函数），Field，Method
+- JVM层面能拿到class文件中的类内容，进而获取它的属性，方法，父类等
+- 应用
+  - 反射让开发人员可以通过外部类的全路径名创建对象，并使用这些类，实现一些扩展的功能。
+  - 反射让开发人员可以枚举出类的全部成员，包括构造函数、属性、方法。以帮助开发者写出正确的代码。
+  - 测试时可以利用反射 API 访问类的私有成员，以保证测试代码覆盖率。
+  - 反射机制是构建框架技术的基础所在，使用反射可以避免将代码写死在框架中。
+    - 举例：
+- 性能问题
+  - 在反射调用方法的例子中，我们先后调用了Class.forName，Class.getMethod，以及Method.invoke三个操作。其中Class.forName 会调用本地方法，
+      - Class.getMethod 会遍历该类的公有方法。如果没有匹配到它还会遍历父级的公有方法，可以知道这两个操作非常耗费时间。
+  - Method.invoke 内部有两种实现，一个是 Native 版本，一个是 Java 版本；开始native版本，超过15次后编译成机器码，用java版本。
+      - Inflation 机制：java版本的生成需要比native长3倍，但生成之后，要比java的生成快20倍
+  - 需要检查方法可见性
+  - 需要校验参数
+  - 反射方法难以内联
+  - 因为动态加载的类型，所以无法进行JIT优化
 
 
-#### 应用
-- 反射让开发人员可以通过外部类的全路径名创建对象，并使用这些类，实现一些扩展的功能。
-- 反射让开发人员可以枚举出类的全部成员，包括构造函数、属性、方法。以帮助开发者写出正确的代码。
-- 测试时可以利用反射 API 访问类的私有成员，以保证测试代码覆盖率。
-- 反射机制是构建框架技术的基础所在，使用反射可以避免将代码写死在框架中。
-  - 举例：
+
+
+
+
+
+
+
+
+
+
