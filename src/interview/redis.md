@@ -540,3 +540,19 @@
 
 #### 排查redis的大分片占用内存比例过高
 - dump下来rdb文件，分析下key的分布
+
+#### 分布式锁在Redis主从部署的情况下，主从节点延时怎么办
+- 使用 Redis Sentinel：
+  - Redis Sentinel 是 Redis 官方提供的一种高可用性解决方案，它可以监控 Redis 主从节点的状态，并在主节点故障时自动切换到从节点。
+  - 使用 Redis Sentinel 可以保证分布式锁的高可用性和可靠性。
+- 使用 Redlock 算法：Redlock 算法是一种基于多个 Redis 实例的分布式锁算法，它可以在多个 Redis 实例之间协调锁的获取和释放。
+  - Redlock 算法可以保证在大多数 Redis 实例正常运行的情况下，分布式锁的可靠性和高可用性。 
+- 使用 ZooKeeper：ZooKeeper 是一个分布式协调服务，它可以用于实现分布式锁。
+  - 使用 ZooKeeper 可以保证分布式锁的可靠性和高可用性，但是需要额外的开销和维护成本。
+
+### 单redis节点加锁
+- Redis节点上，即使Redis通过sentinel保证高可用，如果这个master节点由于某些原因发生了主从切换，那么就会出现锁丢失的情况： 
+  - 在Redis的master节点上拿到了锁；
+  - 但是这个加锁的key还没有同步到slave节点；
+  - master故障，发生故障转移，slave节点升级为master节点；
+  - 导致锁丢失。

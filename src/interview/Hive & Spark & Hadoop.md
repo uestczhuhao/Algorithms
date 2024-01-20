@@ -23,11 +23,14 @@
   - 源数据文件就存在大量的小文件
 - 合并
   - 打Har，合并为大文件
-  - 设置参数
+  - 设置参数（Hive作业）
     - mapred.max.split.size，每个Map最大输入大小；hive.merge.size.per.task，设置合并的大小
+    - sethive.merge.mapredfiles= true
   - 往动态分区插入数据时，在已经写好的SQL末尾加上distribute by rand()，打散后再设置每个reduce任务的文件大小
   - repartition()
   - coalesce()
+  - 降低spark并行度，即调节spark.sql.shuffle.partitions
+  - 新增一个并行度=1任务，专门合并小文件
 - 效果
   - 减少文件的元数据（文件名、权限等）
 
@@ -59,7 +62,9 @@
 - stage主要是基于Shuffle；以Actions算子为起点，从后向前回溯DAG，以Shuffle操作为边界去划分Stages
 - 每个Stage里task的数量由Stage最后一个RDD中的分区数决定
 - task优先级：PROCESS_LOCAL（进程）, NODE_LOCAL（节点，分为磁盘或同节点不同进程）, NO_PREF（无本地化）, RACK_LOCAL（机架）, ANY （任意）的顺序
-  - NO_PREF 排在 RACK_LOCAL 之前是因为在有些情况下，RACK_LOCAL 的获取成本可能比较高，例如网络负载较重、数据分布不均等情况下，此时获取 RACK_LOCAL 级别的数据需要进行网络传输，传输的成本较高，而获取 NO_PREF 级别的数据可以随机选择任何节点来获取，因此在这种情况下选择 NO_PREF 级别的本地化可能会更加高效。
+  - NO_PREF 排在 RACK_LOCAL 之前是因为在有些情况下，RACK_LOCAL 的获取成本可能比较高，
+  - 例如网络负载较重、数据分布不均等情况下，此时获取 RACK_LOCAL 级别的数据需要进行网络传输，传输的成本较高，
+  - 而获取 NO_PREF 级别的数据可以随机选择任何节点来获取，因此在这种情况下选择 NO_PREF 级别的本地化可能会更加高效。
 
 ### spark的分区
 - 在Spark集群中每个工作节点，可能都包含一个或多个分区。
@@ -166,7 +171,7 @@
       - Tungsten
         - 内存利用率更高
           - 二进制内存序列代替JVM对象的存储方式，提升CPU的存储效率，还能减少存储数据记录所需的对象个数，从而改善GC效率
-          - 基于Tungsten内存地址和内存页，同时管理堆内和对外地址
+          - 基于Tungsten内存地址和内存页，同时管理堆内和堆外地址
             - 堆内：前64位存储的是JVM堆内对象的引用或者说指针，后64位Offset存储的是数据在该对象内的偏移地址
             - 堆外：前64位存储的是null值，后64位则用于在堆外空间中直接寻址操作系统的内存空间
         - WSCG（WholeStageCodegen）：把多个RDD的compute函数捏合成一个，然后把这一个函数一次性地作用在输入数据上
@@ -218,10 +223,42 @@
   
 
 ### Hive和spark的倾斜区别？（本质是mr和spark的区别）为什么现在不用mr了，都用spark？
+- Hive是基于MapReduce的，而Spark是基于内存的。
+- 在Hive中，数据倾斜是一个常见的问题，因为MapReduce是一种基于磁盘的计算模型，它需要将数据写入磁盘并进行排序和分组操作。
+- 这些操作会导致一些任务比其他任务更慢，从而导致数据倾斜。
+- Spark使用内存进行计算，因此可以避免这种问题。
+- 此外，Spark还提供了许多优化技术，如动态分区和广播变量，以帮助处理数据倾斜问题。
+- 关于为什么现在不用MapReduce了，主要是因为Spark具有更高的性能和更好的扩展性，而且它还提供了更多的功能和API
 
 ### mr的工作原理，Combiner是干嘛的？计算模型和底层架构
+- MapReduce（MR）是一种分布式计算模型，用于处理大规模数据集。
+- 它的工作原理是将大型数据集分成小块，然后在多个计算机上并行处理这些块。
+- MapReduce计算模型由两个主要阶段组成：
+  - Map阶段和Reduce阶段。在Map阶段，数据被分割成小块，并在多个计算机上并行处理。
+  - 在Reduce阶段，Map阶段的输出被收集并合并，以生成最终结果。
+- Combiner是MapReduce的一个可选组件，它可以在Map阶段之后执行本地合并操作，以减少Reduce阶段的数据传输量。
+- Combiner通常用于执行本地聚合操作，例如计算平均值或求和。
+- MapReduce的底层架构包括一个主节点和多个工作节点。
+  - 主节点负责协调整个计算过程，而工作节点负责实际的计算任务
 
 ### Hadoop的整个生态系统和系统架构
+
+### spark on hive和hive on spark的区别
+- Spark on Hive
+  - Spark on Hive 是Hive只作为存储角色，Spark负责sql解析优化，执行。
+  - 这里可以理解为Spark 通过Spark SQL 使用Hive 语句操作Hive表 ,底层运行的还是 Spark RDD。
+  - 具体步骤如下：
+    - 通过SparkSQL，加载Hive的配置文件，获取到Hive的元数据信息；
+    - 获取到Hive的元数据信息之后可以拿到Hive表的数据；
+    - 通过SparkSQL来操作Hive表中的数据。
+- Hive on Spark
+  - Hive on Spark是Hive既作为存储又负责sql的解析优化，Spark负责执行。
+  - 这里Hive的执行引擎变成了Spark，不再是MR，这个要实现比Spark on Hive麻烦很多, 必须重新编译你的spark和导入jar包，不过目前大部分使用的确实是spark on hive。
+  - Hive默认使用MapReduce作为执行引擎，即Hive on MapReduce。
+  - 实际上，Hive还可以使用Tez和Spark作为其执行引擎，分别为Hive on Tez和Hive on Spark。
+  - 由于MapReduce中间计算均需要写入磁盘，而Spark是放在内存中，所以总体来讲Spark比MapReduce快很多。
+  - 因此，Hive on Spark也会比Hive on MapReduce快。由于Hive on MapReduce的缺陷，所以企业里基本上很少使用了。
+ 
 
 ### spark的宽窄依赖是怎么划分的？
 - 宽依赖，父RDD的一个分区会被子RDD的多个分区使用。

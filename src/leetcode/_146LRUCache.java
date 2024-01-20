@@ -5,6 +5,7 @@ package leetcode;
  * @date 20-1-28 下午5:08
  */
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -80,10 +81,8 @@ public class _146LRUCache {
         size = 0;
         head = new Node(-1, -1);
         tail = new Node(-1,-1);
-        head.prev = null;
         head.next = tail;
         tail.prev = head;
-        tail.next = null;
     }
 
     public int get(int key) {
