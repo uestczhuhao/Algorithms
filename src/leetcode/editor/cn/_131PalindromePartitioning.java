@@ -1,18 +1,18 @@
 package leetcode.editor.cn;
 
-//给定一个字符串 s，将 s 分割成一些子串，使每个子串都是回文串。 
+//给定一个字符串 s，将 s 分割成一些子串，使每个子串都是回文串。
 //
-// 返回 s 所有可能的分割方案。 
+// 返回 s 所有可能的分割方案。
 //
-// 示例: 
+// 示例:
 //
 // 输入: "aab"
 //输出:
 //[
 //  ["aa","b"],
 //  ["a","a","b"]
-//] 
-// Related Topics 深度优先搜索 动态规划 回溯算法 
+//]
+// Related Topics 深度优先搜索 动态规划 回溯算法
 // 👍 486 👎 0
 
 
@@ -24,7 +24,7 @@ import java.util.List;
 public class _131PalindromePartitioning {
     public static void main(String[] args) {
         Solution t = new _131PalindromePartitioning().new Solution();
-        String s = "aab";
+        String s = "aabab";
         System.out.println(t.partition(s));
     }
 

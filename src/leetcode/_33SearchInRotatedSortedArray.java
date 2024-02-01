@@ -5,11 +5,12 @@ package leetcode;
  */
 public class _33SearchInRotatedSortedArray {
     public static void main(String[] args) {
-        int[] nums = {4, 5, 6, 0, 1, 2, 3};
+//        int[] nums = {4, 5, 6, 0, 1, 2, 3};
+        int[] nums = {3, 1};
 //        System.out.println(findHeadIndex1(nums));
 //        System.out.println(search(nums, 3));
         _33SearchInRotatedSortedArray t = new _33SearchInRotatedSortedArray();
-        System.out.println(t.search1(nums, 3));
+        System.out.println(t.search1(nums, 1));
     }
 
     public static int search(int[] nums, int target) {
@@ -48,13 +49,16 @@ public class _33SearchInRotatedSortedArray {
 
         int low =0, high = nums.length -1;
         while (low <= high) {
-            int mid = low + (high - low) / 2;
+            // 如果向上取整，则nums[low] < nums[mid]
+            // 如果向下取整，则nums[low] <= nums[mid]
+            // 原因是向下取整时，low和high相差1时，low==mid，此时前半部分有序
+            int mid = low + (high - low + 1) / 2;
             if (target == nums[mid]) {
                 return mid;
             }
 
             // 前面一半有序
-            if (nums[low] <= nums[mid]) {
+            if (nums[low] < nums[mid]) {
                 // 前一半有序且target在前面一半
                 if (nums[low] <= target && target < nums[mid]) {
                     high = mid - 1;

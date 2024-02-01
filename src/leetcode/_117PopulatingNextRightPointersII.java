@@ -44,27 +44,27 @@ public class _117PopulatingNextRightPointersII {
         }
 
         // 下一层的头节点的前一个哨兵节点
-        Node nexLevelHead = new Node(-1);
-        Node curLevelIndex = root;
+        Node nexHead = new Node(-1);
+        Node curIndex = root;
         // 下一层的index指针
-        Node nexLevelIndex = nexLevelHead;
-        while (curLevelIndex != null) {
-            if (curLevelIndex.left != null) {
-                nexLevelIndex.next = curLevelIndex.left;
-                nexLevelIndex = nexLevelIndex.next;
+        Node nexIndex = nexHead;
+        while (curIndex != null) {
+            if (curIndex.left != null) {
+                nexIndex.next = curIndex.left;
+                nexIndex = nexIndex.next;
             }
-            if (curLevelIndex.right != null) {
-                nexLevelIndex.next = curLevelIndex.right;
-                nexLevelIndex = nexLevelIndex.next;
+            if (curIndex.right != null) {
+                nexIndex.next = curIndex.right;
+                nexIndex = nexIndex.next;
             }
 
-            if (curLevelIndex.next != null) {
+            if (curIndex.next != null) {
                 // 在本层依次往后走
-                curLevelIndex = curLevelIndex.next;
+                curIndex = curIndex.next;
             } else { // 本层遍历完了，进入下一层
-                curLevelIndex = nexLevelHead.next;
-                nexLevelHead.next = null;
-                nexLevelIndex = nexLevelHead;
+                curIndex = nexHead.next;
+                nexHead.next = null;
+                nexIndex = nexHead;
             }
         }
 

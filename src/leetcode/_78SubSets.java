@@ -53,7 +53,7 @@ public class _78SubSets {
     /**
      * 回溯，从第1项开始做深搜，直到数组的结尾
      * 然后一轮轮回溯，带入不同的后缀，直到遍历完所有的可能
-     * @param first 本轮的初始为止
+     * @param first 本轮的初始位置
      * @param currSubSet 目前为止的子集
      * @param nums 原数组
      */

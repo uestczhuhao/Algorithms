@@ -191,6 +191,14 @@
 ### WholeStageCodegen是算子融合吗？
 - 是的，参考Tungsten部分
 
+### 什么是火山模型，为什么火山模型效率低
+- 火山模型是一种数据库查询执行模型，它将 SQL 查询语句转换为一个 Operator 树，从根节点到叶子结点自上而下地递归调用 next() 函数。
+  - 每个 Operator 可以单独抽象实现，不需要关心其他 Operator 的逻辑，因此具有良好的可扩展性。
+  - 然而，火山模型的缺点在于每次都是计算一个 tuple（Tuple-at-a-time），这样会造成多次调用 next()，也就是造成大量的虚函数调用，这样会造成 CPU 的利用率不高。
+- 为了提高火山模型的性能，可以考虑以下两种优化方案：
+  - 编译执行：将 SQL 查询语句编译成机器码，避免了虚函数调用的开销，提高了 CPU 的利用率。 
+  - 向量化：将一次只取一条数据的操作改为一次取多条数据的操作，从而提高 CPU Cache 的命中率，进而提高 CPU 的利用率。
+
 ### Spark OOM怎么办 
 - 只有运行时区域，才有可能OOM
   - Reserved Memory大小固定为300MB，因为它是硬编码到源码中的，所以不受用户控制。
@@ -237,7 +245,7 @@
   - Map阶段和Reduce阶段。在Map阶段，数据被分割成小块，并在多个计算机上并行处理。
   - 在Reduce阶段，Map阶段的输出被收集并合并，以生成最终结果。
 - Combiner是MapReduce的一个可选组件，它可以在Map阶段之后执行本地合并操作，以减少Reduce阶段的数据传输量。
-- Combiner通常用于执行本地聚合操作，例如计算平均值或求和。
+  - Combiner通常用于执行本地聚合操作，例如计算平均值或求和。
 - MapReduce的底层架构包括一个主节点和多个工作节点。
   - 主节点负责协调整个计算过程，而工作节点负责实际的计算任务
 
@@ -253,7 +261,7 @@
     - 通过SparkSQL来操作Hive表中的数据。
 - Hive on Spark
   - Hive on Spark是Hive既作为存储又负责sql的解析优化，Spark负责执行。
-  - 这里Hive的执行引擎变成了Spark，不再是MR，这个要实现比Spark on Hive麻烦很多, 必须重新编译你的spark和导入jar包，不过目前大部分使用的确实是spark on hive。
+  - 这里Hive的执行引擎变成了Spark，不再是MR，这个要实现比Spark on Hive麻烦很多, 必须重新编译你的spark和导入jar包，因此目前大部分使用的确实是spark on hive。
   - Hive默认使用MapReduce作为执行引擎，即Hive on MapReduce。
   - 实际上，Hive还可以使用Tez和Spark作为其执行引擎，分别为Hive on Tez和Hive on Spark。
   - 由于MapReduce中间计算均需要写入磁盘，而Spark是放在内存中，所以总体来讲Spark比MapReduce快很多。

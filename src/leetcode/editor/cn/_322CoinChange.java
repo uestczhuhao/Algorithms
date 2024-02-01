@@ -78,20 +78,20 @@ public class _322CoinChange {
                 return -1;
             }
 
-            int[] minCoins = new int[amount + 1];
-            Arrays.fill(minCoins, Integer.MAX_VALUE);
-            minCoins[0] = 0;
+            int[] dp = new int[amount + 1];
+            Arrays.fill(dp, Integer.MAX_VALUE);
+            dp[0] = 0;
             for (int i = 1; i <= amount; i++) {
                 int curMinNum = Integer.MAX_VALUE;
                 for (int coin : coins) {
                     if (coin <= i) {
-                        curMinNum = Math.min(minCoins[i - coin], curMinNum);
+                        curMinNum = Math.min(dp[i - coin], curMinNum);
                     }
                 }
-                minCoins[i] = curMinNum == Integer.MAX_VALUE ? Integer.MAX_VALUE : curMinNum + 1;
+                dp[i] = curMinNum == Integer.MAX_VALUE ? Integer.MAX_VALUE : curMinNum + 1;
             }
 
-            return minCoins[amount] == Integer.MAX_VALUE ? -1 : minCoins[amount];
+            return dp[amount] == Integer.MAX_VALUE ? -1 : dp[amount];
         }
 
         /**

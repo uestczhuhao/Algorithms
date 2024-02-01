@@ -75,6 +75,16 @@ public class _162FindPeakElement {
                     low = mid + 1;
                 }
             }
+
+            // 以下的解法也可以过
+//            while (low < high) {
+//                mid = (low + high + 1) >> 1;
+//                if (nums[mid] > nums[mid - 1]) {
+//                    low = mid;
+//                } else {
+//                    high = mid - 1;
+//                }
+//            }
             return low;
         }
     }

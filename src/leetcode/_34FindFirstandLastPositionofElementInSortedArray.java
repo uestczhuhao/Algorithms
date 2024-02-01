@@ -105,7 +105,7 @@ public class _34FindFirstandLastPositionofElementInSortedArray {
             // 向上取整，避免死循环，例如left = 2，right = 3，且nums[left] == nums[right] == target时
             // 向上取证保证mid = 3，下一次退出，否则mid = 2，死循环
             int mid = left + (right - left + 1) / 2;
-            // 此时不能退出，要在右边寻找，试图找到target的第一次出现位置
+            // 此时不能退出，要在右边寻找，试图找到target的最后一次出现位置
             // 下一轮搜索区间是 [mid, right]
             if (nums[mid] == target) {
                 left = mid;

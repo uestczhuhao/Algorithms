@@ -75,8 +75,8 @@ public class _17LetterComPhNum {
     public static void main(String[] args) {
         _17LetterComPhNum t = new _17LetterComPhNum();
 
-        String digits = "21";
-        System.out.println(t.letterCombinations(digits));
+        String digits = "23";
+//        System.out.println(t.letterCombinations(digits));
         System.out.println(t.letterCombinations1(digits));
     }
 
